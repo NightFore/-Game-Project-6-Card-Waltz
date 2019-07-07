@@ -2,19 +2,23 @@ import pygame
 import os
 import time
 import random
+
+from Ressources import *
 pygame.init()
 
 
 
+############################################################
+
 """
-Settings
+    Settings
 """
 # Title
 project_title = "Card Waltz"
 pygame.display.set_caption(project_title)
 
 # Screen Size
-Screen_Size = display_width, display_height = 1280, 720
+Screen_Size = display_width, display_height = 800, 600
 gameDisplay = pygame.display.set_mode((display_width, display_height))
 
 # FPS
@@ -24,7 +28,7 @@ clock = pygame.time.Clock()
 
 
 """
-Tools
+    Tools Functions
 """
 class Tools():
     def __init__(self):
@@ -65,10 +69,16 @@ def Music_Play(Selection):
 
 
 
+def Quit_Game():
+    pygame.quit()
+    quit()
+
+
+
 ############################################################
-
-
-
+"""
+    Main Functions
+"""
 class Setup():
     def __init__(self):
         """
@@ -340,7 +350,7 @@ class Button():
 
         # Text
         if self.text != None:
-            font, color = eval("Text." + self.font)(self)
+            font, color = self.font()
             textSurf = font.render(self.text, True, color)
             textRect = textSurf.get_rect()
             textRect.center = self.x+self.w/2, self.y+self.h/2
@@ -406,3 +416,85 @@ class Button_Image():
 
     def display(self, index):
         gameDisplay.blit(self.image, self.rect)
+
+def Text_Title_Screen():
+    font = pygame.font.SysFont(None, 100)
+    color = Color_Title_Screen
+    return font, color
+
+def Text_Button():
+    font = pygame.font.SysFont(None, 40)
+    color = Color_Blue
+    return font, color
+
+def Text_Interface():
+    font = pygame.font.SysFont(None, 35)
+    color = Color_Black
+    return font, color
+
+
+
+############################################################
+"""
+    Ressources
+"""
+
+
+# Colors
+Color_Red           = 255, 20,  0
+Color_Green         = 60,  210, 120
+Color_Blue          = 0,   160, 230
+Color_Black         = 0,   0,   0
+Color_Grey          = 150, 170, 210
+Color_White         = 255, 255, 255
+
+Color_Button        = 140, 205, 245
+Color_Title_Screen  = 210, 100, 240
+
+
+
+base_card_fire  = pygame.image.load("Data\Graphics\Base_card_fire.png")
+base_card_water = pygame.image.load("Data\Graphics\Base_card_water.png")
+base_card_wind  = pygame.image.load("Data\Graphics\Base_card_wind.png")
+
+
+
+############################################################
+"""
+    Game Functions
+"""
+def Title_Screen():
+    # Setup
+    Setup.update_init()
+
+    # Text
+    Text(project_title, display_width/2, display_height/4, True, Text_Title_Screen)
+    Button(None, Text_Interface, 0, 200, 800, 400, 10, True, False, Color_Red, Color_Green, None, action=update_card)
+    update_card()
+    
+    # Loop
+    gameExit = False
+    while not gameExit:
+        Setup.update()
+        for event in Tools.events:
+            gameDisplay.blit(Player.card[0][0], (0,0))
+            if event.type == pygame.QUIT:
+                Quit_Game()
+
+
+
+class Player():
+    def __init__(self):
+        self.base_card  = [base_card_fire, base_card_water, base_card_wind]
+        self.base_level = [3, 3, 3]
+        self.card       = []
+Player = Player()
+
+
+def update_card():
+    type_card   = random.randint(0, 2)
+    Player.card = [[Player.base_card[type_card], Player.base_level[type_card] + random.randint(0, 3)]]
+
+
+
+Title_Screen()
