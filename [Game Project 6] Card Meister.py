@@ -13,7 +13,7 @@ pygame.init()
     Settings
 """
 # Title
-project_title = "Card Waltz"
+project_title = "Card Meister"
 pygame.display.set_caption(project_title)
 
 # Screen Size
@@ -451,7 +451,7 @@ Color_Button        = 140, 205, 245
 Color_Title_Screen  = 210, 100, 240
 
 
-
+base_card_ok    = pygame.image.load("Data\Graphics\Base_card_ok.png")
 base_card_fire  = pygame.image.load("Data\Graphics\Base_card_fire.png")
 base_card_water = pygame.image.load("Data\Graphics\Base_card_water.png")
 base_card_wind  = pygame.image.load("Data\Graphics\Base_card_wind.png")
@@ -468,7 +468,7 @@ def Title_Screen():
 
     # Text
     Text(project_title, display_width/2, display_height/4, True, Text_Title_Screen)
-    Button(None, Text_Interface, 0, 200, 800, 400, 10, True, False, Color_Red, Color_Green, None, action=PlayerIG.update_card)
+    Button(None, Text_Interface, 0, 200, 800, 200, 10, True, False, Color_Red, Color_Green, None, action=PlayerIG.update_card)
     PlayerIG.update_card()
     
     # Loop
@@ -478,7 +478,6 @@ def Title_Screen():
         for event in Tools.events:
             
             PlayerIG.display_card()
-            
             if event.type == pygame.QUIT:
                 Quit_Game()
 
@@ -498,8 +497,10 @@ class PlayerIG():
             self.card[index] = [self.base_card[type_card], self.base_level[type_card] + random.randint(0, 3)]
 
     def display_card(self):
+        gameDisplay.blit(base_card_ok, (55, 480))
+        
         for index in range(5):
-            gameDisplay.blit(PlayerIG.card[index][0], (65*index, 0))
+            gameDisplay.blit(PlayerIG.card[index][0], (120+65*index, 480))
         
 PlayerIG = PlayerIG()
 
