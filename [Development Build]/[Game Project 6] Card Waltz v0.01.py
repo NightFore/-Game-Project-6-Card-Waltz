@@ -3,7 +3,6 @@ import os
 import time
 import random
 
-from Ressources import *
 pygame.init()
 
 
