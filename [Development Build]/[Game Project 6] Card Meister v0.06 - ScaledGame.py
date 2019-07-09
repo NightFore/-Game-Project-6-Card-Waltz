@@ -1,75 +1,10 @@
 import pygame
 import os
+import sys
 import time
 import random
 
-pygame.init()
-
-
-
-############################################################
-"""
-    Settings
-"""
-# Title
-project_title = "Card Meister"
-pygame.display.set_caption(project_title)
-
-# Screen Size
-Screen_Size = display_width, display_height = 800, 600
-gameDisplay = pygame.display.set_mode((display_width, display_height))
-
-# FPS
-FPS = 60
-clock = pygame.time.Clock()
-
-
-
-"""
-    Tools Functions
-"""
-class Tools():
-    def __init__(self):
-        self.event          = ""    # Button
-        self.events         = ""    # Text
-Tools = Tools()
-
-
-
-def file_len(file):
-    with open(file) as f:
-        for i, l in enumerate(f):
-            pass
-    return i + 1
-
-
-
-def load_file(path, image=False):
-    """
-    Load    : All texts/images in directory. The directory must only contain texts/images.
-    Path    : The relative or absolute path to the directory to load texts/images from.
-    Image   : Load and convert image in the direcoty path.
-    Return  : List of files.
-    """
-    file = []
-    for file_name in os.listdir(path):
-        if image == False:
-            file.append(path + os.sep + file_name)
-        if image == True:
-            file.append(pygame.image.load(path + os.sep + file_name).convert())
-    return file
-
-    
-
-def Music_Play(Selection):
-    pygame.mixer.music.load(Selection)
-    pygame.mixer.music.play(-1)
-
-
-
-def Quit_Game():
-    pygame.quit()
-    quit()
+from pygame.locals import *
 
 
 
@@ -135,7 +70,7 @@ class Setup():
 
         
 
-    def update_init(self, background=None, music=None, button=False, sprite=False,  fight=False, text=False, story=False):
+    def update_init(self, background=False, music=False, button=False, sprite=False,  fight=False, text=False, story=False):
         """
         Update :
             Setup   : Load all states
@@ -165,7 +100,7 @@ class Setup():
         # Load
         self.background = background
 
-        if music != None: 
+        if music != False: 
             self.update_music(music)
 
             
@@ -178,7 +113,7 @@ class Setup():
             
         """
         pygame.display.update()
-        if self.background != None:
+        if self.background != False:
             gameDisplay.blit(self.background, (0,0))
             
         Tools.events = pygame.event.get()
@@ -434,6 +369,154 @@ def Text_Interface():
 
 ############################################################
 """
+    ScaledGame
+"""
+
+class ScaledGame(pygame.Surface):
+    game_size       = None
+    screen          = None
+    fs              = False #Fullscreen false to start
+    clock           = None
+    resize          = True
+    game_gap        = None
+    game_scaled     = None
+    title           = None
+    fps             = True
+    
+    def __init__(self, title, game_size):
+        pygame.init()
+
+        # Title
+        self.title = title
+        pygame.display.set_caption(self.title)
+
+        # Window Settings
+        self.game_size  = game_size
+        screen_info     = pygame.display.Info()                                 # Required to set a good resolution for the game screen
+        first_screen    = (screen_info.current_w, screen_info.current_h - 120)  # Take 120 pixels from the height because the menu bar, window bar and dock takes space
+
+        # self.screen     = pygame.display.set_mode(first_screen, RESIZABLE)
+        self.screen     = pygame.display.set_mode(game_size, RESIZABLE)
+        
+        pygame.Surface.__init__(self,self.game_size) #Sets up the Surface for the game.
+        self.game_gap   = (0,0)
+
+        # Game Settings
+        self.clock      = pygame.time.Clock()
+
+
+        
+    def get_resolution(self, ss, gs): 
+        gap = float(gs[0]) / float(gs[1])
+        sap = float(ss[0]) / float(ss[1])
+        if gap > sap:
+            #Game aspect ratio is greater than screen (wider) so scale width
+            factor = float(gs[0]) /float(ss[0])
+            new_h = gs[1]/factor #Divides the height by the factor which the width changes so the aspect ratio remians the same.
+            game_scaled = (ss[0],new_h)
+        elif gap < sap:
+            #Game aspect ratio is less than the screens.
+            factor = float(gs[1]) /float(ss[1])
+            new_w = gs[0]/factor #Divides the width by the factor which the height changes so the aspect ratio remians the same.
+            game_scaled = (new_w,ss[1])
+        else:
+            game_scaled = self.screen.get_size()
+        return game_scaled
+
+
+        
+    def update(self):
+        #Updates screen properly
+        win_size_done = False #Changes to True if the window size is got by the VIDEORESIZE event below
+        for event in pygame.event.get():
+            if event.type == VIDEORESIZE:
+                ss = [event.w, event.h]
+                self.resize = True
+                win_size_done = True
+                    
+        #Scale game to screen resolution, keeping aspect ratio
+        if self.resize == True:
+            if(win_size_done == False): #Sizes not gotten by resize event
+                ss = [self.screen.get_width(),self.screen.get_height()]
+            self.game_scaled = self.get_resolution(ss,self.game_size)
+            self.game_scaled = int(self.game_scaled[0]), int(self.game_scaled[1])
+            self.screen = pygame.display.set_mode(self.game_scaled,RESIZABLE)
+            
+        self.resize = False #Next time do not scale unless resize or fullscreen events occur
+        self.screen.blit(pygame.transform.scale(self,self.game_scaled),self.game_gap) #Add game to screen with the scaled size and gap required.
+        pygame.display.flip()
+        self.clock.tick(60)
+
+        # Display FPS in window title
+        if self.fps == True:
+            pygame.display.set_caption(self.title + " - " + str(int(self.clock.get_fps())) + "fps")
+
+
+
+############################################################
+"""
+    Settings
+"""
+
+# Title
+project_title = "Card Meister"
+
+# Screen Size
+Aspect_Ratio = display_width, display_height = 800, 600
+gameDisplay = ScaledGame(project_title, Aspect_Ratio)
+
+
+
+"""
+    Tools Functions
+"""
+class Tools():
+    def __init__(self):
+        self.event          = ""    # Button
+        self.events         = ""    # Text
+Tools = Tools()
+
+
+
+def file_len(file):
+    with open(file) as f:
+        for i, l in enumerate(f):
+            pass
+    return i + 1
+
+
+
+def load_file(path, image=False):
+    """
+    Load    : All texts/images in directory. The directory must only contain texts/images.
+    Path    : The relative or absolute path to the directory to load texts/images from.
+    Image   : Load and convert image in the direcoty path.
+    Return  : List of files.
+    """
+    file = []
+    for file_name in os.listdir(path):
+        if image == False:
+            file.append(path + os.sep + file_name)
+        if image == True:
+            file.append(pygame.image.load(path + os.sep + file_name).convert())
+    return file
+
+    
+
+def Music_Play(Selection):
+    pygame.mixer.music.load(Selection)
+    pygame.mixer.music.play(-1)
+
+
+
+def Quit_Game():
+    pygame.quit()
+    quit()
+
+
+
+############################################################
+"""
     Ressources
 """
 
@@ -469,7 +552,6 @@ icon_status_direwolf    = pygame.image.load("Data\Graphics\Icon_status_direwolf.
 def Title_Screen():
     # Setup
     Setup.update_init()
-    gameDisplay.blit(background, (0,0))
 
     # Text
     Button(None, Text_Interface, 400, 300, 800, 300, 10, True, True, Color_Red, Color_Green, None, action=PlayerIG.update_card)
@@ -478,8 +560,16 @@ def Title_Screen():
     gameExit = False
     while not gameExit:
         Setup.update()
-        for event in Tools.events:
+        gameDisplay.blit(background, (0,0))
+        pygame.draw.rect(gameDisplay, (200,0,0), (gameDisplay.get_width()/3, gameDisplay.get_height()/3, gameDisplay.get_width()/3, gameDisplay.get_height()/3))
+        gameDisplay.update()
+
+        for event in pygame.event.get():
             PlayerIG.display_card()
+            
+            if event.type == pygame.VIDEORESIZE:
+                print((event.w, event.h))
+
             if event.type == pygame.QUIT:
                 Quit_Game()
 
