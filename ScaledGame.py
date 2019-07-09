@@ -549,7 +549,7 @@ icon_status_direwolf    = pygame.image.load("Data\Graphics\Icon_status_direwolf.
 """
 def Title_Screen():
     # Setup
-    Setup.update_init()
+    Setup.update_init(background)
 
     # Text
     Button(None, Text_Interface, 400, 300, 800, 300, 10, True, True, Color_Red, Color_Green, None, action=PlayerIG.update_card)
@@ -557,10 +557,9 @@ def Title_Screen():
     # Loop
     gameExit = False
     while not gameExit:
-        Setup.update()
-        gameDisplay.blit(background, (0,0))
-        PlayerIG.display_card()
         gameDisplay.update()
+        Setup.update()
+        PlayerIG.display_card()
 
         for event in pygame.event.get():
             if event.type == pygame.VIDEORESIZE:
