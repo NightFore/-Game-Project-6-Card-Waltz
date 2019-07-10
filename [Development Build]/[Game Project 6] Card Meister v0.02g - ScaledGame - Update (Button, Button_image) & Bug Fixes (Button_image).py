@@ -1,6 +1,5 @@
 import pygame
 import os
-import sys
 import time
 import random
 
@@ -51,7 +50,6 @@ class Setup():
         self.all_sprites        = []    # Creates a sprite group and adds 'player' to it.
 
 
-
     def update_music(self, music):
         """
         Update : Load Music
@@ -60,7 +58,6 @@ class Setup():
             self.music = music
             pygame.mixer.music.load(music)
             pygame.mixer.music.play(-1)
-
         
 
     def update_init(self, background=None, music=None, button=False, sprite=False, text=False):
@@ -90,7 +87,6 @@ class Setup():
             self.update_music(music)
 
             
-
     def update(self):
         """
         Setup :
@@ -107,6 +103,7 @@ class Setup():
             Tools.event = event
 
         self.update_state()
+
 
     def update_state(self):
         """
@@ -131,7 +128,6 @@ class Setup():
                 for index in range(len(self.list_button_image)):
                     self.list_button_image[index].update(index)
 
-
         # Sprite
         if self.sprite == True:
             # Update & Display Sprite
@@ -146,17 +142,11 @@ class Setup():
                     if callable(self.list_sprite[index].action) == True:
                         self.list_sprite[index].button()
 
-
         # Text
         if self.text == True:
             for index in range(len(self.list_text)):
                 self.list_text[index].display()
-            
 Setup = Setup()
-
-
-
-
 
 
 
@@ -374,6 +364,7 @@ class Button_Image():
             self.rect_scaled =  pygame.Rect(self.x_scaled, self.y_scaled, self.w_scaled, self.h_scaled)
             self.resize = False
 
+
     def update(self, index):
         mouse = pygame.mouse.get_pos()
         self.update_scale()
@@ -388,6 +379,7 @@ class Button_Image():
         else:
             self.image = self.inactive
 
+
     def display(self, index):
         gameDisplay.blit(self.image, self.rect)
 
@@ -398,10 +390,12 @@ def Text_Title_Screen():
     color = Color_Title_Screen
     return font, color
 
+
 def Text_Button():
     font = pygame.font.SysFont(None, 40)
     color = Color_Blue
     return font, color
+
 
 def Text_Interface():
     font = pygame.font.SysFont(None, 35)
@@ -423,10 +417,10 @@ class ScaledGame(pygame.Surface):
     game_scaled     = None
     title           = None
     fps             = True
-
     factor_w        = 1
     factor_h        = 1
-    
+
+
     def __init__(self, title, game_size):
         pygame.init()
 
@@ -448,7 +442,6 @@ class ScaledGame(pygame.Surface):
         # Game Settings
         self.clock      = pygame.time.Clock()
 
-
         
     def get_resolution(self, ss, gs): 
         gap = float(gs[0]) / float(gs[1])
@@ -466,7 +459,6 @@ class ScaledGame(pygame.Surface):
         else:
             game_scaled = self.screen.get_size()
         return game_scaled
-
 
         
     def update(self):
@@ -510,10 +502,10 @@ class ScaledGame(pygame.Surface):
 # Title
 project_title = "Card Meister"
 
+
 # Screen Size
 Aspect_Ratio = display_width, display_height = 800, 600
 gameDisplay = ScaledGame(project_title, Aspect_Ratio)
-
 
 
 """
@@ -526,13 +518,11 @@ class Tools():
 Tools = Tools()
 
 
-
 def file_len(file):
     with open(file) as f:
         for i, l in enumerate(f):
             pass
     return i + 1
-
 
 
 def load_file(path, image=False):
@@ -550,12 +540,10 @@ def load_file(path, image=False):
             file.append(pygame.image.load(path + os.sep + file_name).convert())
     return file
 
-    
 
 def Music_Play(Selection):
     pygame.mixer.music.load(Selection)
     pygame.mixer.music.play(-1)
-
 
 
 def Quit_Game():
@@ -642,6 +630,7 @@ class PlayerIG():
             type_card   = random.randint(0, 2)
             self.card[0][index] = [type_card, self.base_level[type_card] + random.randint(0, 3)]
             self.card[1][index] = [type_card, self.base_level[type_card] + random.randint(0, 3)]
+
 
     def display_card(self):
         gameDisplay.blit(icon_status_iris,      (670, 485))
