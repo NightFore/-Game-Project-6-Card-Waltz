@@ -3,73 +3,7 @@ import os
 import time
 import random
 
-pygame.init()
-
-
-
-############################################################
-"""
-    Settings
-"""
-# Title
-project_title = "Card Meister"
-pygame.display.set_caption(project_title)
-
-# Screen Size
-Screen_Size = display_width, display_height = 800, 600
-gameDisplay = pygame.display.set_mode((display_width, display_height))
-
-# FPS
-FPS = 60
-clock = pygame.time.Clock()
-
-
-
-"""
-    Tools Functions
-"""
-class Tools():
-    def __init__(self):
-        self.event          = ""    # Button
-        self.events         = ""    # Text
-Tools = Tools()
-
-
-
-def file_len(file):
-    with open(file) as f:
-        for i, l in enumerate(f):
-            pass
-    return i + 1
-
-
-
-def load_file(path, image=False):
-    """
-    Load    : All texts/images in directory. The directory must only contain texts/images.
-    Path    : The relative or absolute path to the directory to load texts/images from.
-    Image   : Load and convert image in the direcoty path.
-    Return  : List of files.
-    """
-    file = []
-    for file_name in os.listdir(path):
-        if image == False:
-            file.append(path + os.sep + file_name)
-        if image == True:
-            file.append(pygame.image.load(path + os.sep + file_name).convert())
-    return file
-
-    
-
-def Music_Play(Selection):
-    pygame.mixer.music.load(Selection)
-    pygame.mixer.music.play(-1)
-
-
-
-def Quit_Game():
-    pygame.quit()
-    quit()
+from pygame.locals import *
 
 
 
@@ -107,13 +41,6 @@ class Setup():
         self.button = False
         self.sprite = False
         self.text   = False
-        
-        self.fight  = False
-        self.story  = False
-
-        self.inventory  = False
-        self.shop       = False
-        self.result     = False
 
         # State Update
         self.list_text          = []
@@ -121,7 +48,6 @@ class Setup():
         self.list_button_image  = []
         self.list_sprite        = []    # AnimatedSprite()
         self.all_sprites        = []    # Creates a sprite group and adds 'player' to it.
-
 
 
     def update_music(self, music):
@@ -132,10 +58,9 @@ class Setup():
             self.music = music
             pygame.mixer.music.load(music)
             pygame.mixer.music.play(-1)
-
         
 
-    def update_init(self, background=None, music=None, button=False, sprite=False,  fight=False, text=False, story=False):
+    def update_init(self, background=None, music=None, button=False, sprite=False, text=False):
         """
         Update :
             Setup   : Load all states
@@ -146,8 +71,6 @@ class Setup():
         # Setup
         self.button = button
         self.sprite = sprite
-        self.fight  = fight
-        self.story  = story
         self.text   = text
 
         # Reset
@@ -157,11 +80,6 @@ class Setup():
         self.all_sprites        = []    # Creates a sprite group and adds 'player' to it.
         self.list_text          = []
         
-        self.inventory  = False
-        self.shop       = False
-        self.status     = None
-        self.result     = False
-        
         # Load
         self.background = background
 
@@ -169,7 +87,6 @@ class Setup():
             self.update_music(music)
 
             
-
     def update(self):
         """
         Setup :
@@ -177,15 +94,16 @@ class Setup():
             Retrieves game events in global variables
             
         """
-        pygame.display.update()
         if self.background != None:
             gameDisplay.blit(self.background, (0,0))
+        
             
         Tools.events = pygame.event.get()
         for event in Tools.events:
             Tools.event = event
 
         self.update_state()
+
 
     def update_state(self):
         """
@@ -210,7 +128,6 @@ class Setup():
                 for index in range(len(self.list_button_image)):
                     self.list_button_image[index].update(index)
 
-
         # Sprite
         if self.sprite == True:
             # Update & Display Sprite
@@ -225,17 +142,11 @@ class Setup():
                     if callable(self.list_sprite[index].action) == True:
                         self.list_sprite[index].button()
 
-
         # Text
         if self.text == True:
             for index in range(len(self.list_text)):
                 self.list_text[index].display()
-            
 Setup = Setup()
-
-
-
-
 
 
 
@@ -324,18 +235,46 @@ class Button():
         self.selection  = selection
         self.action     = action
 
+        # Scale
+        self.factor_w       = 1
+        self.factor_h       = 1
+        self.x_scaled       = self.rect[0]
+        self.y_scaled       = self.rect[1]
+        self.w_scaled       = self.rect[2]
+        self.h_scaled       = self.rect[3]
+        self.rect_scaled    = self.rect
+        self.resize         = False
+
+
+    def update_scale(self):
+        if self.factor_w != gameDisplay.factor_w:
+            self.factor_w = gameDisplay.factor_w
+            self.x_scaled = self.rect[0] * self.factor_w
+            self.w_scaled = self.rect[2] * self.factor_w
+            self.resize   = True
+            
+        if self.factor_h != gameDisplay.factor_h:
+            self.factor_h = gameDisplay.factor_h
+            self.y_scaled = self.rect[1] * self.factor_h
+            self.h_scaled = self.rect[3] * self.factor_h
+            self.resize   = True
+
+        if self.resize == True:
+            self.rect_scaled =  pygame.Rect(self.x_scaled, self.y_scaled, self.w_scaled, self.h_scaled)
+            self.resize = False
+    
         
     def update(self, index):
         mouse = pygame.mouse.get_pos()
-        
-        if self.rect.collidepoint(mouse):
+        self.update_scale()
+
+        if self.rect_scaled.collidepoint(mouse):
             self.color = self.active
             if Tools.event.type == pygame.MOUSEBUTTONDOWN:
                 if self.action != None and self.selection != None:
                     self.action(self.selection)
                 elif self.action != None:
-                    self.action()
-                
+                    self.action()       
         else:
             self.color = self.inactive
         
@@ -396,39 +335,237 @@ class Button_Image():
         # Action
         self.selection  = selection
         self.action     = action
-    
-        
+
+        # Scale
+        self.factor_w       = 1
+        self.factor_h       = 1
+        self.x_scaled       = self.rect[0]
+        self.y_scaled       = self.rect[1]
+        self.w_scaled       = self.rect[2]
+        self.h_scaled       = self.rect[3]
+        self.rect_scaled    = self.rect
+        self.resize         = False
+
+
+    def update_scale(self):
+        if self.factor_w != gameDisplay.factor_w:
+            self.factor_w = gameDisplay.factor_w
+            self.x_scaled = self.rect[0] * self.factor_w
+            self.w_scaled = self.rect[2] * self.factor_w
+            self.resize   = True
+            
+        if self.factor_h != gameDisplay.factor_h:
+            self.factor_h = gameDisplay.factor_h
+            self.y_scaled = self.rect[1] * self.factor_h
+            self.h_scaled = self.rect[3] * self.factor_h
+            self.resize   = True
+
+        if self.resize == True:
+            self.rect_scaled =  pygame.Rect(self.x_scaled, self.y_scaled, self.w_scaled, self.h_scaled)
+            self.resize = False
+
+
     def update(self, index):
         mouse = pygame.mouse.get_pos()
+        self.update_scale()
         
-        if self.rect.collidepoint(mouse):
+        if self.rect_scaled.collidepoint(mouse):
             self.image = self.active
             if Tools.event.type == pygame.MOUSEBUTTONDOWN:
                 if self.action != None and self.selection != None:
                     self.action(self.selection)
                 elif self.action != None:
-                    self.action()
-                    
+                    self.action()         
         else:
             self.image = self.inactive
 
+
     def display(self, index):
         gameDisplay.blit(self.image, self.rect)
+
+
 
 def Text_Title_Screen():
     font = pygame.font.SysFont(None, 100)
     color = Color_Title_Screen
     return font, color
 
+
 def Text_Button():
     font = pygame.font.SysFont(None, 40)
     color = Color_Blue
     return font, color
 
+
 def Text_Interface():
     font = pygame.font.SysFont(None, 35)
     color = Color_Black
     return font, color
+
+
+
+############################################################
+"""
+    ScaledGame
+"""
+class ScaledGame(pygame.Surface):
+    game_size       = None
+    screen          = None
+    clock           = None
+    resize          = True
+    game_gap        = None
+    game_scaled     = None
+    title           = None
+    fps             = True
+    set_fullscreen  = False
+    factor_w        = 1
+    factor_h        = 1
+
+
+    def __init__(self, title, game_size):
+        pygame.init()
+
+        # Title
+        self.title = title
+        pygame.display.set_caption(self.title)
+
+        # Window Settings
+        self.game_size  = game_size
+        screen_info     = pygame.display.Info()                                 # Required to set a good resolution for the game screen
+        first_screen    = (screen_info.current_w, screen_info.current_h - 120)  # Take 120 pixels from the height because the menu bar, window bar and dock takes space
+
+        # self.screen     = pygame.display.set_mode(first_screen, RESIZABLE)
+        self.screen     = pygame.display.set_mode(game_size, RESIZABLE)
+        
+        pygame.Surface.__init__(self,self.game_size) #Sets up the Surface for the game.
+        self.game_gap   = (0,0)
+
+        # Game Settings
+        self.clock      = pygame.time.Clock()
+
+        
+    def get_resolution(self, ss, gs): 
+        gap = float(gs[0]) / float(gs[1])
+        sap = float(ss[0]) / float(ss[1])
+        if gap > sap:
+            #Game aspect ratio is greater than screen (wider) so scale width
+            factor = float(gs[0]) /float(ss[0])
+            new_h = gs[1]/factor #Divides the height by the factor which the width changes so the aspect ratio remains the same.
+            game_scaled = (ss[0],new_h)
+        elif gap < sap:
+            #Game aspect ratio is less than the screens.
+            factor = float(gs[1]) /float(ss[1])
+            new_w = gs[0]/factor #Divides the width by the factor which the height changes so the aspect ratio remains the same.
+            game_scaled = (new_w,ss[1])
+        else:
+            game_scaled = self.screen.get_size()
+        return game_scaled
+
+
+    def fullscreen(self):
+        if self.set_fullscreen == False:
+            self.screen = pygame.display.set_mode(self.game_size, FULLSCREEN)
+            self.set_fullscreen = True
+        
+        else:
+            self.resize = True
+            self.set_fullscreen = False
+
+
+    def update(self):
+        # Display FPS in window title
+        if self.fps == True:
+            pygame.display.set_caption(self.title + " - " + str(int(self.clock.get_fps())) + "fps")
+
+
+        #Updates screen properly
+        win_size_done = False #Changes to True if the window size is got by the VIDEORESIZE event below
+        for event in Tools.events:
+            if event.type == VIDEORESIZE:
+                ss = [event.w, event.h]
+                self.resize = True
+                win_size_done = True
+
+
+        # Fullscreen & Resize
+        if self.set_fullscreen == False:                
+            #Scale game to screen resolution, keeping aspect ratio
+            if self.resize == True:
+                if(win_size_done == False): #Sizes not gotten by resize event
+                    ss = [self.screen.get_width(),self.screen.get_height()]
+                self.game_scaled = self.get_resolution(ss,self.game_size)
+                self.game_scaled = int(self.game_scaled[0]), int(self.game_scaled[1])
+                self.screen = pygame.display.set_mode(self.game_scaled, RESIZABLE)
+
+                # Usable Variable
+                self.factor_w = self.game_scaled[0] / self.get_width()
+                self.factor_h = self.game_scaled[1] / self.get_height()
+                    
+            self.resize = False #Next time do not scale unless resize or fullscreen events occur
+            self.screen.blit(pygame.transform.scale(self,self.game_scaled), self.game_gap) #Add game to screen with the scaled size and gap required.
+
+        else:
+            self.screen.blit(self, self.game_gap)
+
+        pygame.display.flip()
+        self.clock.tick(60)
+
+
+
+############################################################
+"""
+    Settings
+"""
+# Title
+project_title = "Card Meister"
+
+
+# Screen Size
+Screen_size = display_width, display_height = 800, 600
+gameDisplay = ScaledGame(project_title, Screen_size)
+
+
+"""
+    Tools Functions
+"""
+class Tools():
+    def __init__(self):
+        self.event          = ""    # Button
+        self.events         = ""    # Text
+Tools = Tools()
+
+
+def file_len(file):
+    with open(file) as f:
+        for i, l in enumerate(f):
+            pass
+    return i + 1
+
+
+def load_file(path, image=False):
+    """
+    Load    : All texts/images in directory. The directory must only contain texts/images.
+    Path    : The relative or absolute path to the directory to load texts/images from.
+    Image   : Load and convert image in the direcoty path.
+    Return  : List of files.
+    """
+    file = []
+    for file_name in os.listdir(path):
+        if image == False:
+            file.append(path + os.sep + file_name)
+        if image == True:
+            file.append(pygame.image.load(path + os.sep + file_name).convert())
+    return file
+
+
+def Music_Play(Selection):
+    pygame.mixer.music.load(Selection)
+    pygame.mixer.music.play(-1)
+
+
+def Quit_Game():
+    pygame.quit()
+    quit()
 
 
 
@@ -456,6 +593,8 @@ base_card_fire  = pygame.image.load("Data\Graphics\Base_card_fire.png")
 base_card_water = pygame.image.load("Data\Graphics\Base_card_water.png")
 base_card_wind  = pygame.image.load("Data\Graphics\Base_card_wind.png")
 base_card_enemy = pygame.image.load("Data\Graphics\Base_card_enemy.png")
+button_exit_1   = pygame.image.load("Data\Graphics\Button_exit_1.png")
+button_exit_2   = pygame.image.load("Data\Graphics\Button_exit_2.png")
 
 icon_status_iris        = pygame.image.load("Data\Graphics\Icon_status_iris.png")
 icon_status_direwolf    = pygame.image.load("Data\Graphics\Icon_status_direwolf.png")
@@ -468,18 +607,20 @@ icon_status_direwolf    = pygame.image.load("Data\Graphics\Icon_status_direwolf.
 """
 def Title_Screen():
     # Setup
-    Setup.update_init()
-    gameDisplay.blit(background, (0,0))
+    Setup.update_init(background)
 
     # Text
     Button(None, Text_Interface, 400, 300, 800, 300, 10, True, True, Color_Red, Color_Green, None, action=PlayerIG.update_card)
+    Button_Image(0, 0, False, button_exit_1, button_exit_2, None, gameDisplay.fullscreen)
     
     # Loop
     gameExit = False
     while not gameExit:
+        gameDisplay.update()
         Setup.update()
+        PlayerIG.display_card()
+
         for event in Tools.events:
-            PlayerIG.display_card()
             if event.type == pygame.QUIT:
                 Quit_Game()
 
@@ -506,6 +647,7 @@ class PlayerIG():
             type_card   = random.randint(0, 2)
             self.card[0][index] = [type_card, self.base_level[type_card] + random.randint(0, 3)]
             self.card[1][index] = [type_card, self.base_level[type_card] + random.randint(0, 3)]
+
 
     def display_card(self):
         gameDisplay.blit(icon_status_iris,      (670, 485))

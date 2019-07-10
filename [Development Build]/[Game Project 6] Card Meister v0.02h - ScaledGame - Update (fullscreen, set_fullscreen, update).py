@@ -417,6 +417,7 @@ class ScaledGame(pygame.Surface):
     game_scaled     = None
     title           = None
     fps             = True
+    set_fullscreen  = False
     factor_w        = 1
     factor_h        = 1
 
@@ -460,11 +461,22 @@ class ScaledGame(pygame.Surface):
             game_scaled = self.screen.get_size()
         return game_scaled
 
+
+    def fullscreen(self):
+        if self.set_fullscreen == False:
+            self.screen = pygame.display.set_mode(self.game_size, FULLSCREEN)
+            self.set_fullscreen = True
         
+        else:
+            self.resize = True
+            self.set_fullscreen = False
+
+
     def update(self):
         # Display FPS in window title
         if self.fps == True:
             pygame.display.set_caption(self.title + " - " + str(int(self.clock.get_fps())) + "fps")
+
 
         #Updates screen properly
         win_size_done = False #Changes to True if the window size is got by the VIDEORESIZE event below
@@ -473,21 +485,27 @@ class ScaledGame(pygame.Surface):
                 ss = [event.w, event.h]
                 self.resize = True
                 win_size_done = True
-                    
-        #Scale game to screen resolution, keeping aspect ratio
-        if self.resize == True:
-            if(win_size_done == False): #Sizes not gotten by resize event
-                ss = [self.screen.get_width(),self.screen.get_height()]
-            self.game_scaled = self.get_resolution(ss,self.game_size)
-            self.game_scaled = int(self.game_scaled[0]), int(self.game_scaled[1])
-            self.screen = pygame.display.set_mode(self.game_scaled,RESIZABLE)
 
-            # Usable Variable
-            self.factor_w = self.game_scaled[0] / self.get_width()
-            self.factor_h = self.game_scaled[1] / self.get_height()
-            
-        self.resize = False #Next time do not scale unless resize or fullscreen events occur
-        self.screen.blit(pygame.transform.scale(self,self.game_scaled), self.game_gap) #Add game to screen with the scaled size and gap required.
+
+        # Fullscreen & Resize
+        if self.set_fullscreen == False:                
+            #Scale game to screen resolution, keeping aspect ratio
+            if self.resize == True:
+                if(win_size_done == False): #Sizes not gotten by resize event
+                    ss = [self.screen.get_width(),self.screen.get_height()]
+                self.game_scaled = self.get_resolution(ss,self.game_size)
+                self.game_scaled = int(self.game_scaled[0]), int(self.game_scaled[1])
+                self.screen = pygame.display.set_mode(self.game_scaled, RESIZABLE)
+
+                # Usable Variable
+                self.factor_w = self.game_scaled[0] / self.get_width()
+                self.factor_h = self.game_scaled[1] / self.get_height()
+                    
+            self.resize = False #Next time do not scale unless resize or fullscreen events occur
+            self.screen.blit(pygame.transform.scale(self,self.game_scaled), self.game_gap) #Add game to screen with the scaled size and gap required.
+
+        else:
+            self.screen.blit(self, self.game_gap)
 
         pygame.display.flip()
         self.clock.tick(60)
@@ -498,14 +516,13 @@ class ScaledGame(pygame.Surface):
 """
     Settings
 """
-
 # Title
 project_title = "Card Meister"
 
 
 # Screen Size
-Aspect_Ratio = display_width, display_height = 800, 600
-gameDisplay = ScaledGame(project_title, Aspect_Ratio)
+Screen_size = display_width, display_height = 800, 600
+gameDisplay = ScaledGame(project_title, Screen_size)
 
 
 """
@@ -594,7 +611,7 @@ def Title_Screen():
 
     # Text
     Button(None, Text_Interface, 400, 300, 800, 300, 10, True, True, Color_Red, Color_Green, None, action=PlayerIG.update_card)
-    Button_Image(0, 0, False, button_exit_1, button_exit_2, None, Title_Screen)
+    Button_Image(0, 0, False, button_exit_1, button_exit_2, None, gameDisplay.fullscreen)
     
     # Loop
     gameExit = False
