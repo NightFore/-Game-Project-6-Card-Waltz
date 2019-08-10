@@ -69,7 +69,7 @@ class Setup():
             self.update_music(music)
             
 
-    def update_1(self):
+    def update(self):
         """
         Setup :
             Update game screen and background
@@ -109,7 +109,6 @@ class Setup():
                     if length == len(self.list_button_image):
                         self.list_button_image[index].update(index)
 
-    def update_2(self):
         # Text
         if self.text == True:
             for index in range(len(self.list_text)):
@@ -651,23 +650,17 @@ icon_direwolf               = pygame.image.load("Data\Graphics\Icon_direwolf.png
 def Main_Screen():
     # Setup
     Setup.update_init(background)
-    MainIG.update_card()
+    MainIG.battle_init()
     
     Button_Image(0,     0, False, button_fullscreen_inactive,   button_fullscreen_active,   None, gameDisplay.fullscreen)
     Button_Image(760,   0, False, button_exit_inactive,         button_exit_active,         None, quit_game)
-
-    # Text
-    Button("Debug", Text_interface, 300, 415, 200, 40, 5, True, False, Color_Green, Color_Red, None, MainIG.update_card)
-
-    MainIG.battle_init()
 
     # Loop
     gameExit = False
     while not gameExit:
         gameDisplay.update()
-        Setup.update_1()
+        Setup.update()
         MainIG.update()
-        Setup.update_2()
         
         for event in Tools.events:    
             if event.type == pygame.QUIT:
@@ -768,19 +761,6 @@ class MainIG():
         # Update
         self.update_enemy(enemy)
         self.update_card()
-
-        # Name
-        Text("%s" % self.name[0], 589, 483, Text_interface, True)
-        Text("%s" % self.name[1], 213, 48,  Text_interface, True)
-
-        # Stats
-        Text("AGI: %s" % self.agility[0],  548, 558, Text_status, True)
-        Text("STR: %s" % self.strength[0], 628, 558, Text_status, True)
-        Text("DEF: %s" % self.defense[0],  708, 558, Text_status, True)
-        
-        Text("AGI: %s" % self.agility[1],  92,  123, Text_status, True)
-        Text("STR: %s" % self.strength[1], 172, 123, Text_status, True)
-        Text("DEF: %s" % self.defense[1],  252, 123, Text_status, True)
         
         Button_Image(55,  480, False, base_card_ok_inactive, base_card_ok_active, None, self.battle_update)
 
@@ -1049,9 +1029,17 @@ class MainIG():
             gameDisplay.blit(self.base_status[side],    (505-455*side, 460-435*side))
             gameDisplay.blit(self.icon[side],           (665-615*side, 460-435*side))
 
+            # Name
+            Text("%s" % self.name[side], 589-376*side, 483-435*side, Text_interface, True, False)
+            
             # Health
-            pygame.draw.rect(gameDisplay, Color_Green,  (510-375*side, 505-435*side, 155*self.health[side]/self.maxhealth[side], 35))
-            Text("Health: %s" % self.health[side],       589-376*side, 523-435*side, Text_interface, True, False)
+            pygame.draw.rect(gameDisplay, Color_Green, (510-375*side, 505-435*side, 155*self.health[side]/self.maxhealth[side], 35))
+            Text("Health: %s" % self.health[side], 589-376*side, 523-435*side, Text_interface, True, False)
+
+            # Stats
+            Text("AGI: %s" % self.agility[side],  548-456*side, 558-435*side, Text_status, True, False)
+            Text("STR: %s" % self.strength[side], 628-456*side, 558-435*side, Text_status, True, False)
+            Text("DEF: %s" % self.defense[side],  708-456*side, 558-435*side, Text_status, True, False)
 
             # Initiative (Battle Phase 2)
             if self.battle_phase == True:
