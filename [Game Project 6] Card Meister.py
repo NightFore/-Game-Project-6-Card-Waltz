@@ -252,9 +252,9 @@ class Button():
 
     def display(self, index):
         # Button
+        pygame.draw.rect(gameDisplay, self.color, self.rect)
         if self.border == True:
             pygame.draw.rect(gameDisplay, Color_Black, self.rect, self.b)
-        pygame.draw.rect(gameDisplay, self.color, self.rect)
 
         # Text
         if self.text != None:
@@ -654,7 +654,7 @@ sprite_iris                 = pygame.image.load("Data\Graphics\Sprite_iris.png")
 def Main_Screen():
     # Setup
     Setup.update_init(background)
-    MainIG.battle_init()
+    MainIG.update_init()
     
     Button_Image(0,     0, False, button_fullscreen_inactive,   button_fullscreen_active,   None, gameDisplay.fullscreen)
     Button_Image(760,   0, False, button_exit_inactive,         button_exit_active,         None, quit_game)
@@ -681,6 +681,7 @@ class Wolf():
         self.icon       = icon_direwolf
 
         self.base_level = [1, 1, 1]
+        self.base_stats = [6, 4, 2]
         self.experience = 15
         
         self.maxhealth  = 25
@@ -698,11 +699,11 @@ class Debug():
         self.icon       = icon_direwolf
 
         self.base_level = [1, 1, 1]
-        self.experience = 150
+        self.base_stats = [6, 6, 6]
+        self.experience = 10
         
-        self.maxhealth  = 1
+        self.maxhealth  = -1
         self.health     = self.maxhealth
-        self.stats      = [6, 6, 6]
         
         self.agility    = 1
         self.strength   = 1
@@ -763,19 +764,19 @@ class MainIG():
         self.name               = ["NightFore", "Wolf"]
         self.icon               = [icon_iris, icon_direwolf]
         
-        self.base_level         = [[2, 2, 2], [1, 1, 1]]
+        self.base_level         = [[3, 3, 3], [2, 2, 2]]
+        self.base_stats         = [ [6, 6, 6], [6, 6, 6] ]
         self.experience         = [100, 0]
         
         self.maxhealth          = [100, 100]
         self.health             = [self.maxhealth[0], self.maxhealth[1]]
-        self.stats              = [ [6, 6, 6], [6, 6, 6] ]
 
         self.agility            = [6, 6]
         self.strength           = [6, 6]
         self.defense            = [6, 6]
 
 
-    def battle_init(self, enemy=DebugIG):
+    def update_init(self, enemy=DebugIG):
         # Update
         self.update_enemy(enemy)
         self.update_card()
@@ -792,7 +793,7 @@ class MainIG():
         
         self.maxhealth[1]   = enemy.maxhealth
         self.health[1]      = enemy.health
-        self.stats[1]       = enemy.stats
+        self.base_stats[1]  = enemy.base_stats
 
         self.strength[1]    = enemy.strength
         self.agility[1]     = enemy.agility
@@ -806,7 +807,11 @@ class MainIG():
                 # Random Card Level & Type
                 for index in range(5):
                     random_type     = random.randint(0, 2)
-                    random_level    = random.randint(0, 3) + self.base_level[side][random_type]
+                    random_level    = random.randint(-2, 2) + self.base_level[side][random_type]
+
+                    while random_level < 1:
+                        random_level += 1
+                        
                     self.card[side][index] = [random_type, random_level]
 
                 # Sort Card
@@ -912,12 +917,12 @@ class MainIG():
     
             # Advantage
             elif (p_type == 0 and e_type == 2) or (p_type == 1 and e_type == 0) or (p_type == 2 and e_type == 1):
-                self.board_power[0] += 1 + self.base_level[0][self.element_type[0]]
+                self.board_power[0] += self.base_level[0][self.element_type[0]]
                 self.arrow  = self.arrow_player
 
             # Disavantage
             else:
-                self.board_power[1] += 1 + self.base_level[1][self.element_type[1]]
+                self.board_power[1] += self.base_level[1][self.element_type[1]]
                 self.arrow = self.arrow_enemy
 
         else:
@@ -1008,12 +1013,7 @@ class MainIG():
                 self.battle_phase   = False
                 self.phase_init[0]  = True
                 self.initiative     = [0, 0]
-
-                # Win Condition
-                if self.health[1] <= 0:
-                    self.battle = False
-                    Setup.update_init(background)
-                    Button_Image(755, 5, False, button_exit_inactive, button_exit_active, None, quit_game)
+                self.win_check()
         
     def update(self):
         if self.battle == True:
@@ -1108,20 +1108,49 @@ class MainIG():
 
             Text("Status Upgrade", 605, 25, Text_interface, True)
 
-            Card = ["Fire", "Water", "Wind"]
-            Statistics = ["Agility", "Strength", "Defense"]
+            Card        = ["Fire",      "Water",    "Wind"]
+            Statistics  = ["Agility",   "Strength", "Defense"]
             for index in range(3):
-                Text("15",                                      560, 105+110*index, Text_interface, True)
                 Text("%s"       % Card[index],                  640, 105+110*index, Text_interface, True)
-                Text("Lv %i"    % self.base_level[0][index],    745, 105+110*index, Text_interface, True)
-                
-                Text("10",                                      505, 410+55*index, Text_interface, True)
+                Text("LvL %i"   % self.base_level[0][index],    745, 105+110*index, Text_interface, True)
                 Text("%s"       % Statistics[index],            600, 410+55*index, Text_interface, True)
-                Text("Lv %i"    % self.stats[0][index],         720, 410+55*index, Text_interface, True)
+                Text("Lv %i"    % self.base_stats[0][index],    720, 410+55*index, Text_interface, True)
 
             Text("EXP: %i"  % self.experience[0], 520, 570, Text_interface, True)
-            Text("Cancel",  635, 570, Text_interface_2, True)
-            Text("Confirm", 740, 570, Text_interface_2, True)
+
+
+    def win_check(self):
+        # Win Condition
+        if self.health[1] <= 0:
+            self.battle = False
+            Setup.update_init(background)
+            Button_Image(755, 5, False, button_exit_inactive, button_exit_active, None, quit_game)
+
+            self.experience[0] += self.experience[1]
+
+            for index in range(3):            
+                Cost_card   = 15 + (self.base_level[0][index]-3) * (18 + (self.base_level[0][index]-4) * 2) / 2     # 15 - 24 - 35 - 48
+                Text("%i"       % Cost_card,                    560, 105+110*index, Text_interface, True)
+                Button("%i" % Cost_card,  Text_interface, 560, 105+110*index, 40, 40, 1, True, True, Color_Red, Color_Button, index, self.upgrade_card)
+                
+                Cost_stats  = 10 + (self.base_stats[0][index]-6) * (8  + (self.base_stats[0][index]-7) * 2) / 2     # 10 - 14 - 20 - 28
+                Button("%i" % Cost_stats, Text_interface, 505, 410+55*index,  40, 40, 1, True, True, Color_Red, Color_Button, index, self.upgrade_stats)
+
+            Button("Cancel",  Text_interface_2, 635, 570, 100, 40, 1, True, True, Color_Red, Color_Button, None, self.upgrade_cancel)                
+            Button("Confirm", Text_interface_2, 740, 570, 100, 40, 1, True, True, Color_Red, Color_Button, None, self.upgrade_confirm)
+
+
+    def upgrade_card(self, index):
+        print("card")
+    
+    def upgrade_stats(self, index):
+        print("stats")
+
+    def upgrade_cancel(self):
+        print("cancel")
+
+    def upgrade_confirm(self):
+        print("confirm")
              
 MainIG = MainIG()
 
