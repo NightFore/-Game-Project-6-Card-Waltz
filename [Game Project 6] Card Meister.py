@@ -655,9 +655,6 @@ def Main_Screen():
     # Setup
     Setup.update_init(background)
     MainIG.update_init()
-    
-    Button_Image(0,     0, False, button_fullscreen_inactive,   button_fullscreen_active,   None, gameDisplay.fullscreen)
-    Button_Image(760,   0, False, button_exit_inactive,         button_exit_active,         None, quit_game)
 
     # Loop
     gameExit = False
@@ -775,13 +772,29 @@ class MainIG():
         self.strength           = [6, 6]
         self.defense            = [6, 6]
 
+        # Upgrade    
+        self.cancel_experience  = 0
+        self.cancel_card        = [0, 0, 0]
+        self.cancel_stats       = [0, 0, 0]
+
 
     def update_init(self, enemy=DebugIG):
+        # Setup
+        Setup.update_init(Setup.background)
+
+        # Reset Battle State
+        self.battle = True
+        
         # Update
         self.update_enemy(enemy)
         self.update_card()
-        
-        Button_Image(55,  480, False, base_card_ok_inactive, base_card_ok_active, None, self.update_battle)
+
+        # Confirm Selection Button
+        Button_Image(55,  480, False, base_card_ok_inactive,        base_card_ok_active,        None, self.update_battle)
+
+        # Settings Buttons
+        Button_Image(0,     0, False, button_fullscreen_inactive,   button_fullscreen_active,   None, gameDisplay.fullscreen)
+        Button_Image(760,   0, False, button_exit_inactive,         button_exit_active,         None, quit_game)
 
 
     def update_enemy(self, enemy):
@@ -1102,6 +1115,9 @@ class MainIG():
 
 
 
+        """
+        Upgrade Screen
+        """
         if self.battle == False:
             gameDisplay.blit(base_status, (450, 0))
             gameDisplay.blit(sprite_iris, (20, 100))
@@ -1112,11 +1128,11 @@ class MainIG():
             Statistics  = ["Agility",   "Strength", "Defense"]
             for index in range(3):
                 Text("%s"       % Card[index],                  640, 105+110*index, Text_interface, True)
-                Text("LvL %i"   % self.base_level[0][index],    745, 105+110*index, Text_interface, True)
-                Text("%s"       % Statistics[index],            600, 410+55*index, Text_interface, True)
-                Text("Lv %i"    % self.base_stats[0][index],    720, 410+55*index, Text_interface, True)
+                Text("%s"       % Statistics[index],            600, 410+55*index,  Text_interface, True)
+                Text("LvL %i"   % (self.base_level[0][index] + self.cancel_card [index]), 745, 105+110*index, Text_interface, True)
+                Text("Lv %i"    % (self.base_stats[0][index] + self.cancel_stats[index]), 720, 410+55*index,  Text_interface, True)
 
-            Text("EXP: %i"  % self.experience[0], 520, 570, Text_interface, True)
+            Text("EXP: %i"  % (self.experience[0] + self.cancel_experience), 520, 570, Text_interface, True)
 
 
     def win_check(self):
@@ -1141,36 +1157,63 @@ class MainIG():
 
 
     def upgrade_card(self, index):
-        Cost_card   = 15 + (self.base_level[0][index]-3) * (18 + (self.base_level[0][index]-4) * 2) / 2
+        Experience  = self.experience[0] + self.cancel_experience
+        Level       = self.base_level[0][index] + self.cancel_card [index]
+        Cost        = 15 + (Level-3) * (18 + (Level-4) * 2) / 2
 
-        if self.experience[0] >= Cost_card:
-            Setup.list_button.remove(Button("%i" % Cost_card,  Text_interface, 560, 105+110*index, 40, 40, 1, True, True, Color_Red, Color_Button, index, self.upgrade_card))
+        if Experience >= Cost:
+            Setup.list_button.remove(Button("%i" % Cost,  Text_interface, 560, 105+110*index, 40, 40, 1, True, True, Color_Red, Color_Button, index, self.upgrade_card))
             
-            self.base_level[0][index] += 1
-            self.experience[0] -= Cost_card
+            self.cancel_experience   -= Cost
+            self.cancel_card [index] += 1
 
-            Cost_card   = 15 + (self.base_level[0][index]-3) * (18 + (self.base_level[0][index]-4) * 2) / 2
-            Button("%i" % Cost_card,  Text_interface, 560, 105+110*index, 40, 40, 1, True, True, Color_Red, Color_Button, index, self.upgrade_card)
+            Level  = self.base_level[0][index] + self.cancel_card [index]
+            Cost   = 15 + (Level-3) * (18 + (Level-4) * 2) / 2
+            
+            Button("%i" % Cost,  Text_interface, 560, 105+110*index, 40, 40, 1, True, True, Color_Red, Color_Button, index, self.upgrade_card)     
         
-    
     def upgrade_stats(self, index):
-        Cost_stats = 10 + (self.base_stats[0][index]-6) * (8  + (self.base_stats[0][index]-7) * 2) / 2
+        Experience  = self.experience[0] + self.cancel_experience
+        Level       = self.base_stats[0][index] + self.cancel_stats[index]
+        Cost        = 10 + (Level-6) * (8 + (Level-7) * 2) / 2
 
-        if self.experience[0] >= Cost_stats:
-            Setup.list_button.remove(Button("%i" % Cost_stats, Text_interface, 505, 410+55*index,  40, 40, 1, True, True, Color_Red, Color_Button, index, self.upgrade_stats))
+        if Experience >= Cost:
+            Setup.list_button.remove(Button("%i" % Cost, Text_interface, 505, 410+55*index,  40, 40, 1, True, True, Color_Red, Color_Button, index, self.upgrade_stats))
             
-            self.base_stats[0][index] += 1
-            self.experience[0] -= Cost_stats
-            
-            Cost_stats = 10 + (self.base_stats[0][index]-6) * (8  + (self.base_stats[0][index]-7) * 2) / 2
-            Button("%i" % Cost_stats, Text_interface, 505, 410+55*index,  40, 40, 1, True, True, Color_Red, Color_Button, index, self.upgrade_stats)
+            self.cancel_experience   -= Cost
+            self.cancel_stats[index] += 1
+
+            Level   = self.base_stats[0][index] + self.cancel_stats[index]
+            Cost    = 10 + (Level-6) * (8 + (Level-7) * 2) / 2
+        
+            Button("%i" % Cost, Text_interface, 505, 410+55*index,  40, 40, 1, True, True, Color_Red, Color_Button, index, self.upgrade_stats)
 
 
     def upgrade_cancel(self):
-        print("cancel")
+        self.cancel_experience  = 0
+        self.cancel_card        = [0, 0, 0]
+        self.cancel_stats       = [0, 0, 0]
+
+        for index in range (3):
+            Experience  = self.experience[0] + self.cancel_experience
+            Level       = self.base_level[0][index] + self.cancel_card [index]
+            Cost        = 15 + (Level-3) * (18 + (Level-4) * 2) / 2
+            Setup.list_button.remove(Button("%i" % Cost, Text_interface, 560, 105+110*index, 40, 40, 1, True, True, Color_Red, Color_Button, index, self.upgrade_card))
+            
+            Experience  = self.experience[0] + self.cancel_experience
+            Level       = self.base_stats[0][index] + self.cancel_card [index]
+            Cost        = 10 + (Level-6) * (8 + (Level-7) * 2) / 2
+            Setup.list_button.remove(Button("%i" % Cost, Text_interface, 505, 410+55*index,  40, 40, 1, True, True, Color_Red, Color_Button, index, self.upgrade_stats))
+            
+            Cost_card   = 15 + (self.base_level[0][index]-3) * (18 + (self.base_level[0][index]-4) * 2) / 2     # 15 - 24 - 35 - 48
+            Text("%i"       % Cost_card,                    560, 105+110*index, Text_interface, True)
+            Button("%i" % Cost_card,  Text_interface, 560, 105+110*index, 40, 40, 1, True, True, Color_Red, Color_Button, index, self.upgrade_card)
+            
+            Cost_stats  = 10 + (self.base_stats[0][index]-6) * (8  + (self.base_stats[0][index]-7) * 2) / 2     # 10 - 14 - 20 - 28
+            Button("%i" % Cost_stats, Text_interface, 505, 410+55*index,  40, 40, 1, True, True, Color_Red, Color_Button, index, self.upgrade_stats)
 
     def upgrade_confirm(self):
-        print("confirm")
+        self.update_init()
              
 MainIG = MainIG()
 
