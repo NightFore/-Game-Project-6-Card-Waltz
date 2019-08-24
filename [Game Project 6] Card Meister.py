@@ -1138,12 +1138,10 @@ class MainIG():
 
         for index in range(3):
             for upgrade_type in range(2):
-                Cost = self.upgrade_calculation(index, upgrade_type)
-                self.upgrade_button[upgrade_type][index] = Button("%i" % Cost, Text_interface, 560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, 40, 40, 1, True, True, Color_Red, Color_Button, (index, upgrade_type), self.upgrade_level) 
+                self.upgrade_button[upgrade_type][index] = Button(None, Text_interface, 560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, 40, 40, 1, True, True, Color_Red, Color_Button, (index, upgrade_type), self.upgrade_level) 
 
         Button("Cancel",  Text_interface_2, 635, 570, 100, 40, 1, True, True, Color_Red, Color_Button, None, self.upgrade_cancel)                
         Button("Confirm", Text_interface_2, 740, 570, 100, 40, 1, True, True, Color_Red, Color_Button, None, self.upgrade_confirm)
-
 
 
     def upgrade(self):
@@ -1159,10 +1157,13 @@ class MainIG():
                 Text("%s"       % Statistics[index],            600, 410+55*index,  Text_interface, True)
                 Text("LvL %i"   % (self.base_level[0][index] + self.cancel_level[0][index]), 745, 105+110*index, Text_interface, True)
                 Text("LvL %i"   % (self.base_stats[0][index] + self.cancel_level[1][index]), 720, 410+55*index,  Text_interface, True)
+                
+                for upgrade_type in range(2):
+                    Cost = self.upgrade_calculation(index, upgrade_type)
+                    Text("%i" % Cost, 560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, Text_interface, True)
 
             Text("EXP: %i"  % (self.experience[0] + self.cancel_experience), 520, 570, Text_interface, True)
             
-        
 
     def upgrade_level(self, index):
         index, upgrade_type = index[0], index[1]
@@ -1170,14 +1171,9 @@ class MainIG():
         Cost = self.upgrade_calculation(index, upgrade_type)
 
         if Experience >= Cost:
-            Setup.list_button.remove(self.upgrade_button[upgrade_type][index])
-
             self.cancel_experience -= Cost
             self.cancel_level[upgrade_type][index] += 1
-
-            Cost = self.upgrade_calculation(index, upgrade_type)
             
-            self.upgrade_button[upgrade_type][index] = Button("%i" % Cost, Text_interface, 560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, 40, 40, 1, True, True, Color_Red, Color_Button, (index, upgrade_type), self.upgrade_level) 
             
     def upgrade_calculation(self, index, upgrade_type):
         if upgrade_type == 0:
