@@ -584,11 +584,15 @@ base_2nd_phase              = pygame.image.load('Data\Graphics\Base_2nd_phase.pn
 base_initiative_attacker    = pygame.image.load('Data\Graphics\Base_initiative_attacker.png').convert()
 base_initiative_defender    = pygame.image.load('Data\Graphics\Base_initiative_defender.png').convert()
 
-base_status_player          = pygame.image.load("Data\Graphics\Base_status_player.png")
-base_status_enemy           = pygame.image.load("Data\Graphics\Base_status_enemy.png")
-base_hand_player            = pygame.image.load("Data\Graphics\Base_hand_player.png").convert()
+base_hand_player            = pygame.image.load("Data\Graphics\Base_hand_player.png")
 base_hand_enemy             = pygame.image.load("Data\Graphics\Base_hand_enemy.png").convert()
 base_board                  = pygame.image.load("Data\Graphics\Base_board.png").convert()
+
+base_status_player          = pygame.image.load("Data\Graphics\Base_status_player.png").convert()
+base_status_enemy           = pygame.image.load("Data\Graphics\Base_status_enemy.png").convert()
+
+icon_iris                   = pygame.image.load("Data\Graphics\Icon_iris.png").convert()
+icon_direwolf               = pygame.image.load("Data\Graphics\Icon_direwolf.png").convert()
 
 base_card_ok_inactive       = pygame.image.load("Data\Graphics\Base_card_ok_inactive.png").convert()
 base_card_ok_active         = pygame.image.load("Data\Graphics\Base_card_ok_active.png").convert()
@@ -643,9 +647,6 @@ button_fullscreen_active    = pygame.image.load("Data\Graphics\Button_fullscreen
 button_exit_inactive        = pygame.image.load("Data\Graphics\Button_exit_inactive.png").convert()
 button_exit_active          = pygame.image.load("Data\Graphics\Button_exit_active.png").convert()
 
-icon_iris                   = pygame.image.load("Data\Graphics\Icon_iris.png").convert()
-icon_direwolf               = pygame.image.load("Data\Graphics\Icon_direwolf.png").convert()
-
 base_status                 = pygame.image.load("Data\Graphics\Base_status.png")
 sprite_iris                 = pygame.image.load("Data\Graphics\Sprite_iris.png")
 
@@ -676,13 +677,10 @@ class Wolf():
     def __init__(self):
         self.name       = "Wolf"
         self.icon       = icon_direwolf
-        
         self.maxhealth  = 25
         self.health     = self.maxhealth
-        
         self.base_level = [ [1, 1, 1], [6, 4, 2] ]
         self.experience = 10
-        
 WolfIG = Wolf()
 
 
@@ -690,14 +688,13 @@ class Debug():
     def __init__(self):
         self.name       = "Debug"
         self.icon       = icon_direwolf
-        
         self.maxhealth  = -1
         self.health     = self.maxhealth
-        
         self.base_level = [ [2, 2, 2], [1, 2, 3] ]
-        self.experience = 50
-        
+        self.experience = 50   
 DebugIG = Debug()
+
+
 
 
 class MainIG():
@@ -714,7 +711,7 @@ class MainIG():
             Card Level  : self.card[0][index][1]
         """
         self.base_hand          = [base_hand_player,    base_hand_enemy]
-        self.base_card          = [base_card_fire,      base_card_water,    base_card_wind,     base_card_empty]
+        self.base_card          = [base_card_fire,      base_card_water,    base_card_wind]
         self.base_number        = [[None, base_number_red_1, base_number_red_2, base_number_red_3, base_number_red_4, base_number_red_5, base_number_red_6, base_number_red_7, base_number_red_8, base_number_red_9],
                                    [None, base_number_blue_1, base_number_blue_2, base_number_blue_3, base_number_blue_4, base_number_blue_5, base_number_blue_6, base_number_blue_7, base_number_blue_8, base_number_blue_9],
                                    [None, base_number_green_1, base_number_green_2, base_number_green_3, base_number_green_4, base_number_green_5, base_number_green_6, base_number_green_7, base_number_green_8, base_number_green_9]]
@@ -749,15 +746,13 @@ class MainIG():
 
         # Status
         self.base_status        = [base_status_player,  base_status_enemy]
-        
+
         self.name               = ["NightFore", "Wolf"]
         self.icon               = [icon_iris, icon_direwolf]
-        
-        self.base_level         = [ [ [3, 3, 3], [6, 6, 6] ], [ [2, 2, 2], [6, 6, 6] ] ] # [Player/Enemy][Stats Type][Stats]
-        self.experience         = [100, 0]
-        
         self.maxhealth          = [100, 100]
         self.health             = [self.maxhealth[0], self.maxhealth[1]]
+        self.base_level         = [ [ [3, 3, 3], [6, 6, 6] ], [ [3, 3, 3], [6, 6, 6] ] ]    # [Character][Type][Stats]
+        self.experience         = [100, 100]
         
         # Upgrade    
         self.cancel_experience  = 0
@@ -806,51 +801,59 @@ class MainIG():
     
     def battle_update(self):
         """
-        Interface (Card)
+        Interface
         """
         gameDisplay.blit(base_board, (235, 200))
-    
         for side in range(2):
-            gameDisplay.blit(self.base_hand[side], (50 +370*side, 475-450*side))
+            gameDisplay.blit(self.base_hand[side],      (50 +370*side, 475-450*side))
+            gameDisplay.blit(self.base_status[side],    (505-455*side, 460-435*side))
+            gameDisplay.blit(self.icon[side],           (665-615*side, 460-435*side))
+            pygame.draw.rect(gameDisplay, Color_Green, (510-375*side, 505-435*side, 155*self.health[side]/self.maxhealth[side], 35))
 
+
+        """
+        Card
+        """
+        for side in range(2):
             # Hand
             for index in range(5):
-                type_card   = self.card[side][index][0]
-                level_card  = self.card[side][index][1]
+                if self.hand[side][index] != None:
+                    type_card   = self.card[side][index][0]
+                    level_card  = self.card[side][index][1]
 
-                gameDisplay.blit(self.base_card[type_card], (120+65*index+305*side, 480-450*side))        
-                gameDisplay.blit(self.base_number[type_card][level_card], (120+65*index+305*side, 480-450*side)) 
+                    gameDisplay.blit(self.base_card[type_card],                 (120+65*index+305*side, 480-450*side))
+                    gameDisplay.blit(self.base_number[type_card][level_card],   (120+65*index+305*side, 480-450*side))
+                    
 
             # Board
             for index in range(len(self.board[side])):
                 type_card   = self.card[side][self.board[side][index]][0]
                 level_card  = self.card[side][self.board[side][index]][1]
                 
-                gameDisplay.blit(self.base_card[type_card], (305+65*index, 305-100*side))
-                gameDisplay.blit(self.base_number[type_card][level_card], (305+65*index, 305-100*side))
+                gameDisplay.blit(self.base_card[type_card],                 (305+65*index, 305-100*side))
+                gameDisplay.blit(self.base_number[type_card][level_card],   (305+65*index, 305-100*side))
 
 
         """
-        Interface (Status)
+        Status
         """
         for side in range(2):
-            # Character Interface
-            gameDisplay.blit(self.base_status[side],    (505-455*side, 460-435*side))
-            gameDisplay.blit(self.icon[side],           (665-615*side, 460-435*side))
+            Text("%s"           % self.name[side],              589-376*side, 483-435*side, Text_interface,   True)
+            Text("Health: %s"   % self.health[side],            589-376*side, 523-435*side, Text_interface,   True)
+            Text("AGI: %s"      % self.base_level[side][1][0],  548-456*side, 558-435*side, Text_interface_2, True)
+            Text("STR: %s"      % self.base_level[side][1][1],  628-456*side, 558-435*side, Text_interface_2, True)
+            Text("DEF: %s"      % self.base_level[side][1][2],  708-456*side, 558-435*side, Text_interface_2, True)
 
-            # Name
-            Text("%s" % self.name[side], 589-376*side, 483-435*side, Text_interface, True)
+
+        """
+        Battle
+        """
+        # Element Advantage
+        if self.arrow != None:
+            gameDisplay.blit(self.arrow, (170, 275))
             
-            # Health
-            pygame.draw.rect(gameDisplay, Color_Green, (510-375*side, 505-435*side, 155*self.health[side]/self.maxhealth[side], 35))
-            Text("Health: %s" % self.health[side], 589-376*side, 523-435*side, Text_interface, True)
-
-            # Stats
-            Text("AGI: %s" % self.base_level[side][1][0], 548-456*side, 558-435*side, Text_interface_2, True)
-            Text("STR: %s" % self.base_level[side][1][1], 628-456*side, 558-435*side, Text_interface_2, True)
-            Text("DEF: %s" % self.base_level[side][1][2], 708-456*side, 558-435*side, Text_interface_2, True)
-
-            # Initiative (Battle Phase 2)
+        for side in range(2):
+            # Initiative
             if self.state_transition == True:
                 gameDisplay.blit(self.base_initiative[self.initiative[side]],   (575, 320-100*side))
 
@@ -865,57 +868,51 @@ class MainIG():
             if self.advantage[side] == False:
                 gameDisplay.blit(self.base_board[self.element_type[side]],      (240, 305-100*side))
 
-        # Element Advantage
-        if self.arrow != None:
-            gameDisplay.blit(self.arrow, (170, 275))
-
         self.battle_unselect()
         self.battle_transition()
+
 
 
     def battle_enemy(self, enemy):
         self.name[1]        = enemy.name
         self.icon[1]        = enemy.icon
-        
         self.maxhealth[1]   = enemy.maxhealth
         self.health[1]      = enemy.health
-        
         self.base_level[1]  = enemy.base_level
         self.experience[1]  = enemy.experience
         
         
     def battle_card_phase_1(self):
-        # Update Card
+        # Reset Board
+        self.board = [ [], [] ]
+
+        # Generate card
         for side in range(2):
-            # Generate Card
             for index in range(5):
-                # Random Type & Level
+                # Random card type & level
                 random_type  = random.randint(0, 2)
                 random_level = random.randint(-2, 2) + self.base_level[side][0][random_type]
 
-                # Minimum Level
+                # Minimum level
                 while random_level < 1:
                     random_level += 1
                 
                 self.card[side][index] = [random_type, random_level]
 
-            # Sort Card
-            self.card[side] = sorted(self.card[side], key=itemgetter(1), reverse=True)  # Level
-            self.card[side] = sorted(self.card[side], key=itemgetter(0))  # Type
+            # Sort card
+            self.card[side]  = sorted(self.card[side], key=itemgetter(1), reverse=True)  # Level
+            self.card[side]  = sorted(self.card[side], key=itemgetter(0))                # Type
 
-            # Adding Card to Hand
+            # Add card to hand
             for index in range(5):
                 self.hand[side][index] = self.card[side][index][0]
 
-            # Reset Board
-            self.board[side] = []
 
-
-        # Play random Enemy Card
+        # Play enemy cards randomly
         while len(self.board[1]) == 0:
             for index in range(5):
                 if len(self.board[1]) < 4 and random.choice([True, False]) == True:
-                    self.hand[1][index] = self.base_card[3]
+                    self.hand[1][index] = None
                     self.board[1].append(index)
                 
         self.element_update()
@@ -925,20 +922,19 @@ class MainIG():
         # Reset Board
         self.board = [ [], [] ]
 
-        # Play remaning Enemy Card
-        for index in range(len(self.hand[1])):
+        # Play the remaining enemy cards
+        for index in range(5):
             if self.hand[1][index] != None:
-                self.hand[1][index] = self.base_card[3]
+                self.hand[1][index] = None
                 self.board[1].append(index)
-
+            
         self.element_update()
 
 
     def battle_select(self, index):
-        if len(self.board[0]) < 4 and self.hand[0][index] != self.base_card[3]:
-            self.hand[0][index] = self.base_card[3]
+        if len(self.board[0]) < 4 and self.hand[0][index] != None:
+            self.hand[0][index] = None
             self.board[0].append(index)
-
             self.element_update()
         
 
@@ -949,7 +945,6 @@ class MainIG():
                 
                 self.hand[0][index] = self.card[0][index][0]
                 self.board[0].remove(index)
-
                 self.element_update()
 
 
@@ -998,14 +993,14 @@ class MainIG():
             # Advantage
             elif (p_type == 0 and e_type == 2) or (p_type == 1 and e_type == 0) or (p_type == 2 and e_type == 1):
                 self.board_power[0] += self.base_level[0][0][self.element_type[0]]
-                self.arrow          = self.arrow_player
-                self.advantage      = [True, False]
+                self.arrow      = self.arrow_player
+                self.advantage  = [True, False]
 
             # Disavantage
             else:
                 self.board_power[1] += self.base_level[1][0][self.element_type[1]]
-                self.arrow          = self.arrow_enemy
-                self.advantage      = [False, True]
+                self.arrow      = self.arrow_enemy
+                self.advantage  = [False, True]
         else:
             self.arrow = None
             
@@ -1179,7 +1174,7 @@ class MainIG():
     def upgrade_confirm(self):
         self.cancel_experience  = 0
         self.cancel_level       = [ [0, 0, 0], [0, 0, 0] ]
-        self.update_init()
+        self.update_state(battle=True)
              
 MainIG = MainIG()
 
