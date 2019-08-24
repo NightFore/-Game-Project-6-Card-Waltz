@@ -658,7 +658,7 @@ sprite_iris                 = pygame.image.load("Data\Graphics\Sprite_iris.png")
 def Main_Screen():
     # Setup
     Setup.update_init(background)
-    MainIG.battle_init()
+    MainIG.update_state(battle=True)
 
     # Loop
     gameExit = False
@@ -740,9 +740,9 @@ class MainIG():
 
         # Phase Update
         self.base_phase         = [base_1st_phase, base_2nd_phase]
-        self.phase_init         = [True, False]
-        self.phase_x            = 800
-        self.phase_time         = 0
+        self.transition_init    = [True, False]
+        self.transition_x       = 800
+        self.transition_time         = 0
 
         # Status
         self.base_status        = [base_status_player,  base_status_enemy]
@@ -772,19 +772,27 @@ class MainIG():
             self.upgrade_update()
 
         elif self.gallery == True:
-            self.OST_gallery()
+            self.gallery_update()
             
 
     def update_state(self, battle=False, upgrade=False, gallery=False):
         self.battle     = battle
         self.upgrade    = upgrade
         self.gallery    = gallery
+
+        if self.battle == True:
+            self.battle_init()
+
+        elif self.upgrade == True:
+            self.upgrade_init()
+
+        elif self.gallery == True:
+            self.gallery_init
     
 
     def battle_init(self, enemy=WolfIG):
         # Setup
         Setup.update_init(self.background)
-        self.update_state(battle=True)
         
         # Update
         self.battle_enemy(enemy)
@@ -942,7 +950,6 @@ class MainIG():
         for event in Tools.events:
             if self.board[0] != [] and Tools.event.type == pygame.MOUSEBUTTONDOWN and Tools.event.button == 3:
                 index = self.board[0][len(self.board[0])-1]
-                
                 self.hand[0][index] = self.card[0][index][0]
                 self.board[0].remove(index)
                 self.element_update()
@@ -1003,6 +1010,7 @@ class MainIG():
                 self.advantage  = [False, True]
         else:
             self.arrow = None
+            self.advantage  = [False, False]
             
 
     def battle_phase(self):
@@ -1014,9 +1022,9 @@ class MainIG():
                         -Initiative Advantage
                         -Update base_initiative display
                     
-                    Update Card     : Reset Board and play Enemy remaining card
+                    Update Card         : Reset Board and play Enemy remaining card
                     state_transition    : Initiate Battle Phase 2
-                    Phase_init      : Transition 2nd Phase
+                    transition_init     : Transition 2nd Phase
                 """
                 p_initiative = self.board_power[0] + self.base_level[0][1][0]
                 e_initiative = self.board_power[1] + self.base_level[1][1][0]
@@ -1031,7 +1039,7 @@ class MainIG():
 
                 self.battle_card_phase_2()
                 self.state_transition   = True
-                self.phase_init[1]  = True
+                self.transition_init[1]      = True
 
             
             elif self.state_transition == True:
@@ -1041,10 +1049,10 @@ class MainIG():
                     Defense = Board_power + Defense
                     Damage  = Attack - Defense
                     
-                    Update Card     : Reset Board and Hand
+                    Update Card         : Reset Board and Hand
                     state_transition    : Initiate Battle Phase 1
-                    Phase_init      : Transition 1st Phase
-                    Initiative      : Reset initiative advantage
+                    transition_init     : Transition 1st Phase
+                    Initiative          : Reset initiative advantage
                 """
                 for side in range(2):
                     if self.initiative[side] == 1:
@@ -1058,7 +1066,7 @@ class MainIG():
                         
                 self.battle_card_phase_1()
                 self.state_transition   = False
-                self.phase_init[0]  = True
+                self.transition_init[0]  = True
                 self.initiative     = [0, 0]
                 self.battle_win()
             
@@ -1068,28 +1076,29 @@ class MainIG():
         Transparent image   : 1st Phase / 2nd Phase
         Setup.button        : Disable button during transition
 
-        Phase_init  : Initiate Phase Transition
-        Phase_x     : Slides 18 pixels to the left in each frame
-        Phase_time  : Sliding time (45 frames) / Waiting time (55 frames)
+        transition_init     : Initiate  Transition
+        transition_x        : Slides 18 pixels to the left in each frame
+        transition_time     : Sliding time (45 frames) / Waiting time (55 frames)
         """
         for index in range(2):
-            if self.phase_init[index] == True:
-                transparent_image(self.base_phase[index], self.phase_x, 225, 225, gameDisplay)
-                Setup.button    = False
-                self.phase_time += 1
+            if self.transition_init[index] == True:
+                Setup.button            = False
+                self.transition_time    += 1
+                transparent_image(self.base_phase[index], self.transition_x, 225, 225, gameDisplay)
                 
-                if self.phase_time < 45:
-                    self.phase_x -= 18
+                if self.transition_time < 45:
+                    self.transition_x -= 18
 
                 else:
-                    self.phase_x = 0
+                    self.transition_x = 0
 
-                #if self.phase_time >= 0:   (Debug Mode)
-                if self.phase_time >= 100:
-                    self.phase_init[index]  = False
-                    self.phase_x    = 800
-                    self.phase_time = 0
-                    Setup.button    = True
+                #if self.transition_time >= 0:   (Debug Mode)
+                if self.transition_time >= 100:
+                    self.transition_init[index] = False
+                    self.transition_x           = 800
+                    self.transition_time        = 0
+                    Setup.button                = True
+                    
 
 
     def battle_win(self):
@@ -1103,7 +1112,6 @@ class MainIG():
 
     def upgrade_init(self):
         Setup.update_init(self.background)
-        self.update_state(upgrade=True)
             
         self.experience[0] += self.experience[1]
 
