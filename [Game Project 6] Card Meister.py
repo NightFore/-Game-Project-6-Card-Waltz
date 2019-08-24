@@ -775,7 +775,6 @@ class MainIG():
         # Upgrade    
         self.cancel_experience  = 0
         self.cancel_level       = [ [0, 0, 0], [0, 0, 0] ]
-        self.upgrade_button     = [ [None, None, None,], [None, None, None] ]
 
 
     def update_init(self, enemy=DebugIG):
@@ -1138,7 +1137,7 @@ class MainIG():
 
         for index in range(3):
             for upgrade_type in range(2):
-                self.upgrade_button[upgrade_type][index] = Button(None, Text_interface, 560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, 40, 40, 1, True, True, Color_Red, Color_Button, (index, upgrade_type), self.upgrade_level) 
+                Button(None, Text_interface, 560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, 40, 40, 1, True, True, Color_Red, Color_Button, (index, upgrade_type), self.upgrade_level) 
 
         Button("Cancel",  Text_interface_2, 635, 570, 100, 40, 1, True, True, Color_Red, Color_Button, None, self.upgrade_cancel)                
         Button("Confirm", Text_interface_2, 740, 570, 100, 40, 1, True, True, Color_Red, Color_Button, None, self.upgrade_confirm)
@@ -1190,24 +1189,6 @@ class MainIG():
     def upgrade_cancel(self):
         self.cancel_experience  = 0
         self.cancel_level       = [ [0, 0, 0], [0, 0, 0] ]
-
-        for index in range (3):
-            Experience  = self.experience[0] + self.cancel_experience
-            Level       = self.base_level[0][index] + self.cancel_card[index]
-            Cost        = 15 + (Level-3) * (18 + (Level-4) * 2) / 2
-            Setup.list_button.remove(Button("%i" % Cost, Text_interface, 560, 105+110*index, 40, 40, 1, True, True, Color_Red, Color_Button, index, self.upgrade_card))
-            
-            Experience  = self.experience[0] + self.cancel_experience
-            Level       = self.base_stats[0][index] + self.cancel_card[index]
-            Cost        = 10 + (Level-6) * (8 + (Level-7) * 2) / 2
-            Setup.list_button.remove(Button("%i" % Cost, Text_interface, 505, 410+55*index,  40, 40, 1, True, True, Color_Red, Color_Button, index, self.upgrade_stats))
-            
-            Cost_card   = 15 + (self.base_level[0][index]-3) * (18 + (self.base_level[0][index]-4) * 2) / 2     # 15 - 24 - 35 - 48
-            Text("%i"       % Cost_card,                    560, 105+110*index, Text_interface, True)
-            Button("%i" % Cost_card,  Text_interface, 560, 105+110*index, 40, 40, 1, True, True, Color_Red, Color_Button, index, self.upgrade_card)
-            
-            Cost_stats  = 10 + (self.base_stats[0][index]-6) * (8  + (self.base_stats[0][index]-7) * 2) / 2     # 10 - 14 - 20 - 28
-            Button("%i" % Cost_stats, Text_interface, 505, 410+55*index,  40, 40, 1, True, True, Color_Red, Color_Button, index, self.upgrade_stats)
 
     def upgrade_confirm(self):
         self.update_init()
