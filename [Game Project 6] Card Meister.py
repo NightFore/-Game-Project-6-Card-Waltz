@@ -1099,7 +1099,7 @@ class MainIG():
         Upgrade Screen
         """
         if self.battle == False:
-            self.upgrade()
+            self.upgrade_update()
 
 
     def win_check(self):
@@ -1124,7 +1124,7 @@ class MainIG():
         Button("Confirm", Text_interface_2, 740, 570, 100, 40, 1, True, True, Color_Red, Color_Button, None, self.upgrade_confirm)
 
 
-    def upgrade(self):
+    def upgrade_update(self):
             gameDisplay.blit(base_status, (450, 0))
             gameDisplay.blit(sprite_iris, (20, 100))
 
@@ -1132,46 +1132,56 @@ class MainIG():
 
             Card        = ["Fire",      "Water",    "Wind"]
             Statistics  = ["Agility",   "Strength", "Defense"]
+            
             for index in range(3):
-                Text("%s"       % Card[index],       640, 105+110*index, Text_interface, True)
-                Text("%s"       % Statistics[index], 600, 410+55*index,  Text_interface, True)
-                Text("LvL %i"   % (self.base_level[0][0][index] + self.cancel_level[0][index]), 745, 105+110*index, Text_interface, True)
-                Text("LvL %i"   % (self.base_level[0][1][index] + self.cancel_level[1][index]), 720, 410+55*index,  Text_interface, True)
+                Text("%s" % Card[index],       640, 105+110*index, Text_interface, True)
+                Text("%s" % Statistics[index], 600, 410+55*index,  Text_interface, True)
                 
                 for upgrade_type in range(2):
-                    Cost = self.upgrade_calculation(index, upgrade_type)
-                    Text("%i" % Cost, 560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, Text_interface, True)
+                    Cost = self.upgrade_cost(index, upgrade_type)
+                    Text("%i"       % Cost,                                      560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, Text_interface, True)
+                    Text("LvL %i"   % (self.base_level[0][upgrade_type][index]), 745-25*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, Text_interface, True)
 
-            Text("EXP: %i"  % (self.experience[0] + self.cancel_experience), 520, 570, Text_interface, True)
+            Text("EXP: %i" % self.experience[0], 520, 570, Text_interface, True)
+            
+            
+    def upgrade_cost(self, index, upgrade_type):
+        Level = self.base_level[0][upgrade_type][index]
+        
+        if upgrade_type == 0:
+            Cost = 15 + (Level-3) * (18 + (Level-4) * 2) / 2
+
+        elif upgrade_type == 1:
+            Cost = 10 + (Level-6) * (8  + (Level-7) * 2) / 2
+
+        return Cost
             
 
     def upgrade_level(self, index):
         index, upgrade_type = index[0], index[1]
-        Experience  = self.experience[0] + self.cancel_experience
-        Cost        = self.upgrade_calculation(index, upgrade_type)
+        Cost = self.upgrade_cost(index, upgrade_type)
 
-        if Experience >= Cost:
+        if self.experience[0] >= Cost:
+            self.experience[0] -= Cost
+            self.base_level[0][upgrade_type][index] += 1
+
             self.cancel_experience -= Cost
             self.cancel_level[upgrade_type][index] += 1
-            
-            
-    def upgrade_calculation(self, index, upgrade_type):
-        if upgrade_type == 0:
-            Level   = self.base_level[0][0][index] + self.cancel_level[0][index]
-            Cost    = 15 + (Level-3) * (18 + (Level-4) * 2) / 2
-
-        elif upgrade_type == 1:
-            Level   = self.base_level[0][1][index] + self.cancel_level[1][index]
-            Cost    = 10 + (Level-6) * (8 + (Level-7) * 2) / 2
-
-        return Cost
 
 
     def upgrade_cancel(self):
+        self.experience[0] -= self.cancel_experience
+        
+        for upgrade_type in range(2):
+            for index in range(3):
+                self.base_level[0][upgrade_type][index] -= self.cancel_level[upgrade_type][index]
+                
         self.cancel_experience  = 0
         self.cancel_level       = [ [0, 0, 0], [0, 0, 0] ]
 
     def upgrade_confirm(self):
+        self.cancel_experience  = 0
+        self.cancel_level       = [ [0, 0, 0], [0, 0, 0] ]
         self.update_init()
              
 MainIG = MainIG()
