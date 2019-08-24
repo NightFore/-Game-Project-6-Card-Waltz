@@ -335,6 +335,7 @@ class Button_Image():
         if self.resize == True:
             self.rect_scaled =  pygame.Rect(self.x_scaled, self.y_scaled, self.w_scaled, self.h_scaled)
             self.resize = False
+            
 
 
     def update(self, index):
@@ -442,6 +443,8 @@ class ScaledGame(pygame.Surface):
     def fullscreen(self):
         if self.set_fullscreen == False:
             self.screen = pygame.display.set_mode(self.game_size, FULLSCREEN)
+            self.factor_w = 1
+            self.factor_h = 1
             self.set_fullscreen = True
         
         else:
@@ -559,8 +562,6 @@ def quit_game():
 """
     Ressources
 """
-
-
 # Colors
 Color_Red           = 255, 20,  0
 Color_Green         = 60,  210, 120
@@ -680,7 +681,7 @@ class Wolf():
         self.maxhealth  = 25
         self.health     = self.maxhealth
         
-        self.base_level = [ [3, 3, 3], [6, 6, 6] ]
+        self.base_level = [ [1, 1, 1], [6, 4, 2] ]
         self.experience = 10
         
 WolfIG = Wolf()
@@ -764,7 +765,7 @@ class MainIG():
         self.cancel_level       = [ [0, 0, 0], [0, 0, 0] ]
 
 
-    def update_init(self, enemy=DebugIG):
+    def update_init(self, enemy=WolfIG):
         # Setup
         Setup.update_init(Setup.background)
 
@@ -800,8 +801,8 @@ class MainIG():
             for side in range(2):
                 # Random Card Level & Type
                 for index in range(5):
-                    random_type     = random.randint(0, 2)
-                    random_level    = random.randint(-2, 2) + self.base_level[side][0][random_type]
+                    random_type  = random.randint(0, 2)
+                    random_level = random.randint(-2, 2) + self.base_level[side][0][random_type]
 
                     while random_level < 1:
                         random_level += 1
@@ -860,7 +861,7 @@ class MainIG():
         for event in Tools.events:
             if self.board[0] != [] and Tools.event.type == pygame.MOUSEBUTTONDOWN and Tools.event.button == 3:
                 index = self.board[0][len(self.board[0])-1]
-                card = self.base_card[self.card[0][index][0]]
+                card  = self.base_card[self.card[0][index][0]]
                 
                 self.hand[0][index] = Button_Image(120+65*index, 480, False, card, card, index, self.select_card)
                 self.board[0].remove(index)
@@ -883,8 +884,8 @@ class MainIG():
         
             if self.board[side] != []:
                 for index in range(len(self.board[side])):
-                    card_type   = self.card[side][self.board[side][index]][0]
-                    card_level  = self.card[side][self.board[side][index]][1]
+                    card_type  = self.card[side][self.board[side][index]][0]
+                    card_level = self.card[side][self.board[side][index]][1]
                     self.board_power[side][card_type] += card_level
                 
                 self.element_type[side] = self.board_power[side].index(max(self.board_power[side]))
@@ -944,8 +945,8 @@ class MainIG():
                 else:
                     self.phase_x = 0
 
-                #if self.phase_time >= 100:
-                if self.phase_time >= 0:
+                #if self.phase_time >= 0:   (Debug Mode)
+                if self.phase_time >= 100:
                     self.phase_init[index]  = False
                     self.phase_x    = 800
                     self.phase_time = 0
@@ -1162,11 +1163,11 @@ class MainIG():
         Cost = self.upgrade_cost(index, upgrade_type)
 
         if self.experience[0] >= Cost:
-            self.experience[0] -= Cost
+            self.experience[0]      -= Cost
             self.base_level[0][upgrade_type][index] += 1
 
-            self.cancel_experience -= Cost
-            self.cancel_level[upgrade_type][index] += 1
+            self.cancel_experience  -= Cost
+            self.cancel_level[upgrade_type][index]  += 1
 
 
     def upgrade_cancel(self):
