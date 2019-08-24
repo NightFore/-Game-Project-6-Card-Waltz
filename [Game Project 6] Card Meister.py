@@ -662,14 +662,11 @@ def Main_Screen():
     while not gameExit:
         gameDisplay.update()
         Setup.update()
-        MainIG.battle_update()
+        MainIG.update()
         
         for event in Tools.events:    
             if event.type == pygame.QUIT:
                 quit_game()
-
-
-
 
 
 
@@ -703,9 +700,8 @@ DebugIG = Debug()
 
 class MainIG():
     def __init__(self):
-        # Battle State
-        self.battle = True
-
+        # Setup
+        self.background = background
         
         # Card
         """
@@ -765,123 +761,127 @@ class MainIG():
         self.cancel_experience  = 0
         self.cancel_level       = [ [0, 0, 0], [0, 0, 0] ]
 
+        # State
+        self.battle             = False
+        self.upgrade            = False
+        self.gallery            = False
+
+
+    def update(self):
+        if self.battle == True:
+            self.battle_update()
+
+        elif self.upgrade == True:
+            self.upgrade_update()
+
+        elif self.gallery == True:
+            self.OST_gallery()
+            
+
+    def update_state(self, battle=False, upgrade=False):
+        self.battle     = battle
+        self.upgrade    = upgrade
+    
 
     def battle_init(self, enemy=WolfIG):
         # Setup
-        Setup.update_init(Setup.background)
-
-        # Reset Battle State
-        self.battle = True
+        Setup.update_init(self.background)
+        self.update_state(battle=True)
         
         # Update
         self.battle_enemy(enemy)
         self.battle_card_phase_1()
 
-        # Confirm Selection Button
+        # Button
         Button_Image(55,  480, False, base_card_ok_inactive,        base_card_ok_active,        None, self.battle_phase)
-
-        # Settings Buttons
         Button_Image(0,     0, False, button_fullscreen_inactive,   button_fullscreen_active,   None, gameDisplay.fullscreen)
         Button_Image(760,   0, False, button_exit_inactive,         button_exit_active,         None, quit_game)
         
     
     def battle_update(self):
-        if self.battle == True:
-            """
-            Interface (Card)
-            """
-            gameDisplay.blit(base_board, (235, 200))
+        """
+        Interface (Card)
+        """
+        gameDisplay.blit(base_board, (235, 200))
+    
+        for side in range(2):
+            gameDisplay.blit(self.base_hand[side], (50 +370*side, 475-450*side))
 
-            # Display Base_card
-            for side in range(2):
-                gameDisplay.blit(self.base_hand[side], (50 +370*side, 475-450*side))
+        # Base Card
+            # Hand
+            for index in range(5):
+                if self.hand[side][index] == None:
+                    gameDisplay.blit(base_card_empty, (120+65*index+305*side, 480-450*side))
 
-                # Hand - Display Hand card
-                for index in range(5):
-                    # Empty card
-                    if self.hand[side][index] == None:
-                        gameDisplay.blit(base_card_empty, (120+65*index+305*side, 480-450*side))
+                elif self.hand[1][index] != None:
+                    gameDisplay.blit(self.base_card[self.card[1][index][0]], (425+65*index, 30))                   
 
-                    # Enemy card
-                    elif self.hand[1][index] != None:
-                        gameDisplay.blit(self.base_card[self.card[1][index][0]], (425+65*index, 30))                   
+            # Board
+            len_board = len(self.board[side])
 
-                # Board - Display Board card
-                len_board = len(self.board[side])
+            for index in range(len_board):
+                type_card = self.card[side][self.board[side][index]][0]
+                gameDisplay.blit(self.base_card[type_card], (305+65*index, 305-100*side))
 
-                for index in range(len_board):
-                    type_card = self.card[side][self.board[side][index]][0]
-                    gameDisplay.blit(self.base_card[type_card], (305+65*index, 305-100*side))
+            for index in range(4-len_board):
+                gameDisplay.blit(base_card_empty, (500-65*index, 305-100*side))
 
-                for index in range(4-len_board):
-                    gameDisplay.blit(base_card_empty, (500-65*index, 305-100*side))
+        # Card Level
+            # Hand
+            for index in range(5):
+                if self.hand[side][index] != None:
+                    type_card   = self.card[side][index][0]
+                    level_card  = self.card[side][index][1]
+                    gameDisplay.blit(MainIG.base_number[type_card][level_card], (120+65*index+305*side, 480-450*side)) 
 
-
-            # Display Card Level
-                # Hand - Display Hand Level
-                for index in range(5):
-                    if self.hand[side][index] != None:
-                        type_card   = self.card[side][index][0]
-                        level_card  = self.card[side][index][1]
-                        gameDisplay.blit(MainIG.base_number[type_card][level_card], (120+65*index+305*side, 480-450*side)) 
-
-                # Board - Display Board Level
-                for index in range(len_board):
-                    type_card   = self.card[side][self.board[side][index]][0] 
-                    level_card  = self.card[side][self.board[side][index]][1]
-                    gameDisplay.blit(MainIG.base_number[type_card][level_card], (305+65*index, 305-100*side))
-
-
-            """
-            Interface (Status)
-            """
-            for side in range(2):
-                # Character Interface
-                gameDisplay.blit(self.base_status[side],    (505-455*side, 460-435*side))
-                gameDisplay.blit(self.icon[side],           (665-615*side, 460-435*side))
-
-                # Name
-                Text("%s" % self.name[side], 589-376*side, 483-435*side, Text_interface, True)
-                
-                # Health
-                pygame.draw.rect(gameDisplay, Color_Green, (510-375*side, 505-435*side, 155*self.health[side]/self.maxhealth[side], 35))
-                Text("Health: %s" % self.health[side], 589-376*side, 523-435*side, Text_interface, True)
-
-                # Stats
-                Text("AGI: %s" % self.base_level[side][1][0], 548-456*side, 558-435*side, Text_interface_2, True)
-                Text("STR: %s" % self.base_level[side][1][1], 628-456*side, 558-435*side, Text_interface_2, True)
-                Text("DEF: %s" % self.base_level[side][1][2], 708-456*side, 558-435*side, Text_interface_2, True)
-
-                # Initiative (Battle Phase 2)
-                if self.state_transition == True:
-                    gameDisplay.blit(self.base_initiative[self.initiative[side]],   (575, 320-100*side))
-
-                # Dominant Element
-                if self.element_type[side] != 3:
-                    gameDisplay.blit(self.base_banner[self.element_type[side]],     (160, 335-100*side))
-
-                    if self.advantage[side] == True:
-                        gameDisplay.blit(self.base_card[self.element_type[side]],   (240, 305-100*side))
-                        gameDisplay.blit(MainIG.base_number[self.element_type[side]][self.base_level[side][0][self.element_type[side]]], (240, 305-100*side))
-
-                if self.advantage[side] == False:
-                    gameDisplay.blit(self.base_board[self.element_type[side]],      (240, 305-100*side))
-
-
-            # Element Advantage
-            if self.arrow != None:
-                gameDisplay.blit(self.arrow, (170, 275))
-
-            self.battle_unselect()
-            self.battle_transition()
-
+            # Board
+            for index in range(len_board):
+                type_card   = self.card[side][self.board[side][index]][0] 
+                level_card  = self.card[side][self.board[side][index]][1]
+                gameDisplay.blit(MainIG.base_number[type_card][level_card], (305+65*index, 305-100*side))
 
 
         """
-        Upgrade Screen
+        Interface (Status)
         """
-        if self.battle == False:
-            self.upgrade_update()
+        for side in range(2):
+            # Character Interface
+            gameDisplay.blit(self.base_status[side],    (505-455*side, 460-435*side))
+            gameDisplay.blit(self.icon[side],           (665-615*side, 460-435*side))
+
+            # Name
+            Text("%s" % self.name[side], 589-376*side, 483-435*side, Text_interface, True)
+            
+            # Health
+            pygame.draw.rect(gameDisplay, Color_Green, (510-375*side, 505-435*side, 155*self.health[side]/self.maxhealth[side], 35))
+            Text("Health: %s" % self.health[side], 589-376*side, 523-435*side, Text_interface, True)
+
+            # Stats
+            Text("AGI: %s" % self.base_level[side][1][0], 548-456*side, 558-435*side, Text_interface_2, True)
+            Text("STR: %s" % self.base_level[side][1][1], 628-456*side, 558-435*side, Text_interface_2, True)
+            Text("DEF: %s" % self.base_level[side][1][2], 708-456*side, 558-435*side, Text_interface_2, True)
+
+            # Initiative (Battle Phase 2)
+            if self.state_transition == True:
+                gameDisplay.blit(self.base_initiative[self.initiative[side]],   (575, 320-100*side))
+
+            # Dominant Element
+            if self.element_type[side] != 3:
+                gameDisplay.blit(self.base_banner[self.element_type[side]],     (160, 335-100*side))
+
+                if self.advantage[side] == True:
+                    gameDisplay.blit(self.base_card[self.element_type[side]],   (240, 305-100*side))
+                    gameDisplay.blit(MainIG.base_number[self.element_type[side]][self.base_level[side][0][self.element_type[side]]], (240, 305-100*side))
+
+            if self.advantage[side] == False:
+                gameDisplay.blit(self.base_board[self.element_type[side]],      (240, 305-100*side))
+
+        # Element Advantage
+        if self.arrow != None:
+            gameDisplay.blit(self.arrow, (170, 275))
+
+        self.battle_unselect()
+        self.battle_transition()
 
 
     def battle_enemy(self, enemy):
@@ -1118,15 +1118,16 @@ class MainIG():
     def battle_win(self):
         # Win Condition
         if self.health[1] <= 0:
-            self.battle = False
-            Setup.update_init(background)
-            Button_Image(755, 5, False, button_exit_inactive, button_exit_active, None, quit_game)
-
             self.upgrade_init()
 
 
+############################################################
+
 
     def upgrade_init(self):
+        Setup.update_init(self.background)
+        self.update_state(upgrade=True)
+            
         self.experience[0] += self.experience[1]
 
         for index in range(3):
@@ -1135,6 +1136,7 @@ class MainIG():
 
         Button("Cancel",  Text_interface_2, 635, 570, 100, 40, 1, True, True, Color_Red, Color_Button, None, self.upgrade_cancel)                
         Button("Confirm", Text_interface_2, 740, 570, 100, 40, 1, True, True, Color_Red, Color_Button, None, self.upgrade_confirm)
+        Button_Image(755, 5, False, button_exit_inactive, button_exit_active, None, quit_game)
 
 
     def upgrade_update(self):
