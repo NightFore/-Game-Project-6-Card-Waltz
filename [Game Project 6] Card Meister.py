@@ -612,35 +612,35 @@ base_banner_fire            = pygame.image.load("Data\Graphics\Base_banner_fire.
 base_banner_water           = pygame.image.load("Data\Graphics\Base_banner_water.png").convert()
 base_banner_wind            = pygame.image.load("Data\Graphics\Base_banner_wind.png").convert()
 
-base_number_red_1           = pygame.image.load("Data\Graphics\Base_number_red_1.png")
-base_number_red_2           = pygame.image.load("Data\Graphics\Base_number_red_2.png")
-base_number_red_3           = pygame.image.load("Data\Graphics\Base_number_red_3.png")
-base_number_red_4           = pygame.image.load("Data\Graphics\Base_number_red_4.png")
-base_number_red_5           = pygame.image.load("Data\Graphics\Base_number_red_5.png")
-base_number_red_6           = pygame.image.load("Data\Graphics\Base_number_red_6.png")
-base_number_red_7           = pygame.image.load("Data\Graphics\Base_number_red_7.png")
-base_number_red_8           = pygame.image.load("Data\Graphics\Base_number_red_8.png")
-base_number_red_9           = pygame.image.load("Data\Graphics\Base_number_red_9.png")
+base_number_fire_1           = pygame.image.load("Data\Graphics\Base_number_fire_1.png").convert()
+base_number_fire_2           = pygame.image.load("Data\Graphics\Base_number_fire_2.png").convert()
+base_number_fire_3           = pygame.image.load("Data\Graphics\Base_number_fire_3.png").convert()
+base_number_fire_4           = pygame.image.load("Data\Graphics\Base_number_fire_4.png").convert()
+base_number_fire_5           = pygame.image.load("Data\Graphics\Base_number_fire_5.png").convert()
+base_number_fire_6           = pygame.image.load("Data\Graphics\Base_number_fire_6.png").convert()
+base_number_fire_7           = pygame.image.load("Data\Graphics\Base_number_fire_7.png").convert()
+base_number_fire_8           = pygame.image.load("Data\Graphics\Base_number_fire_8.png").convert()
+base_number_fire_9           = pygame.image.load("Data\Graphics\Base_number_fire_9.png").convert()
 
-base_number_blue_1          = pygame.image.load("Data\Graphics\Base_number_blue_1.png")
-base_number_blue_2          = pygame.image.load("Data\Graphics\Base_number_blue_2.png")
-base_number_blue_3          = pygame.image.load("Data\Graphics\Base_number_blue_3.png")
-base_number_blue_4          = pygame.image.load("Data\Graphics\Base_number_blue_4.png")
-base_number_blue_5          = pygame.image.load("Data\Graphics\Base_number_blue_5.png")
-base_number_blue_6          = pygame.image.load("Data\Graphics\Base_number_blue_6.png")
-base_number_blue_7          = pygame.image.load("Data\Graphics\Base_number_blue_7.png")
-base_number_blue_8          = pygame.image.load("Data\Graphics\Base_number_blue_8.png")
-base_number_blue_9          = pygame.image.load("Data\Graphics\Base_number_blue_9.png")
+base_number_water_1          = pygame.image.load("Data\Graphics\Base_number_water_1.png").convert()
+base_number_water_2          = pygame.image.load("Data\Graphics\Base_number_water_2.png").convert()
+base_number_water_3          = pygame.image.load("Data\Graphics\Base_number_water_3.png").convert()
+base_number_water_4          = pygame.image.load("Data\Graphics\Base_number_water_4.png").convert()
+base_number_water_5          = pygame.image.load("Data\Graphics\Base_number_water_5.png").convert()
+base_number_water_6          = pygame.image.load("Data\Graphics\Base_number_water_6.png").convert()
+base_number_water_7          = pygame.image.load("Data\Graphics\Base_number_water_7.png").convert()
+base_number_water_8          = pygame.image.load("Data\Graphics\Base_number_water_8.png").convert()
+base_number_water_9          = pygame.image.load("Data\Graphics\Base_number_water_9.png").convert()
 
-base_number_green_1         = pygame.image.load("Data\Graphics\Base_number_green_1.png")
-base_number_green_2         = pygame.image.load("Data\Graphics\Base_number_green_2.png")
-base_number_green_3         = pygame.image.load("Data\Graphics\Base_number_green_3.png")
-base_number_green_4         = pygame.image.load("Data\Graphics\Base_number_green_4.png")
-base_number_green_5         = pygame.image.load("Data\Graphics\Base_number_green_5.png")
-base_number_green_6         = pygame.image.load("Data\Graphics\Base_number_green_6.png")
-base_number_green_7         = pygame.image.load("Data\Graphics\Base_number_green_7.png")
-base_number_green_8         = pygame.image.load("Data\Graphics\Base_number_green_8.png")
-base_number_green_9         = pygame.image.load("Data\Graphics\Base_number_green_9.png")
+base_number_wind_1         = pygame.image.load("Data\Graphics\Base_number_wind_1.png").convert()
+base_number_wind_2         = pygame.image.load("Data\Graphics\Base_number_wind_2.png").convert()
+base_number_wind_3         = pygame.image.load("Data\Graphics\Base_number_wind_3.png").convert()
+base_number_wind_4         = pygame.image.load("Data\Graphics\Base_number_wind_4.png").convert()
+base_number_wind_5         = pygame.image.load("Data\Graphics\Base_number_wind_5.png").convert()
+base_number_wind_6         = pygame.image.load("Data\Graphics\Base_number_wind_6.png").convert()
+base_number_wind_7         = pygame.image.load("Data\Graphics\Base_number_wind_7.png").convert()
+base_number_wind_8         = pygame.image.load("Data\Graphics\Base_number_wind_8.png").convert()
+base_number_wind_9         = pygame.image.load("Data\Graphics\Base_number_wind_9.png").convert()
 
 button_fullscreen_inactive  = pygame.image.load("Data\Graphics\Button_fullscreen_inactive.png").convert()
 button_fullscreen_active    = pygame.image.load("Data\Graphics\Button_fullscreen_active.png").convert()
@@ -712,9 +712,9 @@ class MainIG():
         """
         self.base_hand          = [base_hand_player,    base_hand_enemy]
         self.base_card          = [base_card_fire,      base_card_water,    base_card_wind]
-        self.base_number        = [[None, base_number_red_1, base_number_red_2, base_number_red_3, base_number_red_4, base_number_red_5, base_number_red_6, base_number_red_7, base_number_red_8, base_number_red_9],
-                                   [None, base_number_blue_1, base_number_blue_2, base_number_blue_3, base_number_blue_4, base_number_blue_5, base_number_blue_6, base_number_blue_7, base_number_blue_8, base_number_blue_9],
-                                   [None, base_number_green_1, base_number_green_2, base_number_green_3, base_number_green_4, base_number_green_5, base_number_green_6, base_number_green_7, base_number_green_8, base_number_green_9]]
+        self.base_number        = [[None, base_number_fire_1,  base_number_fire_2,  base_number_fire_3,  base_number_fire_4,  base_number_fire_5,  base_number_fire_6,  base_number_fire_7,  base_number_fire_8,  base_number_fire_9],
+                                   [None, base_number_water_1, base_number_water_2, base_number_water_3, base_number_water_4, base_number_water_5, base_number_water_6, base_number_water_7, base_number_water_8, base_number_water_9],
+                                   [None, base_number_wind_1,  base_number_wind_2,  base_number_wind_3,  base_number_wind_4,  base_number_wind_5,  base_number_wind_6,  base_number_wind_7,  base_number_wind_8,  base_number_wind_9]]
 
         self.card               = [ [ [], [], [], [], [] ],  [ [], [], [], [], [] ] ]
         self.hand               = [[None, None, None, None, None], [None, None, None, None, None]]
@@ -830,7 +830,7 @@ class MainIG():
                     level_card  = self.card[side][index][1]
 
                     gameDisplay.blit(self.base_card[type_card],                 (120+65*index+305*side, 480-450*side))
-                    gameDisplay.blit(self.base_number[type_card][level_card],   (120+65*index+305*side, 480-450*side))
+                    gameDisplay.blit(self.base_number[type_card][level_card],   (143+65*index+305*side, 529-450*side))
                     
 
             # Board
@@ -839,7 +839,7 @@ class MainIG():
                 level_card  = self.card[side][self.board[side][index]][1]
                 
                 gameDisplay.blit(self.base_card[type_card],                 (305+65*index, 305-100*side))
-                gameDisplay.blit(self.base_number[type_card][level_card],   (305+65*index, 305-100*side))
+                gameDisplay.blit(self.base_number[type_card][level_card],   (328+65*index, 354-100*side))
 
 
         """
