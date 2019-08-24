@@ -733,6 +733,7 @@ class MainIG():
         self.element_type       = [3, 3]
 
         # Element Advantage
+        self.advantage          = [False, False]
         self.arrow              = base_arrow
         self.arrow_player       = self.arrow
         self.arrow_enemy        = pygame.transform.flip(self.arrow, False, True)
@@ -908,17 +909,20 @@ class MainIG():
 
             # Neutral
             if p_type == e_type:
-                self.arrow = None
+                self.arrow      = None
+                self.advantage  = [False, False]
     
             # Advantage
             elif (p_type == 0 and e_type == 2) or (p_type == 1 and e_type == 0) or (p_type == 2 and e_type == 1):
                 self.board_power[0] += self.base_level[0][0][self.element_type[0]]
-                self.arrow  = self.arrow_player
+                self.arrow          = self.arrow_player
+                self.advantage      = [True, False]
 
             # Disavantage
             else:
                 self.board_power[1] += self.base_level[1][0][self.element_type[1]]
-                self.arrow = self.arrow_enemy
+                self.arrow          = self.arrow_enemy
+                self.advantage      = [False, True]
 
         else:
             self.arrow = None
@@ -1084,8 +1088,14 @@ class MainIG():
                 # Dominant Element
                 if self.element_type[side] != 3:
                     gameDisplay.blit(self.base_banner[self.element_type[side]],     (160, 335-100*side))
-                    
-                gameDisplay.blit(self.base_board[self.element_type[side]],          (240, 305-100*side))
+
+                    if self.advantage[side] == True:
+                        gameDisplay.blit(self.base_card[self.element_type[side]],   (240, 305-100*side))
+                        gameDisplay.blit(MainIG.base_number[self.element_type[side]][self.base_level[side][0][self.element_type[side]]], (240, 305-100*side))
+
+                if self.advantage[side] == False:
+                    gameDisplay.blit(self.base_board[self.element_type[side]],      (240, 305-100*side))
+
 
             # Element Advantage
             if self.arrow != None:
