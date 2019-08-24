@@ -790,7 +790,7 @@ class MainIG():
             self.gallery_init
     
 
-    def battle_init(self, enemy=WolfIG):
+    def battle_init(self, enemy=DebugIG):
         # Setup
         Setup.update_init(self.background)
         
@@ -816,7 +816,7 @@ class MainIG():
             gameDisplay.blit(self.base_hand[side],      (50 +370*side, 475-450*side))
             gameDisplay.blit(self.base_status[side],    (505-455*side, 460-435*side))
             gameDisplay.blit(self.icon[side],           (665-615*side, 460-435*side))
-            pygame.draw.rect(gameDisplay, Color_Green, (510-375*side, 505-435*side, 155*self.health[side]/self.maxhealth[side], 35))
+            pygame.draw.rect(gameDisplay, Color_Green,  (510-375*side, 505-435*side, 155*self.health[side]/self.maxhealth[side], 35))
 
 
         """
@@ -871,7 +871,7 @@ class MainIG():
 
                 if self.advantage[side] == True:
                     gameDisplay.blit(self.base_card[self.element_type[side]],   (240, 305-100*side))
-                    gameDisplay.blit(MainIG.base_number[self.element_type[side]][self.base_level[side][0][self.element_type[side]]], (240, 305-100*side))
+                    gameDisplay.blit(self.base_number[self.element_type[side]][self.base_level[side][0][self.element_type[side]]], (263, 354-100*side))
 
             if self.advantage[side] == False:
                 gameDisplay.blit(self.base_board[self.element_type[side]],      (240, 305-100*side))
@@ -904,6 +904,10 @@ class MainIG():
                 # Minimum level
                 while random_level < 1:
                     random_level += 1
+
+                # Maximum level
+                if random_level > 9:
+                    random_level = 9
                 
                 self.card[side][index] = [random_type, random_level]
 
@@ -1092,8 +1096,8 @@ class MainIG():
                 else:
                     self.transition_x = 0
 
-                #if self.transition_time >= 0:   (Debug Mode)
-                if self.transition_time >= 100:
+                if self.transition_time >= 0: # Debug Mode
+                #if self.transition_time >= 100:
                     self.transition_init[index] = False
                     self.transition_x           = 800
                     self.transition_time        = 0
@@ -1104,7 +1108,7 @@ class MainIG():
     def battle_win(self):
         # Win Condition
         if self.health[1] <= 0:
-            self.upgrade_init()
+            self.update_state(upgrade=True)
 
 
 ############################################################
@@ -1130,17 +1134,13 @@ class MainIG():
 
             Text("Status Upgrade", 605, 25, Text_interface, True)
 
-            Card        = ["Fire",      "Water",    "Wind"]
-            Statistics  = ["Agility",   "Strength", "Defense"]
-            
-            for index in range(3):
-                Text("%s" % Card[index],       640, 105+110*index, Text_interface, True)
-                Text("%s" % Statistics[index], 600, 410+55*index,  Text_interface, True)
-                
-                for upgrade_type in range(2):
+            Statistics  = [ ["Fire",      "Water",    "Wind"], ["Agility",   "Strength", "Defense"] ]    
+            for upgrade_type in range(2):
+                for index in range(3):
                     Cost = self.upgrade_cost(index, upgrade_type)
-                    Text("%i"       % Cost,                                      560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, Text_interface, True)
-                    Text("LvL %i"   % (self.base_level[0][upgrade_type][index]), 745-25*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, Text_interface, True)
+                    Text("%i"       % Cost,                                     560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, Text_interface, True)
+                    Text("%s"       % Statistics[upgrade_type][index],          640-40*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, Text_interface, True)
+                    Text("LvL %i"   % self.base_level[0][upgrade_type][index],  745-25*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, Text_interface, True)
 
             Text("EXP: %i" % self.experience[0], 520, 570, Text_interface, True)
             
