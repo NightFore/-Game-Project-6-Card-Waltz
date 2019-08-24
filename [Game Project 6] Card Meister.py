@@ -655,14 +655,14 @@ sprite_iris                 = pygame.image.load("Data\Graphics\Sprite_iris.png")
 def Main_Screen():
     # Setup
     Setup.update_init(background)
-    MainIG.update_init()
+    MainIG.battle_init()
 
     # Loop
     gameExit = False
     while not gameExit:
         gameDisplay.update()
         Setup.update()
-        MainIG.update()
+        MainIG.battle_update()
         
         for event in Tools.events:    
             if event.type == pygame.QUIT:
@@ -741,7 +741,7 @@ class MainIG():
         # Battle Update
         self.base_initiative    = [base_initiative_defender, base_initiative_attacker]
         self.initiative         = [0, 0]
-        self.battle_phase       = False
+        self.state_transition       = False
 
         # Phase Update
         self.base_phase         = [base_1st_phase, base_2nd_phase]
@@ -766,7 +766,7 @@ class MainIG():
         self.cancel_level       = [ [0, 0, 0], [0, 0, 0] ]
 
 
-    def update_init(self, enemy=WolfIG):
+    def battle_init(self, enemy=WolfIG):
         # Setup
         Setup.update_init(Setup.background)
 
@@ -774,247 +774,18 @@ class MainIG():
         self.battle = True
         
         # Update
-        self.update_enemy(enemy)
-        self.update_card()
+        self.battle_enemy(enemy)
+        self.battle_card_phase_1()
 
         # Confirm Selection Button
-        Button_Image(55,  480, False, base_card_ok_inactive,        base_card_ok_active,        None, self.update_battle)
+        Button_Image(55,  480, False, base_card_ok_inactive,        base_card_ok_active,        None, self.battle_phase)
 
         # Settings Buttons
         Button_Image(0,     0, False, button_fullscreen_inactive,   button_fullscreen_active,   None, gameDisplay.fullscreen)
         Button_Image(760,   0, False, button_exit_inactive,         button_exit_active,         None, quit_game)
-
-
-    def update_enemy(self, enemy):
-        self.name[1]        = enemy.name
-        self.icon[1]        = enemy.icon
         
-        self.maxhealth[1]   = enemy.maxhealth
-        self.health[1]      = enemy.health
-        
-        self.base_level[1]  = enemy.base_level
-        self.experience[1]  = enemy.experience
-        
-        
-    def update_card(self, battle=False):
-        if battle == False:
-            # Update Card
-            for side in range(2):
-                # Random Card Level & Type
-                for index in range(5):
-                    random_type  = random.randint(0, 2)
-                    random_level = random.randint(-2, 2) + self.base_level[side][0][random_type]
-
-                    while random_level < 1:
-                        random_level += 1
-                        
-                    self.card[side][index] = [random_type, random_level]
-
-                # Sort Card
-                self.card[side] = sorted(self.card[side], key=itemgetter(1), reverse=True)  # Level
-                self.card[side] = sorted(self.card[side], key=itemgetter(0))  # Type
-
-                # Reset Board
-                self.board[side] = []
-
-
-            # Update Hand
-            for index in range(5):
-                if self.hand[0][index] in Setup.list_button_image:
-                    Setup.list_button_image.remove(self.hand[0][index])
-                    
-                card = self.base_card[self.card[0][index][0]]
-                self.hand[0][index] = Button_Image(120+65*index, 480, False, card, card, index, self.select_card)
-                self.hand[1][index] = self.card[1][index]
-
-
-            # Play random Enemy Card
-            while len(self.board[1]) == 0:
-                for index in range(5):
-                    if len(self.board[1]) < 4 and random.choice([True, False]) == True:
-                        self.hand[1][index] = None
-                        self.board[1].append(index)
-
-        elif battle == True:
-            # Reset Board
-            self.board = [ [], [] ]
-
-            # Play remaning Enemy Card
-            for index in range(len(self.hand[1])):
-                if self.hand[1][index] != None:
-                    self.hand[1][index] = None
-                    self.board[1].append(index)
-
-        self.element_update()
-
-
-    def select_card(self, index):
-        if len(self.board[0]) < 4 and self.hand[0][index] in Setup.list_button_image:
-            Setup.list_button_image.remove(self.hand[0][index])
-            
-            self.hand[0][index] = None
-            self.board[0].append(index)
-
-            self.element_update()
-        
-
-    def unselect_card(self):
-        for event in Tools.events:
-            if self.board[0] != [] and Tools.event.type == pygame.MOUSEBUTTONDOWN and Tools.event.button == 3:
-                index = self.board[0][len(self.board[0])-1]
-                card  = self.base_card[self.card[0][index][0]]
-                
-                self.hand[0][index] = Button_Image(120+65*index, 480, False, card, card, index, self.select_card)
-                self.board[0].remove(index)
-
-                self.element_update()
-
-
-    def element_update(self):
-        """
-        Element Type:
-            Card            : self.card[side][self.board[side][index]] ([0] = Type / [1] = Level)
-            Element_type    : Highest power of element in play
-            Board_Element   : Update board card element 
-            Banner_element  : Update banner element
-
-            Board_power     : Total power of cards in play
-        """
-        for side in range(2):
-            self.board_power[side]  = [0, 0, 0]
-        
-            if self.board[side] != []:
-                for index in range(len(self.board[side])):
-                    card_type  = self.card[side][self.board[side][index]][0]
-                    card_level = self.card[side][self.board[side][index]][1]
-                    self.board_power[side][card_type] += card_level
-                
-                self.element_type[side] = self.board_power[side].index(max(self.board_power[side]))
-
-            else:
-                self.element_type[side] = 3
-
-            self.board_power[side] = sum(self.board_power[side])
-
-        """
-        Element Advantage
-            p_type      : Player's element
-            e_type      : Enemy's element
-            Neutral     : No advantage
-            Advantage   : Player advantage  (Damage = 1 + Board_power + p_type Card Level)
-            Disavantage : Enemy advantage   (Damage = 1 + Board_power + e_type Card Level)  
-        """
-        if self.element_type[0] != 3 and self.element_type[1] != 3:
-            p_type, e_type = self.element_type[0], self.element_type[1]
-
-            # Neutral
-            if p_type == e_type:
-                self.arrow      = None
-                self.advantage  = [False, False]
     
-            # Advantage
-            elif (p_type == 0 and e_type == 2) or (p_type == 1 and e_type == 0) or (p_type == 2 and e_type == 1):
-                self.board_power[0] += self.base_level[0][0][self.element_type[0]]
-                self.arrow          = self.arrow_player
-                self.advantage      = [True, False]
-
-            # Disavantage
-            else:
-                self.board_power[1] += self.base_level[1][0][self.element_type[1]]
-                self.arrow          = self.arrow_enemy
-                self.advantage      = [False, True]
-
-        else:
-            self.arrow = None
-            
-
-    def phase_update(self):
-        """
-        Transparent image   : 1st Phase / 2nd Phase
-        Setup.button        : Disable button during transition
-
-        Phase_init  : Initiate Phase Transition
-        Phase_x     : Slides 18 pixels to the left in each frame
-        Phase_time  : Sliding time (45 frames) / Waiting time (55 frames)
-        """
-        for index in range(2):
-            if self.phase_init[index] == True:
-                transparent_image(self.base_phase[index], self.phase_x, 225, 225, gameDisplay)
-                Setup.button    = False
-                self.phase_time += 1
-                
-                if self.phase_time < 45:
-                    self.phase_x -= 18
-
-                else:
-                    self.phase_x = 0
-
-                #if self.phase_time >= 0:   (Debug Mode)
-                if self.phase_time >= 100:
-                    self.phase_init[index]  = False
-                    self.phase_x    = 800
-                    self.phase_time = 0
-                    Setup.button    = True
-            
-
-    def update_battle(self):
-        if self.board[0] != []:
-            if self.battle_phase == False:
-                """
-                Battle Phase 1 : Initiative Phase   (Battle_phase == False)
-                    Initiative = Board_power + Agility
-                        -Initiative Advantage
-                        -Update base_initiative display
-                    
-                    Update Card     : Reset Board and play Enemy remaining card
-                    Battle_phase    : Initiate Battle Phase 2
-                    Phase_init      : Transition 2nd Phase
-                """
-                p_initiative = self.board_power[0] + self.base_level[0][1][0]
-                e_initiative = self.board_power[1] + self.base_level[1][1][0]
-                
-                # Player Initiative
-                if p_initiative >= e_initiative:
-                    self.initiative[0] = 1
-
-                # Enemy Initiative
-                else:
-                    self.initiative[1] = 1
-
-                self.update_card(battle=True)
-                self.battle_phase   = True
-                self.phase_init[1]  = True
-
-            
-            elif self.battle_phase == True:
-                """
-                Battle Phase 2 : Attack Phase       (Battle_phase == True)
-                    Attack  = Board_power + Strength
-                    Defense = Board_power + Defense
-                    Damage  = Attack - Defense
-                    
-                    Update Card     : Reset Board and Hand
-                    Battle_phase    : Initiate Battle Phase 1
-                    Phase_init      : Transition 1st Phase
-                    Initiative      : Reset initiative advantage
-                """
-                for side in range(2):
-                    if self.initiative[side] == 1:
-                        damage = (self.board_power[side] + self.base_level[side][1][1]) - (self.board_power[1-side] + self.base_level[1-side][1][2])
-
-                        if damage > 0:
-                            self.health[1-side] -= damage
-                            
-                            if self.health[1-side] < 0:
-                                self.health[1-side] = 0
-                        
-                self.update_card()
-                self.battle_phase   = False
-                self.phase_init[0]  = True
-                self.initiative     = [0, 0]
-                self.win_check()
-        
-    def update(self):
+    def battle_update(self):
         if self.battle == True:
             """
             Interface (Card)
@@ -1082,7 +853,7 @@ class MainIG():
                 Text("DEF: %s" % self.base_level[side][1][2], 708-456*side, 558-435*side, Text_interface_2, True)
 
                 # Initiative (Battle Phase 2)
-                if self.battle_phase == True:
+                if self.state_transition == True:
                     gameDisplay.blit(self.base_initiative[self.initiative[side]],   (575, 320-100*side))
 
                 # Dominant Element
@@ -1101,8 +872,8 @@ class MainIG():
             if self.arrow != None:
                 gameDisplay.blit(self.arrow, (170, 275))
 
-            self.unselect_card()
-            self.phase_update()
+            self.battle_unselect()
+            self.battle_transition()
 
 
 
@@ -1113,7 +884,238 @@ class MainIG():
             self.upgrade_update()
 
 
-    def win_check(self):
+    def battle_enemy(self, enemy):
+        self.name[1]        = enemy.name
+        self.icon[1]        = enemy.icon
+        
+        self.maxhealth[1]   = enemy.maxhealth
+        self.health[1]      = enemy.health
+        
+        self.base_level[1]  = enemy.base_level
+        self.experience[1]  = enemy.experience
+        
+        
+    def battle_card_phase_1(self):
+        # Update Card
+        for side in range(2):
+            # Random Card Level & Type
+            for index in range(5):
+                random_type  = random.randint(0, 2)
+                random_level = random.randint(-2, 2) + self.base_level[side][0][random_type]
+
+                while random_level < 1:
+                    random_level += 1
+                    
+                self.card[side][index] = [random_type, random_level]
+
+            # Sort Card
+            self.card[side] = sorted(self.card[side], key=itemgetter(1), reverse=True)  # Level
+            self.card[side] = sorted(self.card[side], key=itemgetter(0))  # Type
+
+            # Reset Board
+            self.board[side] = []
+
+
+        # Update Hand
+        for index in range(5):
+            if self.hand[0][index] in Setup.list_button_image:
+                Setup.list_button_image.remove(self.hand[0][index])
+                
+            card = self.base_card[self.card[0][index][0]]
+            self.hand[0][index] = Button_Image(120+65*index, 480, False, card, card, index, self.battle_select)
+            self.hand[1][index] = self.card[1][index]
+
+
+        # Play random Enemy Card
+        while len(self.board[1]) == 0:
+            for index in range(5):
+                if len(self.board[1]) < 4 and random.choice([True, False]) == True:
+                    self.hand[1][index] = None
+                    self.board[1].append(index)
+                
+        self.element_update()
+
+
+    def battle_card_phase_2(self):
+        # Reset Board
+        self.board = [ [], [] ]
+
+        # Play remaning Enemy Card
+        for index in range(len(self.hand[1])):
+            if self.hand[1][index] != None:
+                self.hand[1][index] = None
+                self.board[1].append(index)
+
+        self.element_update()
+
+
+    def battle_select(self, index):
+        if len(self.board[0]) < 4 and self.hand[0][index] in Setup.list_button_image:
+            Setup.list_button_image.remove(self.hand[0][index])
+            
+            self.hand[0][index] = None
+            self.board[0].append(index)
+
+            self.element_update()
+        
+
+    def battle_unselect(self):
+        for event in Tools.events:
+            if self.board[0] != [] and Tools.event.type == pygame.MOUSEBUTTONDOWN and Tools.event.button == 3:
+                index = self.board[0][len(self.board[0])-1]
+                card  = self.base_card[self.card[0][index][0]]
+                
+                self.hand[0][index] = Button_Image(120+65*index, 480, False, card, card, index, self.battle_select)
+                self.board[0].remove(index)
+
+                self.element_update()
+
+
+    def element_update(self):
+        """
+        Element Type:
+            Card            : self.card[side][self.board[side][index]] ([0] = Type / [1] = Level)
+            Element_type    : Highest power of element in play
+            Board_Element   : Update board card element 
+            Banner_element  : Update banner element
+
+            Board_power     : Total power of cards in play
+        """
+        for side in range(2):
+            self.board_power[side]  = [0, 0, 0]
+        
+            if self.board[side] != []:
+                for index in range(len(self.board[side])):
+                    card_type  = self.card[side][self.board[side][index]][0]
+                    card_level = self.card[side][self.board[side][index]][1]
+                    self.board_power[side][card_type] += card_level
+                
+                self.element_type[side] = self.board_power[side].index(max(self.board_power[side]))
+
+            else:
+                self.element_type[side] = 3
+
+            self.board_power[side] = sum(self.board_power[side])
+
+        """
+        Element Advantage
+            p_type      : Player's element
+            e_type      : Enemy's element
+            Neutral     : No advantage
+            Advantage   : Player advantage  (Damage = 1 + Board_power + p_type Card Level)
+            Disavantage : Enemy advantage   (Damage = 1 + Board_power + e_type Card Level)  
+        """
+        if self.element_type[0] != 3 and self.element_type[1] != 3:
+            p_type, e_type = self.element_type[0], self.element_type[1]
+
+            # Neutral
+            if p_type == e_type:
+                self.arrow      = None
+                self.advantage  = [False, False]
+    
+            # Advantage
+            elif (p_type == 0 and e_type == 2) or (p_type == 1 and e_type == 0) or (p_type == 2 and e_type == 1):
+                self.board_power[0] += self.base_level[0][0][self.element_type[0]]
+                self.arrow          = self.arrow_player
+                self.advantage      = [True, False]
+
+            # Disavantage
+            else:
+                self.board_power[1] += self.base_level[1][0][self.element_type[1]]
+                self.arrow          = self.arrow_enemy
+                self.advantage      = [False, True]
+        else:
+            self.arrow = None
+            
+
+    def battle_phase(self):
+        if self.board[0] != []:
+            if self.state_transition == False:
+                """
+                Battle Phase 1 : Initiative Phase   (state_transition == False)
+                    Initiative = Board_power + Agility
+                        -Initiative Advantage
+                        -Update base_initiative display
+                    
+                    Update Card     : Reset Board and play Enemy remaining card
+                    state_transition    : Initiate Battle Phase 2
+                    Phase_init      : Transition 2nd Phase
+                """
+                p_initiative = self.board_power[0] + self.base_level[0][1][0]
+                e_initiative = self.board_power[1] + self.base_level[1][1][0]
+                
+                # Player Initiative
+                if p_initiative >= e_initiative:
+                    self.initiative[0] = 1
+
+                # Enemy Initiative
+                else:
+                    self.initiative[1] = 1
+
+                self.battle_card_phase_2()
+                self.state_transition   = True
+                self.phase_init[1]  = True
+
+            
+            elif self.state_transition == True:
+                """
+                Battle Phase 2 : Attack Phase       (state_transition == True)
+                    Attack  = Board_power + Strength
+                    Defense = Board_power + Defense
+                    Damage  = Attack - Defense
+                    
+                    Update Card     : Reset Board and Hand
+                    state_transition    : Initiate Battle Phase 1
+                    Phase_init      : Transition 1st Phase
+                    Initiative      : Reset initiative advantage
+                """
+                for side in range(2):
+                    if self.initiative[side] == 1:
+                        damage = (self.board_power[side] + self.base_level[side][1][1]) - (self.board_power[1-side] + self.base_level[1-side][1][2])
+
+                        if damage > 0:
+                            self.health[1-side] -= damage
+                            
+                            if self.health[1-side] < 0:
+                                self.health[1-side] = 0
+                        
+                self.battle_card_phase_1()
+                self.state_transition   = False
+                self.phase_init[0]  = True
+                self.initiative     = [0, 0]
+                self.battle_win()
+            
+
+    def battle_transition(self):
+        """
+        Transparent image   : 1st Phase / 2nd Phase
+        Setup.button        : Disable button during transition
+
+        Phase_init  : Initiate Phase Transition
+        Phase_x     : Slides 18 pixels to the left in each frame
+        Phase_time  : Sliding time (45 frames) / Waiting time (55 frames)
+        """
+        for index in range(2):
+            if self.phase_init[index] == True:
+                transparent_image(self.base_phase[index], self.phase_x, 225, 225, gameDisplay)
+                Setup.button    = False
+                self.phase_time += 1
+                
+                if self.phase_time < 45:
+                    self.phase_x -= 18
+
+                else:
+                    self.phase_x = 0
+
+                #if self.phase_time >= 0:   (Debug Mode)
+                if self.phase_time >= 100:
+                    self.phase_init[index]  = False
+                    self.phase_x    = 800
+                    self.phase_time = 0
+                    Setup.button    = True
+
+
+    def battle_win(self):
         # Win Condition
         if self.health[1] <= 0:
             self.battle = False
