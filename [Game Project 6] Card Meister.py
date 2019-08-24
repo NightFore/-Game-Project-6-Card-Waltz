@@ -712,7 +712,7 @@ class MainIG():
             Card Level  : self.card[0][index][1]
         """
         self.base_hand          = [base_hand_player,    base_hand_enemy]
-        self.base_card          = [base_card_fire,      base_card_water,    base_card_wind]
+        self.base_card          = [base_card_fire,      base_card_water,    base_card_wind,     base_card_empty]
         self.base_number        = [[None, base_number_red_1, base_number_red_2, base_number_red_3, base_number_red_4, base_number_red_5, base_number_red_6, base_number_red_7, base_number_red_8, base_number_red_9],
                                    [None, base_number_blue_1, base_number_blue_2, base_number_blue_3, base_number_blue_4, base_number_blue_5, base_number_blue_6, base_number_blue_7, base_number_blue_8, base_number_blue_9],
                                    [None, base_number_green_1, base_number_green_2, base_number_green_3, base_number_green_4, base_number_green_5, base_number_green_6, base_number_green_7, base_number_green_8, base_number_green_9]]
@@ -807,38 +807,30 @@ class MainIG():
         for side in range(2):
             gameDisplay.blit(self.base_hand[side], (50 +370*side, 475-450*side))
 
-        # Base Card
-            # Hand
+            # Base Card
             for index in range(5):
-                if self.hand[side][index] == None:
-                    gameDisplay.blit(base_card_empty, (120+65*index+305*side, 480-450*side))
+                type_card   = self.card[side][index][0]
+                level_card  = self.card[side][index][1]
 
-                elif self.hand[1][index] != None:
-                    gameDisplay.blit(self.base_card[self.card[1][index][0]], (425+65*index, 30))                   
+                # Card
+                gameDisplay.blit(self.base_card[type_card], (120+65*index+305*side, 480-450*side))
 
-            # Board
+                # Level                
+                gameDisplay.blit(self.base_number[type_card][level_card], (120+65*index+305*side, 480-450*side)) 
+
+
+
             len_board = len(self.board[side])
 
             for index in range(len_board):
                 type_card = self.card[side][self.board[side][index]][0]
+                level_card  = self.card[side][self.board[side][index]][1]
+                
                 gameDisplay.blit(self.base_card[type_card], (305+65*index, 305-100*side))
+                gameDisplay.blit(self.base_number[type_card][level_card], (305+65*index, 305-100*side))
 
             for index in range(4-len_board):
                 gameDisplay.blit(base_card_empty, (500-65*index, 305-100*side))
-
-        # Card Level
-            # Hand
-            for index in range(5):
-                if self.hand[side][index] != None:
-                    type_card   = self.card[side][index][0]
-                    level_card  = self.card[side][index][1]
-                    gameDisplay.blit(MainIG.base_number[type_card][level_card], (120+65*index+305*side, 480-450*side)) 
-
-            # Board
-            for index in range(len_board):
-                type_card   = self.card[side][self.board[side][index]][0] 
-                level_card  = self.card[side][self.board[side][index]][1]
-                gameDisplay.blit(MainIG.base_number[type_card][level_card], (305+65*index, 305-100*side))
 
 
         """
@@ -898,39 +890,35 @@ class MainIG():
     def battle_card_phase_1(self):
         # Update Card
         for side in range(2):
-            # Random Card Level & Type
+            # Generate Card
             for index in range(5):
+                # Random Type & Level
                 random_type  = random.randint(0, 2)
                 random_level = random.randint(-2, 2) + self.base_level[side][0][random_type]
 
+                # Minimum Level
                 while random_level < 1:
                     random_level += 1
-                    
+                
                 self.card[side][index] = [random_type, random_level]
 
             # Sort Card
             self.card[side] = sorted(self.card[side], key=itemgetter(1), reverse=True)  # Level
             self.card[side] = sorted(self.card[side], key=itemgetter(0))  # Type
 
+            # Adding Card to Hand
+            for index in range(5):
+                self.hand[side][index] = self.card[side][index][0]
+
             # Reset Board
             self.board[side] = []
-
-
-        # Update Hand
-        for index in range(5):
-            if self.hand[0][index] in Setup.list_button_image:
-                Setup.list_button_image.remove(self.hand[0][index])
-                
-            card = self.base_card[self.card[0][index][0]]
-            self.hand[0][index] = Button_Image(120+65*index, 480, False, card, card, index, self.battle_select)
-            self.hand[1][index] = self.card[1][index]
 
 
         # Play random Enemy Card
         while len(self.board[1]) == 0:
             for index in range(5):
                 if len(self.board[1]) < 4 and random.choice([True, False]) == True:
-                    self.hand[1][index] = None
+                    self.hand[1][index] = self.base_card[3]
                     self.board[1].append(index)
                 
         self.element_update()
@@ -943,17 +931,15 @@ class MainIG():
         # Play remaning Enemy Card
         for index in range(len(self.hand[1])):
             if self.hand[1][index] != None:
-                self.hand[1][index] = None
+                self.hand[1][index] = self.base_card[3]
                 self.board[1].append(index)
 
         self.element_update()
 
 
     def battle_select(self, index):
-        if len(self.board[0]) < 4 and self.hand[0][index] in Setup.list_button_image:
-            Setup.list_button_image.remove(self.hand[0][index])
-            
-            self.hand[0][index] = None
+        if len(self.board[0]) < 4 and self.hand[0][index] != self.base_card[3]:
+            self.hand[0][index] = self.base_card[3]
             self.board[0].append(index)
 
             self.element_update()
@@ -963,9 +949,8 @@ class MainIG():
         for event in Tools.events:
             if self.board[0] != [] and Tools.event.type == pygame.MOUSEBUTTONDOWN and Tools.event.button == 3:
                 index = self.board[0][len(self.board[0])-1]
-                card  = self.base_card[self.card[0][index][0]]
                 
-                self.hand[0][index] = Button_Image(120+65*index, 480, False, card, card, index, self.battle_select)
+                self.hand[0][index] = self.card[0][index][0]
                 self.board[0].remove(index)
 
                 self.element_update()
