@@ -676,35 +676,27 @@ class Wolf():
     def __init__(self):
         self.name       = "Wolf"
         self.icon       = icon_direwolf
-
-        self.base_level = [1, 1, 1]
-        self.base_stats = [6, 4, 2]
-        self.experience = 15
         
         self.maxhealth  = 25
         self.health     = self.maxhealth
         
-        self.agility    = 6
-        self.strength   = 4
-        self.defense    = 2
+        self.base_level = [ [3, 3, 3], [6, 6, 6] ]
+        self.experience = 10
+        
 WolfIG = Wolf()
 
 
 class Debug():
     def __init__(self):
-        self.name       = "Wolf"
+        self.name       = "Debug"
         self.icon       = icon_direwolf
-
-        self.base_level = [1, 1, 1]
-        self.base_stats = [6, 6, 6]
-        self.experience = 10
         
         self.maxhealth  = -1
         self.health     = self.maxhealth
         
-        self.agility    = 1
-        self.strength   = 1
-        self.defense    = 1
+        self.base_level = [ [2, 2, 2], [1, 2, 3] ]
+        self.experience = 50
+        
 DebugIG = Debug()
 
 
@@ -761,17 +753,12 @@ class MainIG():
         self.name               = ["NightFore", "Wolf"]
         self.icon               = [icon_iris, icon_direwolf]
         
-        self.base_level         = [[3, 3, 3], [2, 2, 2]]
-        self.base_stats         = [ [6, 6, 6], [6, 6, 6] ]
+        self.base_level         = [ [ [3, 3, 3], [6, 6, 6] ], [ [2, 2, 2], [6, 6, 6] ] ] # [Player/Enemy][Stats Type][Stats]
         self.experience         = [100, 0]
         
         self.maxhealth          = [100, 100]
         self.health             = [self.maxhealth[0], self.maxhealth[1]]
-
-        self.agility            = [6, 6]
-        self.strength           = [6, 6]
-        self.defense            = [6, 6]
-
+        
         # Upgrade    
         self.cancel_experience  = 0
         self.cancel_level       = [ [0, 0, 0], [0, 0, 0] ]
@@ -799,18 +786,13 @@ class MainIG():
     def update_enemy(self, enemy):
         self.name[1]        = enemy.name
         self.icon[1]        = enemy.icon
-
-        self.base_level[1]  = enemy.base_level
-        self.experience[1]  = enemy.experience
         
         self.maxhealth[1]   = enemy.maxhealth
         self.health[1]      = enemy.health
-        self.base_stats[1]  = enemy.base_stats
-
-        self.strength[1]    = enemy.strength
-        self.agility[1]     = enemy.agility
-        self.defense[1]     = enemy.defense
-
+        
+        self.base_level[1]  = enemy.base_level
+        self.experience[1]  = enemy.experience
+        
         
     def update_card(self, battle=False):
         if battle == False:
@@ -819,7 +801,7 @@ class MainIG():
                 # Random Card Level & Type
                 for index in range(5):
                     random_type     = random.randint(0, 2)
-                    random_level    = random.randint(-2, 2) + self.base_level[side][random_type]
+                    random_level    = random.randint(-2, 2) + self.base_level[side][0][random_type]
 
                     while random_level < 1:
                         random_level += 1
@@ -929,12 +911,12 @@ class MainIG():
     
             # Advantage
             elif (p_type == 0 and e_type == 2) or (p_type == 1 and e_type == 0) or (p_type == 2 and e_type == 1):
-                self.board_power[0] += self.base_level[0][self.element_type[0]]
+                self.board_power[0] += self.base_level[0][0][self.element_type[0]]
                 self.arrow  = self.arrow_player
 
             # Disavantage
             else:
-                self.board_power[1] += self.base_level[1][self.element_type[1]]
+                self.board_power[1] += self.base_level[1][0][self.element_type[1]]
                 self.arrow = self.arrow_enemy
 
         else:
@@ -983,8 +965,8 @@ class MainIG():
                     Battle_phase    : Initiate Battle Phase 2
                     Phase_init      : Transition 2nd Phase
                 """
-                p_initiative = self.board_power[0] + self.agility[0]
-                e_initiative = self.board_power[1] + self.agility[1]
+                p_initiative = self.board_power[0] + self.base_level[0][1][0]
+                e_initiative = self.board_power[1] + self.base_level[1][1][0]
                 
                 # Player Initiative
                 if p_initiative >= e_initiative:
@@ -1013,7 +995,7 @@ class MainIG():
                 """
                 for side in range(2):
                     if self.initiative[side] == 1:
-                        damage = (self.board_power[side] + self.strength[side]) - (self.board_power[1-side] + self.defense[1-side])
+                        damage = (self.board_power[side] + self.base_level[side][1][1]) - (self.board_power[1-side] + self.base_level[1-side][1][2])
 
                         if damage > 0:
                             self.health[1-side] -= damage
@@ -1036,7 +1018,7 @@ class MainIG():
 
             # Display Base_card
             for side in range(2):
-                gameDisplay.blit(self.base_hand[side],      (50 +370*side, 475-450*side))
+                gameDisplay.blit(self.base_hand[side], (50 +370*side, 475-450*side))
 
                 # Hand - Display Hand card
                 for index in range(5):
@@ -1090,9 +1072,9 @@ class MainIG():
                 Text("Health: %s" % self.health[side], 589-376*side, 523-435*side, Text_interface, True)
 
                 # Stats
-                Text("AGI: %s" % self.agility[side],  548-456*side, 558-435*side, Text_interface_2, True)
-                Text("STR: %s" % self.strength[side], 628-456*side, 558-435*side, Text_interface_2, True)
-                Text("DEF: %s" % self.defense[side],  708-456*side, 558-435*side, Text_interface_2, True)
+                Text("AGI: %s" % self.base_level[side][1][0], 548-456*side, 558-435*side, Text_interface_2, True)
+                Text("STR: %s" % self.base_level[side][1][1], 628-456*side, 558-435*side, Text_interface_2, True)
+                Text("DEF: %s" % self.base_level[side][1][2], 708-456*side, 558-435*side, Text_interface_2, True)
 
                 # Initiative (Battle Phase 2)
                 if self.battle_phase == True:
@@ -1107,7 +1089,6 @@ class MainIG():
             # Element Advantage
             if self.arrow != None:
                 gameDisplay.blit(self.arrow, (170, 275))
-
 
             self.unselect_card()
             self.phase_update()
@@ -1152,10 +1133,10 @@ class MainIG():
             Card        = ["Fire",      "Water",    "Wind"]
             Statistics  = ["Agility",   "Strength", "Defense"]
             for index in range(3):
-                Text("%s"       % Card[index],                  640, 105+110*index, Text_interface, True)
-                Text("%s"       % Statistics[index],            600, 410+55*index,  Text_interface, True)
-                Text("LvL %i"   % (self.base_level[0][index] + self.cancel_level[0][index]), 745, 105+110*index, Text_interface, True)
-                Text("LvL %i"   % (self.base_stats[0][index] + self.cancel_level[1][index]), 720, 410+55*index,  Text_interface, True)
+                Text("%s"       % Card[index],       640, 105+110*index, Text_interface, True)
+                Text("%s"       % Statistics[index], 600, 410+55*index,  Text_interface, True)
+                Text("LvL %i"   % (self.base_level[0][0][index] + self.cancel_level[0][index]), 745, 105+110*index, Text_interface, True)
+                Text("LvL %i"   % (self.base_level[0][1][index] + self.cancel_level[1][index]), 720, 410+55*index,  Text_interface, True)
                 
                 for upgrade_type in range(2):
                     Cost = self.upgrade_calculation(index, upgrade_type)
@@ -1167,7 +1148,7 @@ class MainIG():
     def upgrade_level(self, index):
         index, upgrade_type = index[0], index[1]
         Experience  = self.experience[0] + self.cancel_experience
-        Cost = self.upgrade_calculation(index, upgrade_type)
+        Cost        = self.upgrade_calculation(index, upgrade_type)
 
         if Experience >= Cost:
             self.cancel_experience -= Cost
@@ -1176,11 +1157,11 @@ class MainIG():
             
     def upgrade_calculation(self, index, upgrade_type):
         if upgrade_type == 0:
-            Level   = self.base_level[0][index] + self.cancel_level[0][index]
+            Level   = self.base_level[0][0][index] + self.cancel_level[0][index]
             Cost    = 15 + (Level-3) * (18 + (Level-4) * 2) / 2
 
         elif upgrade_type == 1:
-            Level   = self.base_stats[0][index] + self.cancel_level[1][index]
+            Level   = self.base_level[0][1][index] + self.cancel_level[1][index]
             Cost    = 10 + (Level-6) * (8 + (Level-7) * 2) / 2
 
         return Cost
