@@ -252,7 +252,9 @@ class Button():
 
     def display(self, index):
         # Button
-        pygame.draw.rect(gameDisplay, self.color, self.rect)
+        if self.inactive != None and self.active != None:
+            pygame.draw.rect(gameDisplay, self.color, self.rect)
+
         if self.border == True:
             pygame.draw.rect(gameDisplay, Color_Black, self.rect, self.b)
 
@@ -584,8 +586,8 @@ base_initiative_defender    = pygame.image.load('Data\Graphics\Base_initiative_d
 
 base_status_player          = pygame.image.load("Data\Graphics\Base_status_player.png")
 base_status_enemy           = pygame.image.load("Data\Graphics\Base_status_enemy.png")
-base_hand_player            = pygame.image.load("Data\Graphics\Base_hand_player.png")
-base_hand_enemy             = pygame.image.load("Data\Graphics\Base_hand_enemy.png")
+base_hand_player            = pygame.image.load("Data\Graphics\Base_hand_player.png").convert()
+base_hand_enemy             = pygame.image.load("Data\Graphics\Base_hand_enemy.png").convert()
 base_board                  = pygame.image.load("Data\Graphics\Base_board.png").convert()
 
 base_card_ok_inactive       = pygame.image.load("Data\Graphics\Base_card_ok_inactive.png").convert()
@@ -778,9 +780,10 @@ class MainIG():
             self.OST_gallery()
             
 
-    def update_state(self, battle=False, upgrade=False):
+    def update_state(self, battle=False, upgrade=False, gallery=False):
         self.battle     = battle
         self.upgrade    = upgrade
+        self.gallery    = gallery
     
 
     def battle_init(self, enemy=WolfIG):
@@ -796,6 +799,9 @@ class MainIG():
         Button_Image(55,  480, False, base_card_ok_inactive,        base_card_ok_active,        None, self.battle_phase)
         Button_Image(0,     0, False, button_fullscreen_inactive,   button_fullscreen_active,   None, gameDisplay.fullscreen)
         Button_Image(760,   0, False, button_exit_inactive,         button_exit_active,         None, quit_game)
+
+        for index in range(5):
+            Button(None, None, 120+65*index, 480, 60, 90, 0, True, False, None, None, index, self.battle_select) 
         
     
     def battle_update(self):
@@ -807,30 +813,21 @@ class MainIG():
         for side in range(2):
             gameDisplay.blit(self.base_hand[side], (50 +370*side, 475-450*side))
 
-            # Base Card
+            # Hand
             for index in range(5):
                 type_card   = self.card[side][index][0]
                 level_card  = self.card[side][index][1]
 
-                # Card
-                gameDisplay.blit(self.base_card[type_card], (120+65*index+305*side, 480-450*side))
-
-                # Level                
+                gameDisplay.blit(self.base_card[type_card], (120+65*index+305*side, 480-450*side))        
                 gameDisplay.blit(self.base_number[type_card][level_card], (120+65*index+305*side, 480-450*side)) 
 
-
-
-            len_board = len(self.board[side])
-
-            for index in range(len_board):
-                type_card = self.card[side][self.board[side][index]][0]
+            # Board
+            for index in range(len(self.board[side])):
+                type_card   = self.card[side][self.board[side][index]][0]
                 level_card  = self.card[side][self.board[side][index]][1]
                 
                 gameDisplay.blit(self.base_card[type_card], (305+65*index, 305-100*side))
                 gameDisplay.blit(self.base_number[type_card][level_card], (305+65*index, 305-100*side))
-
-            for index in range(4-len_board):
-                gameDisplay.blit(base_card_empty, (500-65*index, 305-100*side))
 
 
         """
