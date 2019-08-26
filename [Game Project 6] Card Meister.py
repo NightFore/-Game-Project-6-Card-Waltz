@@ -708,7 +708,7 @@ class Ghoul():
         self.health     = self.maxhealth
         self.base_level = [ [5, 3, 3], [4, 6, 10] ]
         self.experience = 40
-GhoulfIG = Ghoul()
+GhoulIG = Ghoul()
 
 
 
@@ -720,7 +720,7 @@ class Zombie():
         self.health     = self.maxhealth
         self.base_level = [ [3, 6, 3], [2, 15, 5] ]
         self.experience = 50
-ZombiefIG = Zombie()
+ZombieIG = Zombie()
 
 
 class Debug():
@@ -746,6 +746,9 @@ class MainIG():
         self.battle     = False
         self.upgrade    = False
         self.gallery    = False
+
+        self.stage      = 0
+        self.base_enemy = [WolfIG, DirewolfIG, GhoulIG, ZombieIG]
 
 
         """
@@ -840,11 +843,14 @@ class MainIG():
             self.gallery_init()
     
 
-    def battle_init(self, enemy=WolfIG):
+    def battle_init(self, enemy=None):
         # Setup
         Setup.update_init(self.background)
         
         # Update
+        if enemy == None:
+            enemy = self.base_enemy[self.stage]
+            
         self.battle_enemy(enemy)
         self.battle_card_phase_1()
 
@@ -1155,6 +1161,7 @@ class MainIG():
         # Win Condition
         if self.health[1] <= 0:
             self.update_state(upgrade=True)
+            self.stage += 1
 
 
 ############################################################
