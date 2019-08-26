@@ -699,54 +699,19 @@ DebugIG = Debug()
 
 class MainIG():
     def __init__(self):
-        # Setup
+        """
+        Game status
+        """
         self.background = background
         
-        # Card
+        self.battle     = False
+        self.upgrade    = False
+        self.gallery    = False
+
+
         """
-        Card        : [side][index] = [type][level]
-        Hand        : [side][index] sorted by type card
-        Board       : [side][index] ordered by played card
-            Card Type   : self.card[0][index][0]
-            Card Level  : self.card[0][index][1]
+        Character status
         """
-        self.base_hand          = [base_hand_player,    base_hand_enemy]
-        self.base_card          = [base_card_fire,      base_card_water,    base_card_wind]
-        self.base_number        = [[None, base_number_fire_1,  base_number_fire_2,  base_number_fire_3,  base_number_fire_4,  base_number_fire_5,  base_number_fire_6,  base_number_fire_7,  base_number_fire_8,  base_number_fire_9],
-                                   [None, base_number_water_1, base_number_water_2, base_number_water_3, base_number_water_4, base_number_water_5, base_number_water_6, base_number_water_7, base_number_water_8, base_number_water_9],
-                                   [None, base_number_wind_1,  base_number_wind_2,  base_number_wind_3,  base_number_wind_4,  base_number_wind_5,  base_number_wind_6,  base_number_wind_7,  base_number_wind_8,  base_number_wind_9]]
-
-        self.card               = [ [ [], [], [], [], [] ],  [ [], [], [], [], [] ] ]
-        self.hand               = [[None, None, None, None, None], [None, None, None, None, None]]
-        self.board              = [ [], [] ]
-
-        # Element Update
-        self.base_banner        = [base_banner_fire,    base_banner_water,  base_banner_wind,   None]
-        self.base_board         = [base_board_fire,     base_board_water,   base_board_wind,    base_card_neutral]
-        
-        self.board_power        = [ [0, 0, 0], [0, 0, 0] ]
-        self.element_type       = [3, 3]
-
-        # Element Advantage
-        self.advantage          = [False, False]
-        self.arrow              = base_arrow
-        self.arrow_player       = self.arrow
-        self.arrow_enemy        = pygame.transform.flip(self.arrow, False, True)
-
-        # Battle Update
-        self.base_initiative    = [base_initiative_defender, base_initiative_attacker]
-        self.initiative         = [0, 0]
-        self.state_transition       = False
-
-        # Phase Update
-        self.base_phase         = [base_1st_phase, base_2nd_phase]
-        self.transition_init    = [True, False]
-        self.transition_x       = 800
-        self.transition_time         = 0
-
-        # Status
-        self.base_status        = [base_status_player,  base_status_enemy]
-
         self.name               = ["NightFore", "Wolf"]
         self.icon               = [icon_iris, icon_direwolf]
         self.maxhealth          = [100, 100]
@@ -754,14 +719,60 @@ class MainIG():
         self.base_level         = [ [ [3, 3, 3], [6, 6, 6] ], [ [3, 3, 3], [6, 6, 6] ] ]    # [Character][Type][Stats]
         self.experience         = [100, 100]
         
-        # Upgrade    
+        
+        """
+        Interface
+        """
+        self.base_card          = [base_card_fire,      base_card_water,    base_card_wind]
+        self.base_number        = [[None, base_number_fire_1,  base_number_fire_2,  base_number_fire_3,  base_number_fire_4,  base_number_fire_5,  base_number_fire_6,  base_number_fire_7,  base_number_fire_8,  base_number_fire_9], [None, base_number_water_1, base_number_water_2, base_number_water_3, base_number_water_4, base_number_water_5, base_number_water_6, base_number_water_7, base_number_water_8, base_number_water_9], [None, base_number_wind_1,  base_number_wind_2,  base_number_wind_3,  base_number_wind_4,  base_number_wind_5,  base_number_wind_6,  base_number_wind_7,  base_number_wind_8,  base_number_wind_9]]
+
+        self.base_status        = [base_status_player,  base_status_enemy]
+        self.base_hand          = [base_hand_player,    base_hand_enemy]
+
+        self.base_phase         = [base_1st_phase,              base_2nd_phase]
+        self.base_initiative    = [base_initiative_defender,    base_initiative_attacker]
+        
+        self.base_banner        = [base_banner_fire,    base_banner_water,  base_banner_wind,   None]
+        self.base_board         = [base_board_fire,     base_board_water,   base_board_wind,    base_card_neutral]
+        
+        self.arrow              = base_arrow
+        self.arrow_player       = self.arrow
+        self.arrow_enemy        = pygame.transform.flip(self.arrow, False, True)
+        
+
+        """
+        Card                : Card of the character during the turn
+        Hand                : Card in the character's hand
+        Board               : Card played on the board
+
+        Board Power         : Value played during the round
+        Element Type        : Dominant element of cards played on the board
+        Advantage           : Bonus power according to the type of card played on the board
+        Initiative          : 0 => Defender, 1 => Attacker
+
+        Transition_init     : Transition scene between the different phases
+        Transition_x        : Speed of the scrolling image
+        Transition_time     : Time since the beginning of the transition
+
+        Cancel_experience   : Refunds the experience points spent during the upgrade
+        Cancel_level        : Returns the statistics levels at the beginning of the upgrade
+        """
+        self.card               = [ [ [], [], [], [], [] ],  [ [], [], [], [], [] ] ]
+        self.hand               = [[None, None, None, None, None], [None, None, None, None, None]]
+        self.board              = [ [], [] ]
+        
+        self.board_power        = [ [0, 0, 0], [0, 0, 0] ]
+        self.element_type       = [3, 3]
+        self.advantage          = [False, False]
+        self.initiative         = [0, 0]
+
+        self.transition_init    = [True, False]
+        self.transition_x       = 800
+        self.transition_time    = 0
+        
         self.cancel_experience  = 0
         self.cancel_level       = [ [0, 0, 0], [0, 0, 0] ]
 
-        # State
-        self.battle             = False
-        self.upgrade            = False
-        self.gallery            = False
 
 
     def update(self):
@@ -787,7 +798,7 @@ class MainIG():
             self.upgrade_init()
 
         elif self.gallery == True:
-            self.gallery_init
+            self.gallery_init()
     
 
     def battle_init(self, enemy=DebugIG):
@@ -862,7 +873,7 @@ class MainIG():
             
         for side in range(2):
             # Initiative
-            if self.state_transition == True:
+            if self.initiative != [0, 0]:
                 gameDisplay.blit(self.base_initiative[self.initiative[side]],   (575, 320-100*side))
 
             # Dominant Element
@@ -1019,15 +1030,14 @@ class MainIG():
 
     def battle_phase(self):
         if self.board[0] != []:
-            if self.state_transition == False:
+            if self.initiative == [0, 0]:
                 """
-                Battle Phase 1 : Initiative Phase   (state_transition == False)
+                Battle Phase 1 : Initiative Phase   (initiative == [0, 0])
                     Initiative = Board_power + Agility
                         -Initiative Advantage
                         -Update base_initiative display
                     
                     Update Card         : Reset Board and play Enemy remaining card
-                    state_transition    : Initiate Battle Phase 2
                     transition_init     : Transition 2nd Phase
                 """
                 p_initiative = self.board_power[0] + self.base_level[0][1][0]
@@ -1042,19 +1052,17 @@ class MainIG():
                     self.initiative[1] = 1
 
                 self.battle_card_phase_2()
-                self.state_transition   = True
-                self.transition_init[1]      = True
+                self.transition_init[1] = True
 
             
-            elif self.state_transition == True:
+            elif self.initiative != [0, 0]:
                 """
-                Battle Phase 2 : Attack Phase       (state_transition == True)
+                Battle Phase 2 : Attack Phase       (initiative != [0, 0])
                     Attack  = Board_power + Strength
                     Defense = Board_power + Defense
                     Damage  = Attack - Defense
                     
                     Update Card         : Reset Board and Hand
-                    state_transition    : Initiate Battle Phase 1
                     transition_init     : Transition 1st Phase
                     Initiative          : Reset initiative advantage
                 """
@@ -1069,8 +1077,7 @@ class MainIG():
                                 self.health[1-side] = 0
                         
                 self.battle_card_phase_1()
-                self.state_transition   = False
-                self.transition_init[0]  = True
+                self.transition_init[0] = True
                 self.initiative     = [0, 0]
                 self.battle_win()
             
