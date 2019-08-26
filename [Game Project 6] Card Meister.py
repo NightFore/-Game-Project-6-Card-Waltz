@@ -676,6 +676,18 @@ def Main_Screen():
 
 
 
+class Player():
+    def __init__(self):
+        self.name       = "NightFore"
+        self.icon       = icon_iris
+        self.maxhealth  = 100
+        self.health     = self.maxhealth
+        self.base_level = [ [3, 3, 3], [6, 6, 6] ] 
+        self.experience = 0
+PlayerIG = Player()
+
+
+
 class Wolf():
     def __init__(self):
         self.name       = "Wolf"
@@ -747,19 +759,21 @@ class MainIG():
         self.upgrade    = False
         self.gallery    = False
 
-        self.stage      = 0
-        self.base_enemy = [WolfIG, DirewolfIG, GhoulIG, ZombieIG]
-
 
         """
         Character status
         """
-        self.name               = ["NightFore", "Direwolf"]
-        self.icon               = [icon_iris, icon_direwolf]
-        self.maxhealth          = [100, 100]
+        self.name               = ["", ""]
+        self.icon               = [None, None]
+        self.maxhealth          = [0, 0]
         self.health             = [self.maxhealth[0], self.maxhealth[1]]
-        self.base_level         = [ [ [3, 3, 3], [6, 6, 6] ], [ [3, 3, 3], [6, 6, 6] ] ]    # [Character][Type][Stats]
-        self.experience         = [100, 100]
+        self.base_level         = [ [ [1, 1, 1], [1, 1, 1] ], [ [1, 1, 1], [1, 1, 1] ] ]    # [Character][Type][Stats]
+        self.experience         = [0, 0]
+
+        self.stage      = 0
+        self.base_enemy = [WolfIG, DirewolfIG, GhoulIG, ZombieIG]
+
+        self.update_character(PlayerIG, 0)        
         
         
         """
@@ -841,7 +855,17 @@ class MainIG():
 
         elif self.gallery == True:
             self.gallery_init()
-    
+
+
+    def update_character(self, character, index=1):
+        self.name[index]        = character.name
+        self.icon[index]        = character.icon
+        self.maxhealth[index]   = character.maxhealth
+        self.health[index]      = character.health
+        self.base_level[index]  = character.base_level
+        self.experience[index]  = character.experience
+
+
 
     def battle_init(self, enemy=None):
         # Setup
@@ -851,7 +875,7 @@ class MainIG():
         if enemy == None:
             enemy = self.base_enemy[self.stage]
             
-        self.battle_enemy(enemy)
+        self.update_character(enemy)
         self.battle_card_phase_1()
 
         # Button
@@ -934,16 +958,6 @@ class MainIG():
 
         self.battle_unselect()
         self.battle_transition()
-
-
-
-    def battle_enemy(self, enemy):
-        self.name[1]        = enemy.name
-        self.icon[1]        = enemy.icon
-        self.maxhealth[1]   = enemy.maxhealth
-        self.health[1]      = enemy.health
-        self.base_level[1]  = enemy.base_level
-        self.experience[1]  = enemy.experience
         
         
     def battle_card_phase_1(self):
