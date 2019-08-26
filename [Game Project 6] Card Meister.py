@@ -591,9 +591,6 @@ base_board                  = pygame.image.load("Data\Graphics\Base_board.png").
 base_status_player          = pygame.image.load("Data\Graphics\Base_status_player.png").convert()
 base_status_enemy           = pygame.image.load("Data\Graphics\Base_status_enemy.png").convert()
 
-icon_iris                   = pygame.image.load("Data\Graphics\Icon_iris.png").convert()
-icon_direwolf               = pygame.image.load("Data\Graphics\Icon_direwolf.png").convert()
-
 base_card_ok_inactive       = pygame.image.load("Data\Graphics\Base_card_ok_inactive.png").convert()
 base_card_ok_active         = pygame.image.load("Data\Graphics\Base_card_ok_active.png").convert()
 base_card_neutral           = pygame.image.load("Data\Graphics\Base_card_neutral.png").convert()
@@ -612,42 +609,48 @@ base_banner_fire            = pygame.image.load("Data\Graphics\Base_banner_fire.
 base_banner_water           = pygame.image.load("Data\Graphics\Base_banner_water.png").convert()
 base_banner_wind            = pygame.image.load("Data\Graphics\Base_banner_wind.png").convert()
 
-base_number_fire_1           = pygame.image.load("Data\Graphics\Base_number_fire_1.png").convert()
-base_number_fire_2           = pygame.image.load("Data\Graphics\Base_number_fire_2.png").convert()
-base_number_fire_3           = pygame.image.load("Data\Graphics\Base_number_fire_3.png").convert()
-base_number_fire_4           = pygame.image.load("Data\Graphics\Base_number_fire_4.png").convert()
-base_number_fire_5           = pygame.image.load("Data\Graphics\Base_number_fire_5.png").convert()
-base_number_fire_6           = pygame.image.load("Data\Graphics\Base_number_fire_6.png").convert()
-base_number_fire_7           = pygame.image.load("Data\Graphics\Base_number_fire_7.png").convert()
-base_number_fire_8           = pygame.image.load("Data\Graphics\Base_number_fire_8.png").convert()
-base_number_fire_9           = pygame.image.load("Data\Graphics\Base_number_fire_9.png").convert()
+base_number_fire_1          = pygame.image.load("Data\Graphics\Base_number_fire_1.png").convert()
+base_number_fire_2          = pygame.image.load("Data\Graphics\Base_number_fire_2.png").convert()
+base_number_fire_3          = pygame.image.load("Data\Graphics\Base_number_fire_3.png").convert()
+base_number_fire_4          = pygame.image.load("Data\Graphics\Base_number_fire_4.png").convert()
+base_number_fire_5          = pygame.image.load("Data\Graphics\Base_number_fire_5.png").convert()
+base_number_fire_6          = pygame.image.load("Data\Graphics\Base_number_fire_6.png").convert()
+base_number_fire_7          = pygame.image.load("Data\Graphics\Base_number_fire_7.png").convert()
+base_number_fire_8          = pygame.image.load("Data\Graphics\Base_number_fire_8.png").convert()
+base_number_fire_9          = pygame.image.load("Data\Graphics\Base_number_fire_9.png").convert()
 
-base_number_water_1          = pygame.image.load("Data\Graphics\Base_number_water_1.png").convert()
-base_number_water_2          = pygame.image.load("Data\Graphics\Base_number_water_2.png").convert()
-base_number_water_3          = pygame.image.load("Data\Graphics\Base_number_water_3.png").convert()
-base_number_water_4          = pygame.image.load("Data\Graphics\Base_number_water_4.png").convert()
-base_number_water_5          = pygame.image.load("Data\Graphics\Base_number_water_5.png").convert()
-base_number_water_6          = pygame.image.load("Data\Graphics\Base_number_water_6.png").convert()
-base_number_water_7          = pygame.image.load("Data\Graphics\Base_number_water_7.png").convert()
-base_number_water_8          = pygame.image.load("Data\Graphics\Base_number_water_8.png").convert()
-base_number_water_9          = pygame.image.load("Data\Graphics\Base_number_water_9.png").convert()
+base_number_water_1         = pygame.image.load("Data\Graphics\Base_number_water_1.png").convert()
+base_number_water_2         = pygame.image.load("Data\Graphics\Base_number_water_2.png").convert()
+base_number_water_3         = pygame.image.load("Data\Graphics\Base_number_water_3.png").convert()
+base_number_water_4         = pygame.image.load("Data\Graphics\Base_number_water_4.png").convert()
+base_number_water_5         = pygame.image.load("Data\Graphics\Base_number_water_5.png").convert()
+base_number_water_6         = pygame.image.load("Data\Graphics\Base_number_water_6.png").convert()
+base_number_water_7         = pygame.image.load("Data\Graphics\Base_number_water_7.png").convert()
+base_number_water_8         = pygame.image.load("Data\Graphics\Base_number_water_8.png").convert()
+base_number_water_9         = pygame.image.load("Data\Graphics\Base_number_water_9.png").convert()
 
-base_number_wind_1         = pygame.image.load("Data\Graphics\Base_number_wind_1.png").convert()
-base_number_wind_2         = pygame.image.load("Data\Graphics\Base_number_wind_2.png").convert()
-base_number_wind_3         = pygame.image.load("Data\Graphics\Base_number_wind_3.png").convert()
-base_number_wind_4         = pygame.image.load("Data\Graphics\Base_number_wind_4.png").convert()
-base_number_wind_5         = pygame.image.load("Data\Graphics\Base_number_wind_5.png").convert()
-base_number_wind_6         = pygame.image.load("Data\Graphics\Base_number_wind_6.png").convert()
-base_number_wind_7         = pygame.image.load("Data\Graphics\Base_number_wind_7.png").convert()
-base_number_wind_8         = pygame.image.load("Data\Graphics\Base_number_wind_8.png").convert()
-base_number_wind_9         = pygame.image.load("Data\Graphics\Base_number_wind_9.png").convert()
+base_number_wind_1          = pygame.image.load("Data\Graphics\Base_number_wind_1.png").convert()
+base_number_wind_2          = pygame.image.load("Data\Graphics\Base_number_wind_2.png").convert()
+base_number_wind_3          = pygame.image.load("Data\Graphics\Base_number_wind_3.png").convert()
+base_number_wind_4          = pygame.image.load("Data\Graphics\Base_number_wind_4.png").convert()
+base_number_wind_5          = pygame.image.load("Data\Graphics\Base_number_wind_5.png").convert()
+base_number_wind_6          = pygame.image.load("Data\Graphics\Base_number_wind_6.png").convert()
+base_number_wind_7          = pygame.image.load("Data\Graphics\Base_number_wind_7.png").convert()
+base_number_wind_8          = pygame.image.load("Data\Graphics\Base_number_wind_8.png").convert()
+base_number_wind_9          = pygame.image.load("Data\Graphics\Base_number_wind_9.png").convert()
 
 button_fullscreen_inactive  = pygame.image.load("Data\Graphics\Button_fullscreen_inactive.png").convert()
 button_fullscreen_active    = pygame.image.load("Data\Graphics\Button_fullscreen_active.png").convert()
 button_exit_inactive        = pygame.image.load("Data\Graphics\Button_exit_inactive.png").convert()
 button_exit_active          = pygame.image.load("Data\Graphics\Button_exit_active.png").convert()
 
-base_status                 = pygame.image.load("Data\Graphics\Base_status.png")
+icon_iris                   = pygame.image.load("Data\Graphics\Icon_iris.png").convert()
+icon_wolf                   = pygame.image.load("Data\Graphics\Icon_wolf.png").convert()
+icon_direwolf               = pygame.image.load("Data\Graphics\Icon_direwolf.png").convert()
+icon_zombie                 = pygame.image.load("Data\Graphics\Icon_zombie.png").convert()
+icon_ghoul                  = pygame.image.load("Data\Graphics\Icon_ghoul.png").convert()
+
+base_upgrade                = pygame.image.load("Data\Graphics\Base_upgrade.png")
 sprite_iris                 = pygame.image.load("Data\Graphics\Sprite_iris.png")
 
 
@@ -676,12 +679,48 @@ def Main_Screen():
 class Wolf():
     def __init__(self):
         self.name       = "Wolf"
-        self.icon       = icon_direwolf
-        self.maxhealth  = 25
+        self.icon       = icon_wolf
+        self.maxhealth  = 10
         self.health     = self.maxhealth
-        self.base_level = [ [1, 1, 1], [6, 4, 2] ]
-        self.experience = 10
+        self.base_level = [ [1, 1, 3], [4, 4, 2] ]
+        self.experience = 20
 WolfIG = Wolf()
+
+
+
+class Direwolf():
+    def __init__(self):
+        self.name       = "Direwolf"
+        self.icon       = icon_direwolf
+        self.maxhealth  = 20
+        self.health     = self.maxhealth
+        self.base_level = [ [2, 2, 3], [8, 6, 4] ]
+        self.experience = 30
+DirewolfIG = Direwolf()
+
+
+
+class Ghoul():
+    def __init__(self):
+        self.name       = "Ghoul"
+        self.icon       = icon_ghoul
+        self.maxhealth  = 35
+        self.health     = self.maxhealth
+        self.base_level = [ [5, 3, 3], [4, 6, 10] ]
+        self.experience = 40
+GhoulfIG = Ghoul()
+
+
+
+class Zombie():
+    def __init__(self):
+        self.name       = "Zombie"
+        self.icon       = icon_zombie
+        self.maxhealth  = 45
+        self.health     = self.maxhealth
+        self.base_level = [ [3, 6, 3], [2, 15, 5] ]
+        self.experience = 50
+ZombiefIG = Zombie()
 
 
 class Debug():
@@ -712,7 +751,7 @@ class MainIG():
         """
         Character status
         """
-        self.name               = ["NightFore", "Wolf"]
+        self.name               = ["NightFore", "Direwolf"]
         self.icon               = [icon_iris, icon_direwolf]
         self.maxhealth          = [100, 100]
         self.health             = [self.maxhealth[0], self.maxhealth[1]]
@@ -801,7 +840,7 @@ class MainIG():
             self.gallery_init()
     
 
-    def battle_init(self, enemy=DebugIG):
+    def battle_init(self, enemy=WolfIG):
         # Setup
         Setup.update_init(self.background)
         
@@ -1136,8 +1175,8 @@ class MainIG():
 
 
     def upgrade_update(self):
-            gameDisplay.blit(base_status, (450, 0))
-            gameDisplay.blit(sprite_iris, (20, 100))
+            gameDisplay.blit(base_upgrade, (450, 0))
+            gameDisplay.blit(sprite_iris, (20,  110))
 
             Text("Status Upgrade", 605, 25, Text_interface, True)
 
