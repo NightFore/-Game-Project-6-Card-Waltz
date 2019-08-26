@@ -694,8 +694,8 @@ class Wolf():
         self.icon       = icon_wolf
         self.maxhealth  = 10
         self.health     = self.maxhealth
-        self.base_level = [ [1, 1, 3], [4, 4, 2] ]
-        self.experience = 20
+        self.base_level = [ [2, 2, 3], [4, 3, 2] ]
+        self.experience = 40
 WolfIG = Wolf()
 
 
@@ -706,8 +706,8 @@ class Direwolf():
         self.icon       = icon_direwolf
         self.maxhealth  = 20
         self.health     = self.maxhealth
-        self.base_level = [ [2, 2, 3], [8, 6, 4] ]
-        self.experience = 30
+        self.base_level = [ [3, 3, 3], [6, 6, 4] ]
+        self.experience = 50
 DirewolfIG = Direwolf()
 
 
@@ -716,10 +716,10 @@ class Ghoul():
     def __init__(self):
         self.name       = "Ghoul"
         self.icon       = icon_ghoul
-        self.maxhealth  = 35
+        self.maxhealth  = 30
         self.health     = self.maxhealth
-        self.base_level = [ [5, 3, 3], [4, 6, 10] ]
-        self.experience = 40
+        self.base_level = [ [5, 3, 3], [6, 10, 10] ]
+        self.experience = 75
 GhoulIG = Ghoul()
 
 
@@ -728,10 +728,10 @@ class Zombie():
     def __init__(self):
         self.name       = "Zombie"
         self.icon       = icon_zombie
-        self.maxhealth  = 45
+        self.maxhealth  = 50
         self.health     = self.maxhealth
-        self.base_level = [ [3, 6, 3], [2, 15, 5] ]
-        self.experience = 50
+        self.base_level = [ [5, 5, 5], [2, 20, 5] ]
+        self.experience = 100
 ZombieIG = Zombie()
 
 
