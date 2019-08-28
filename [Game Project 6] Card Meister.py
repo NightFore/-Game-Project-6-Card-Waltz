@@ -116,42 +116,6 @@ class Setup():
                 
 Setup = Setup()
 
-class Text():
-    def __init__(self, text, x, y, font, center=False, setup=False):
-        """
-        Setup       : Add text to the text_list
-        Text        : Text string, font, color
-        Position    : Position x, y, surface, center
-        """
-        # Setup
-        if setup == True:
-            Setup.text = True
-            Setup.list_text.append(self)
-
-        # Text
-        self.text = text
-        self.font, self.color = font()
-
-        # Position
-        self.x = x
-        self.y = y
-        self.center = center
-        self.textSurface = self.font.render(self.text, True, self.color)
-
-        if center == False:
-            self.textRect = (self.x, self.y)
-            
-        if center == True:
-            self.textRect = self.textSurface.get_rect()
-            self.textRect.center = (self.x, self.y)
-
-        if setup == False:
-            gameDisplay.blit(self.textSurface, self.textRect)
-            
-
-    def display(self):
-        gameDisplay.blit(self.textSurface, self.textRect)
-
 
 
 class Button():
@@ -256,7 +220,7 @@ class Button():
             pygame.draw.rect(gameDisplay, self.color, self.rect)
 
         if self.border == True:
-            pygame.draw.rect(gameDisplay, Color_Black, self.rect, self.b)
+            pygame.draw.rect(gameDisplay, color_black, self.rect, self.b)
 
         # Text
         if self.text != None:
@@ -362,24 +326,24 @@ class Button_Image():
 
 def text_title_screen():
     font = pygame.font.SysFont(None, 100)
-    color = color_title_screen
+    color = color_white
     return font, color
 
 
 def Text_Button():
     font = pygame.font.SysFont(None, 40)
-    color = Color_Blue
+    color = color_blue
     return font, color
 
 
 def Text_interface():
     font = pygame.font.SysFont(None, 35)
-    color = Color_Black
+    color = color_black
     return font, color
 
 def Text_interface_2():
     font = pygame.font.SysFont(None, 30)
-    color = Color_Black
+    color = color_black
     return font, color
 
 
@@ -567,10 +531,10 @@ def quit_game():
 # Colors
 Color_Red           = 255, 20,  0
 Color_Green         = 60,  210, 120
-Color_Blue          = 0,   160, 230
-Color_Black         = 0,   0,   0
+color_blue          = 0,   160, 230
 Color_Grey          = 150, 170, 210
-Color_White         = 255, 255, 255
+color_white         = 255, 255, 255
+color_black         = 1,   0,   0
 
 Color_Button        = 140, 205, 245
 color_title_screen  = 30,  30,  30
@@ -676,6 +640,95 @@ def Main_Screen():
 
 
 
+
+class Text():
+    def __init__(self, text, x, y, font, center=False, hollow=False, outline=False, outlinecolor=None, stroke=0, setup=False):
+        """
+        Setup       : Add text to the text_list
+        Text        : Text string, font, color
+        Position    : Position x, y, surface, center
+        """
+        # Text
+        self.text = text
+        self.font, self.color = font()
+
+        # Position
+        self.x = x
+        self.y = y
+        self.center = center
+        self.textSurface = self.font.render(self.text, True, self.color)
+
+
+        """
+        Custom settings
+            
+        """
+        # Center
+        if center == False:
+            self.textRect = (self.x, self.y)
+            
+        elif center == True:
+            self.textRect = self.textSurface.get_rect()
+            self.textRect.center = (self.x, self.y)
+
+        # Hollow/Outline
+        self.hollow         = hollow
+        self.outline        = outline
+        self.outlinecolor   = outlinecolor
+        self.stroke         = stroke
+
+        if self.outline == True and self.outlinecolor != None:
+            self.textSurface = self.textOutline(self.font, self.text, self.color, self.outlinecolor, self.stroke)
+
+        elif hollow == True:
+            self.textSurface = self.textHollow(self.font, self.text, self.color, self.stroke)
+
+        
+        # Setup
+        if setup == True:
+            Setup.text = True
+            Setup.list_text.append(self)
+            
+        elif setup == False:
+            gameDisplay.blit(self.textSurface, self.textRect)
+
+
+    def textHollow(self, font, message, fontcolor, stroke):
+        notcolor = [c^0xFF for c in fontcolor]
+        base = font.render(message, 0, fontcolor, notcolor)
+        size = base.get_width() + 2, base.get_height() + 2
+        img = pygame.Surface(size, 16)
+        img.fill(notcolor)
+        base.set_colorkey(0)
+
+        for a in range(-stroke, 3+stroke):
+            for b in range(-stroke, 3+stroke):
+                img.blit(base, (a, b))
+
+        base.set_colorkey(0)
+        base.set_palette_at(1, notcolor)
+        img.blit(base, (1, 1))
+        img.set_colorkey(notcolor)
+        return img
+
+    def textOutline(self, font, message, fontcolor, outlinecolor, stroke):
+        base    = font.render(message, 0, fontcolor)
+        outline = self.textHollow(font, message, outlinecolor, stroke)
+        img = pygame.Surface(outline.get_size(), 16)
+        img.blit(base, (1, 1))
+        img.blit(outline, (0, 0))
+        img.set_colorkey(0)
+        return img
+            
+
+    def display(self):
+        gameDisplay.blit(self.textSurface, self.textRect)
+
+
+
+
+
+        
 class Player():
     def __init__(self):
         self.name       = "NightFore"
@@ -881,8 +934,7 @@ class MainIG():
         Button("Exit",      Text_interface, 3*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True, True, Color_Green, Color_Red, None, quit_game)
 
     def title_update(self):
-        Text(project_title, display_width/2, display_height/4, text_title_screen, True)   
-        
+        Text(project_title, display_width/2, display_height/4, text_title_screen, center=True, hollow=True, outline=True, outlinecolor=color_black, stroke=3)        
 
         
     def battle_init(self, enemy=None):
