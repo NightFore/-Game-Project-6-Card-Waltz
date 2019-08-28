@@ -872,8 +872,11 @@ class MainIG():
         Setup.update_init(self.background)
         
         # Update
-        if enemy == None:
+        if enemy == None and self.stage <= len(self.base_enemy)-1:
             enemy = self.base_enemy[self.stage]
+
+        else:
+            enemy = random.randint(0, len(self.base_enemy)-1)
             
         self.update_character(enemy)
         self.battle_card_phase_1()
@@ -928,9 +931,9 @@ class MainIG():
         for side in range(2):
             Text("%s"           % self.name[side],              589-376*side, 483-435*side, Text_interface,   True)
             Text("Health: %s"   % self.health[side],            589-376*side, 523-435*side, Text_interface,   True)
-            Text("AGI: %s"      % self.base_level[side][1][0],  548-456*side, 558-435*side, Text_interface_2, True)
-            Text("STR: %s"      % self.base_level[side][1][1],  628-456*side, 558-435*side, Text_interface_2, True)
-            Text("DEF: %s"      % self.base_level[side][1][2],  708-456*side, 558-435*side, Text_interface_2, True)
+            Text("AGI:%s"       % self.base_level[side][1][0],  548-456*side, 558-435*side, Text_interface_2, True)
+            Text("STR:%s"       % self.base_level[side][1][1],  628-456*side, 558-435*side, Text_interface_2, True)
+            Text("DEF:%s"       % self.base_level[side][1][2],  708-456*side, 558-435*side, Text_interface_2, True)
 
 
         """
@@ -964,28 +967,32 @@ class MainIG():
         # Reset Board
         self.board = [ [], [] ]
 
-        # Generate card
         for side in range(2):
             for index in range(5):
-                # Random card type & level
-                random_type  = random.randint(0, 2)
-                random_level = random.randint(-2, 2) + self.base_level[side][0][random_type]
+                # Focus card
+                if self.hand[side][index] != None:
+                    self.card[side][index] = [self.card[side][index][0], self.card[side][index][1] + 2]
 
+                # Random card type & level
+                else:
+                    random_type  = random.randint(0, 2)
+                    random_level = random.randint(-2, 2) + self.base_level[side][0][random_type]
+                    self.card[side][index] = [random_type, random_level]
+                    
                 # Minimum level
-                while random_level < 1:
-                    random_level += 1
+                if self.card[side][index][1] < 1:
+                    self.card[side][index][1] = 1
 
                 # Maximum level
-                if random_level > 9:
-                    random_level = 9
-                
-                self.card[side][index] = [random_type, random_level]
+                if self.card[side][index][1] > 9:
+                    self.card[side][index][1] = 9
+
 
             # Sort card
             self.card[side]  = sorted(self.card[side], key=itemgetter(1), reverse=True)  # Level
             self.card[side]  = sorted(self.card[side], key=itemgetter(0))                # Type
 
-            # Add card to hand
+            # Add card type to hand
             for index in range(5):
                 self.hand[side][index] = self.card[side][index][0]
 
