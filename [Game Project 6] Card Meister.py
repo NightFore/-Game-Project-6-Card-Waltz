@@ -360,9 +360,9 @@ class Button_Image():
 
 
 
-def Text_Title_Screen():
+def text_title_screen():
     font = pygame.font.SysFont(None, 100)
-    color = Color_Title_Screen
+    color = color_title_screen
     return font, color
 
 
@@ -573,7 +573,7 @@ Color_Grey          = 150, 170, 210
 Color_White         = 255, 255, 255
 
 Color_Button        = 140, 205, 245
-Color_Title_Screen  = 210, 100, 240
+color_title_screen  = 30,  30,  30
 
 
 background                  = pygame.image.load("Data\Graphics\Background.png").convert()
@@ -661,7 +661,7 @@ sprite_iris                 = pygame.image.load("Data\Graphics\Sprite_iris.png")
 def Main_Screen():
     # Setup
     Setup.update_init(background)
-    MainIG.update_state(battle=True)
+    MainIG.update_state(title=True)
 
     # Loop
     gameExit = False
@@ -832,7 +832,10 @@ class MainIG():
 
 
     def update(self):
-        if self.battle == True:
+        if self.title == True:
+            self.title_update()
+
+        elif self.battle == True:
             self.battle_update()
 
         elif self.upgrade == True:
@@ -842,12 +845,16 @@ class MainIG():
             self.gallery_update()
             
 
-    def update_state(self, battle=False, upgrade=False, gallery=False):
+    def update_state(self, title=False, battle=False, upgrade=False, gallery=False):
+        self.title      = title
         self.battle     = battle
         self.upgrade    = upgrade
         self.gallery    = gallery
 
-        if self.battle == True:
+        if self.title == True:
+            self.title_init()
+        
+        elif self.battle == True:
             self.battle_init()
 
         elif self.upgrade == True:
@@ -866,7 +873,18 @@ class MainIG():
         self.experience[index]  = character.experience
 
 
+    def title_init(self):
+        Setup.update_init(self.background)
+        
+        Button("Start",     Text_interface, 1*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True, True, Color_Green, Color_Red, None, self.battle_init)
+        Button("Gallery",   Text_interface, 2*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True, True, Color_Green, Color_Red, None, self.gallery_init)
+        Button("Exit",      Text_interface, 3*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True, True, Color_Green, Color_Red, None, quit_game)
 
+    def title_update(self):
+        Text(project_title, display_width/2, display_height/4, text_title_screen, True)   
+        
+
+        
     def battle_init(self, enemy=None):
         # Setup
         Setup.update_init(self.background)
@@ -1145,8 +1163,8 @@ class MainIG():
                 self.battle_card_phase_1()
                 self.transition_init[0] = True
                 self.initiative     = [0, 0]
-                self.battle_win()
-            
+                self.battle_end()
+        
 
     def battle_transition(self):
         """
@@ -1178,9 +1196,12 @@ class MainIG():
                     
 
 
-    def battle_win(self):
+    def battle_end(self):
         # Win Condition
-        if self.health[1] <= 0:
+        if self.health[0] <= 0:
+            self.update_state(title=True)
+            
+        elif self.health[1] <= 0:
             self.update_state(upgrade=True)
             self.stage += 1
 
@@ -1257,6 +1278,16 @@ class MainIG():
         self.cancel_experience  = 0
         self.cancel_level       = [ [0, 0, 0], [0, 0, 0] ]
         self.update_state(battle=True)
+
+
+############################################################
+
+
+    def gallery_init(self):
+        pass
+
+    def gallery_update(self):
+        pass
              
 MainIG = MainIG()
 
