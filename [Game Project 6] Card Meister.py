@@ -326,7 +326,7 @@ class Button_Image():
 
 def text_title_screen():
     font = pygame.font.SysFont(None, 100)
-    color = color_white
+    color = Color_Button
     return font, color
 
 
@@ -532,7 +532,7 @@ def quit_game():
 Color_Red           = 255, 20,  0
 Color_Green         = 60,  210, 120
 color_blue          = 0,   160, 230
-Color_Grey          = 150, 170, 210
+color_grey          = 150, 170, 210
 color_white         = 255, 255, 255
 color_black         = 1,   0,   0
 
@@ -617,6 +617,24 @@ icon_ghoul                  = pygame.image.load("Data\Graphics\Icon_ghoul.png").
 base_upgrade                = pygame.image.load("Data\Graphics\Base_upgrade.png")
 sprite_iris                 = pygame.image.load("Data\Graphics\Sprite_iris.png")
 
+Battle_Desert_Journey                       = "Data\Music\Battle_Desert_Journey.mp3"
+Battle_Elite_Guard                          = "Data\Music\Battle_Elite_Guard.mp3"
+Battle_Friendly_Confrontation               = "Data\Music\Battle_Friendly_Confrontation.mp3"
+Battle_Heroic_Entrance                      = "Data\Music\Battle_Heroic_Entrance.mp3"
+Battle_Thug_Fight                           = "Data\Music\Battle_Thug_Fight.mp3"
+Battle_To_the_Hill_where_the_Sunset_Falls   = "Data\Music\Battle_To_the_Hill_where_the_Sunset_Falls.mp3"
+Battle_Underground_Encounter                = "Data\Music\Battle_Underground_Encounter.mp3"
+Boss_Devil_Soul                             = "Data\Music\Boss_Devil_Soul.mp3"
+Event_Reasoning                             = "Data\Music\Event_Reasoning.mp3"
+Event_Running_to_See_Everyone               = "Data\Music\Event_Running_to_See_Everyone.mp3"
+Map_Runaway                                 = "Data\Music\Map_Runaway.mp3"
+Menu_Progressive                            = "Data\Music\Menu_Progressive.mp3"
+
+list_music = [Battle_Desert_Journey, Battle_Elite_Guard, Battle_Friendly_Confrontation, Battle_Heroic_Entrance, Battle_Thug_Fight, Battle_To_the_Hill_where_the_Sunset_Falls, Battle_Underground_Encounter,
+              Boss_Devil_Soul,
+              Event_Reasoning, Event_Running_to_See_Everyone,
+              Map_Runaway,
+              Menu_Progressive]
 
 ############################################################
 """
@@ -885,10 +903,7 @@ class MainIG():
 
 
     def update(self):
-        if self.title == True:
-            self.title_update()
-
-        elif self.battle == True:
+        if self.battle == True:
             self.battle_update()
 
         elif self.upgrade == True:
@@ -927,14 +942,26 @@ class MainIG():
 
 
     def title_init(self):
-        Setup.update_init(self.background)
-        
+        Setup.update_init(self.background, Menu_Progressive)
+
+        Text(project_title, display_width/2, display_height/4, text_title_screen, center=True, hollow=True, outline=True, outlinecolor=color_black, stroke=3, setup=True)
         Button("Start",     Text_interface, 1*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True, True, Color_Green, Color_Red, None, self.battle_init)
-        Button("Gallery",   Text_interface, 2*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True, True, Color_Green, Color_Red, None, self.gallery_init)
+        Button("Gallery",   Text_interface, 2*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True, True, Color_Green, Color_Red, None, self.menu_gallery)
         Button("Exit",      Text_interface, 3*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True, True, Color_Green, Color_Red, None, quit_game)
 
-    def title_update(self):
-        Text(project_title, display_width/2, display_height/4, text_title_screen, center=True, hollow=True, outline=True, outlinecolor=color_black, stroke=3)        
+
+    def menu_gallery(self):
+        Setup.update_init(self.background, Menu_Progressive)
+
+        # Music Buttons
+        index = 0
+        for row in range(round(0.5+len(list_music)/5)) :
+            for col in range(5):
+                if index < len(list_music):
+                    print(index)
+                    Button("Music %i" % (index+1), Text_Button, display_width/64 + display_width/5*col, display_height/12 + display_height/9*row, display_width/6, display_height/12, 4, True, False, Color_Green, Color_Red, list_music[index], Music_Play)
+                    index += 1
+                    
 
         
     def battle_init(self, enemy=None):
