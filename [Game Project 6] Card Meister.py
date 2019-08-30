@@ -643,7 +643,7 @@ list_music = [Battle_Desert_Journey, Battle_Elite_Guard, Battle_Friendly_Confron
 def Main_Screen():
     # Setup
     Setup.update_init(background)
-    MainIG.update_state(title=True)
+    MainIG.title_update()
 
     # Loop
     gameExit = False
@@ -828,7 +828,6 @@ class MainIG():
         
         self.battle     = False
         self.upgrade    = False
-        self.gallery    = False
 
 
         """
@@ -844,7 +843,7 @@ class MainIG():
         self.stage      = 0
         self.base_enemy = [WolfIG, DirewolfIG, GhoulIG, ZombieIG]
 
-        self.update_character(PlayerIG, 0)        
+        self.battle_character(PlayerIG, 0)        
         
         
         """
@@ -860,7 +859,7 @@ class MainIG():
         self.base_initiative    = [base_initiative_defender,    base_initiative_attacker]
         
         self.base_banner        = [base_banner_fire,    base_banner_water,  base_banner_wind,   None]
-        self.base_board         = [base_board_fire,     base_board_water,   base_board_wind,    base_card_neutral]
+        self.base_board         = [base_board_fire,     base_board_water,   base_board_wind]
         
         self.arrow              = base_arrow
         self.arrow_player       = self.arrow
@@ -908,52 +907,28 @@ class MainIG():
 
         elif self.upgrade == True:
             self.upgrade_update()
+     
 
-        elif self.gallery == True:
-            self.gallery_update()
-            
-
-    def update_state(self, title=False, battle=False, upgrade=False, gallery=False):
-        self.title      = title
+    def update_state(self, battle=False, upgrade=False):
         self.battle     = battle
         self.upgrade    = upgrade
-        self.gallery    = gallery
-
-        if self.title == True:
-            self.title_init()
-        
-        elif self.battle == True:
-            self.battle_init()
-
-        elif self.upgrade == True:
-            self.upgrade_init()
-
-        elif self.gallery == True:
-            self.gallery_init()
 
 
-    def update_character(self, character, index=1):
-        self.name[index]        = character.name
-        self.icon[index]        = character.icon
-        self.maxhealth[index]   = character.maxhealth
-        self.health[index]      = character.health
-        self.base_level[index]  = character.base_level
-        self.experience[index]  = character.experience
-
-
-    def title_init(self):
+    def title_update(self):
         Setup.update_init(self.background, Menu_Progressive)
+        self.update_state()
 
         Text(project_title, display_width/2, display_height/4, text_title_screen, center=True, hollow=True, outline=True, outlinecolor=color_black, stroke=3, setup=True)
-        Button("Start",     Text_interface, 1*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True, True, Color_Green, Color_Red, None, self.battle_init)
-        Button("Gallery",   Text_interface, 2*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True, True, Color_Green, Color_Red, None, self.menu_gallery)
-        Button("Exit",      Text_interface, 3*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True, True, Color_Green, Color_Red, None, quit_game)
+
+        Button("Start", Text_interface, 1*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True, True, Color_Green, Color_Red, True, self.battle_update)
+        Button("Music", Text_interface, 2*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True, True, Color_Green, Color_Red, True, self.music_update)
+        Button("Exit",  Text_interface, 3*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True, True, Color_Green, Color_Red, None, quit_game)
 
 
-    def menu_gallery(self):
+    def music_update(self):
         Setup.update_init(self.background, Menu_Progressive)
+        self.update_state()
 
-        # Music Buttons
         index = 0
         for row in range(round(0.5+len(list_music)/5)) :
             for col in range(5):
@@ -962,102 +937,139 @@ class MainIG():
                     Button("Music %i" % (index+1), Text_Button, display_width/64 + display_width/5*col, display_height/12 + display_height/9*row, display_width/6, display_height/12, 4, True, False, Color_Green, Color_Red, list_music[index], Music_Play)
                     index += 1
                     
-
         
-    def battle_init(self, enemy=None):
-        # Setup
-        Setup.update_init(self.background)
-        
-        # Update
-        if enemy == None and self.stage <= len(self.base_enemy)-1:
-            enemy = self.base_enemy[self.stage]
-
-        else:
-            enemy = random.randint(0, len(self.base_enemy)-1)
-            
-        self.update_character(enemy)
-        self.battle_card_phase_1()
-
-        # Button
-        Button_Image(55,  480, False, base_card_ok_inactive,        base_card_ok_active,        None, self.battle_phase)
-        Button_Image(0,     0, False, button_fullscreen_inactive,   button_fullscreen_active,   None, gameDisplay.fullscreen)
-        Button_Image(760,   0, False, button_exit_inactive,         button_exit_active,         None, quit_game)
-
-        for index in range(5):
-            Button(None, None, 120+65*index, 480, 60, 90, 0, True, False, None, None, index, self.battle_select) 
-        
-    
-    def battle_update(self):
-        """
-        Interface
-        """
-        gameDisplay.blit(base_board, (235, 200))
-        for side in range(2):
-            gameDisplay.blit(self.base_hand[side],      (50 +370*side, 475-450*side))
-            gameDisplay.blit(self.base_status[side],    (505-455*side, 460-435*side))
-            gameDisplay.blit(self.icon[side],           (665-615*side, 460-435*side))
-            pygame.draw.rect(gameDisplay, Color_Green,  (510-375*side, 505-435*side, 155*self.health[side]/self.maxhealth[side], 35))
+    def battle_update(self, init=False, enemy=None):
+        if init == True:
+            # Setup
+            Setup.update_init(self.background)
+            self.update_state(battle=True)
 
 
-        """
-        Card
-        """
-        for side in range(2):
-            # Hand
+            # Button
+            Button_Image(55,  480, False, base_card_ok_inactive,        base_card_ok_active,        None, self.battle_phase)
+            Button_Image(0,     0, False, button_fullscreen_inactive,   button_fullscreen_active,   None, gameDisplay.fullscreen)
+            Button_Image(760,   0, False, button_exit_inactive,         button_exit_active,         None, quit_game)
+
             for index in range(5):
-                if self.hand[side][index] != None:
-                    type_card   = self.card[side][index][0]
-                    level_card  = self.card[side][index][1]
+                Button(None, None, 120+65*index, 480, 60, 90, 0, True, False, None, None, index, self.battle_select)
 
-                    gameDisplay.blit(self.base_card[type_card],                 (120+65*index+305*side, 480-450*side))
-                    gameDisplay.blit(self.base_number[type_card][level_card],   (143+65*index+305*side, 529-450*side))
-                    
-
-            # Board
-            for index in range(len(self.board[side])):
-                type_card   = self.card[side][self.board[side][index]][0]
-                level_card  = self.card[side][self.board[side][index]][1]
-                
-                gameDisplay.blit(self.base_card[type_card],                 (305+65*index, 305-100*side))
-                gameDisplay.blit(self.base_number[type_card][level_card],   (328+65*index, 354-100*side))
-
-
-        """
-        Status
-        """
-        for side in range(2):
-            Text("%s"           % self.name[side],              589-376*side, 483-435*side, Text_interface,   True)
-            Text("Health: %s"   % self.health[side],            589-376*side, 523-435*side, Text_interface,   True)
-            Text("AGI:%s"       % self.base_level[side][1][0],  548-456*side, 558-435*side, Text_interface_2, True)
-            Text("STR:%s"       % self.base_level[side][1][1],  628-456*side, 558-435*side, Text_interface_2, True)
-            Text("DEF:%s"       % self.base_level[side][1][2],  708-456*side, 558-435*side, Text_interface_2, True)
-
-
-        """
-        Battle
-        """
-        # Element Advantage
-        if self.arrow != None:
-            gameDisplay.blit(self.arrow, (170, 275))
             
-        for side in range(2):
-            # Initiative
-            if self.initiative != [0, 0]:
-                gameDisplay.blit(self.base_initiative[self.initiative[side]],   (575, 320-100*side))
+            # Update
+            if enemy == None and self.stage <= len(self.base_enemy)-1:
+                enemy = self.base_enemy[self.stage]
+            
+            else:
+                enemy = random.randint(0, len(self.base_enemy)-1)
+                
+            self.battle_character(enemy)
+            self.battle_card_phase_1()
 
-            # Dominant Element
-            if self.element_type[side] != 3:
-                gameDisplay.blit(self.base_banner[self.element_type[side]],     (160, 335-100*side))
 
-                if self.advantage[side] == True:
-                    gameDisplay.blit(self.base_card[self.element_type[side]],   (240, 305-100*side))
-                    gameDisplay.blit(self.base_number[self.element_type[side]][self.base_level[side][0][self.element_type[side]]], (263, 354-100*side))
+        elif init == False:
+            """
+            Interface
+            """
+            gameDisplay.blit(base_board, (235, 200))
+            for side in range(2):
+                gameDisplay.blit(self.base_hand[side],      (50 +370*side, 475-450*side))
+                gameDisplay.blit(self.base_status[side],    (505-455*side, 460-435*side))
+                gameDisplay.blit(self.icon[side],           (665-615*side, 460-435*side))
+                pygame.draw.rect(gameDisplay, Color_Green,  (510-375*side, 505-435*side, 155*self.health[side]/self.maxhealth[side], 35))
 
-            if self.advantage[side] == False:
-                gameDisplay.blit(self.base_board[self.element_type[side]],      (240, 305-100*side))
+            """
+            Card (Hand/Board)
+            """
+            for side in range(2):
+                for index in range(len(self.hand[side])):
+                    if self.hand[side][index] != None:
+                        type_card   = self.card[side][index][0]
+                        level_card  = self.card[side][index][1]
+                        gameDisplay.blit(self.base_card[type_card],                 (120+65*index+305*side, 480-450*side))
+                        gameDisplay.blit(self.base_number[type_card][level_card],   (143+65*index+305*side, 529-450*side))
+                    
+                for index in range(len(self.board[side])):
+                    type_card   = self.card[side][self.board[side][index]][0]
+                    level_card  = self.card[side][self.board[side][index]][1]
+                    gameDisplay.blit(self.base_card[type_card],                     (305+65*index, 305-100*side))
+                    gameDisplay.blit(self.base_number[type_card][level_card],       (328+65*index, 354-100*side))
 
-        self.battle_unselect()
-        self.battle_transition()
+            """
+            Status
+            """
+            for side in range(2):
+                Text("%s"           % self.name[side],              589-376*side, 483-435*side, Text_interface,   True)
+                Text("Health: %s"   % self.health[side],            589-376*side, 523-435*side, Text_interface,   True)
+                Text("AGI:%s"       % self.base_level[side][1][0],  548-456*side, 558-435*side, Text_interface_2, True)
+                Text("STR:%s"       % self.base_level[side][1][1],  628-456*side, 558-435*side, Text_interface_2, True)
+                Text("DEF:%s"       % self.base_level[side][1][2],  708-456*side, 558-435*side, Text_interface_2, True)
+
+            """
+            Battle
+            """
+            # Element Advantage
+            if self.arrow != None:
+                gameDisplay.blit(self.arrow, (170, 275))
+                
+            for side in range(2):
+                # Initiative
+                if self.initiative != [0, 0]:
+                    gameDisplay.blit(self.base_initiative[self.initiative[side]],   (575, 320-100*side))
+
+                # Dominant Element
+                if self.element_type[side] != 3:
+                    gameDisplay.blit(self.base_banner[self.element_type[side]],     (160, 335-100*side))
+
+                    if self.advantage[side] == True:
+                        gameDisplay.blit(self.base_card[self.element_type[side]],   (240, 305-100*side))
+                        gameDisplay.blit(self.base_number[self.element_type[side]][self.base_level[side][0][self.element_type[side]]], (263, 354-100*side))
+
+            self.battle_unselect()
+            self.battle_transition()
+
+
+    def upgrade_update(self, init=False):
+        if init == True:
+            Setup.update_init(self.background)
+            self.update_state(upgrade=True)
+            
+            self.experience[0] += self.experience[1]
+
+            for index in range(3):
+                for upgrade_type in range(2):
+                    Button(None, Text_interface, 560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, 40, 40, 1, True, True, Color_Red, Color_Button, (index, upgrade_type), self.upgrade_level) 
+
+            Button("Cancel",  Text_interface_2, 635, 570, 100, 40, 1, True, True, Color_Red, Color_Button, None, self.upgrade_cancel)                
+            Button("Confirm", Text_interface_2, 740, 570, 100, 40, 1, True, True, Color_Red, Color_Button, None, self.upgrade_confirm)
+            Button_Image(755, 5, False, button_exit_inactive, button_exit_active, None, quit_game)
+
+
+        elif init == False:
+            gameDisplay.blit(base_upgrade, (450, 0))
+            gameDisplay.blit(sprite_iris, (20,  110))
+
+            Text("Status Upgrade", 605, 25, Text_interface, True)
+
+            Statistics  = [ ["Fire",      "Water",    "Wind"], ["Agility",   "Strength", "Defense"] ]    
+            for upgrade_type in range(2):
+                for index in range(3):
+                    Cost = self.upgrade_cost(index, upgrade_type)
+                    Text("%i"       % Cost,                                     560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, Text_interface, True)
+                    Text("%s"       % Statistics[upgrade_type][index],          640-40*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, Text_interface, True)
+                    Text("LvL %i"   % self.base_level[0][upgrade_type][index],  745-25*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, Text_interface, True)
+
+            Text("EXP: %i" % self.experience[0], 520, 570, Text_interface, True)
+
+       
+############################################################  
+    
+
+    def battle_character(self, character, index=1):
+        self.name[index]        = character.name
+        self.icon[index]        = character.icon
+        self.maxhealth[index]   = character.maxhealth
+        self.health[index]      = character.health
+        self.base_level[index]  = character.base_level
+        self.experience[index]  = character.experience   
         
         
     def battle_card_phase_1(self):
@@ -1278,45 +1290,14 @@ class MainIG():
     def battle_end(self):
         # Win Condition
         if self.health[0] <= 0:
-            self.update_state(title=True)
-            
+            self.title_update()
+
         elif self.health[1] <= 0:
-            self.update_state(upgrade=True)
+            self.upgrade_update(True)
             self.stage += 1
 
 
 ############################################################
-
-
-    def upgrade_init(self):
-        Setup.update_init(self.background)
-            
-        self.experience[0] += self.experience[1]
-
-        for index in range(3):
-            for upgrade_type in range(2):
-                Button(None, Text_interface, 560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, 40, 40, 1, True, True, Color_Red, Color_Button, (index, upgrade_type), self.upgrade_level) 
-
-        Button("Cancel",  Text_interface_2, 635, 570, 100, 40, 1, True, True, Color_Red, Color_Button, None, self.upgrade_cancel)                
-        Button("Confirm", Text_interface_2, 740, 570, 100, 40, 1, True, True, Color_Red, Color_Button, None, self.upgrade_confirm)
-        Button_Image(755, 5, False, button_exit_inactive, button_exit_active, None, quit_game)
-
-
-    def upgrade_update(self):
-            gameDisplay.blit(base_upgrade, (450, 0))
-            gameDisplay.blit(sprite_iris, (20,  110))
-
-            Text("Status Upgrade", 605, 25, Text_interface, True)
-
-            Statistics  = [ ["Fire",      "Water",    "Wind"], ["Agility",   "Strength", "Defense"] ]    
-            for upgrade_type in range(2):
-                for index in range(3):
-                    Cost = self.upgrade_cost(index, upgrade_type)
-                    Text("%i"       % Cost,                                     560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, Text_interface, True)
-                    Text("%s"       % Statistics[upgrade_type][index],          640-40*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, Text_interface, True)
-                    Text("LvL %i"   % self.base_level[0][upgrade_type][index],  745-25*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, Text_interface, True)
-
-            Text("EXP: %i" % self.experience[0], 520, 570, Text_interface, True)
             
             
     def upgrade_cost(self, index, upgrade_type):
@@ -1356,18 +1337,9 @@ class MainIG():
     def upgrade_confirm(self):
         self.cancel_experience  = 0
         self.cancel_level       = [ [0, 0, 0], [0, 0, 0] ]
-        self.update_state(battle=True)
+        self.battle_update(True)
 
 
-############################################################
-
-
-    def gallery_init(self):
-        pass
-
-    def gallery_update(self):
-        pass
-             
 MainIG = MainIG()
 
 
