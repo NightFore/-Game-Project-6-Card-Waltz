@@ -324,7 +324,7 @@ class Button_Image():
 
 
 
-def text_title_screen():
+def text_title():
     font = pygame.font.SysFont(None, 100)
     color = Color_Button
     return font, color
@@ -336,12 +336,12 @@ def Text_Button():
     return font, color
 
 
-def Text_interface():
+def text_interface():
     font = pygame.font.SysFont(None, 35)
     color = color_black
     return font, color
 
-def Text_interface_2():
+def text_interface_2():
     font = pygame.font.SysFont(None, 30)
     color = color_black
     return font, color
@@ -918,23 +918,28 @@ class MainIG():
         Setup.update_init(self.background, Menu_Progressive)
         self.update_state()
 
-        Text(project_title, display_width/2, display_height/4, text_title_screen, center=True, hollow=True, outline=True, outlinecolor=color_black, stroke=3, setup=True)
+        Text(project_title, display_width/2, display_height/4, text_title, center=True, hollow=True, outline=True, outlinecolor=color_black, stroke=3, setup=True)
 
-        Button("Start", Text_interface, 1*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True, True, Color_Green, Color_Red, True, self.battle_update)
-        Button("Music", Text_interface, 2*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True, True, Color_Green, Color_Red, True, self.music_update)
-        Button("Exit",  Text_interface, 3*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True, True, Color_Green, Color_Red, None, quit_game)
+        Button("Start", text_interface, 1*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True, True, Color_Green, Color_Red, True, self.battle_update)
+        Button("Music", text_interface, 2*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True, True, Color_Green, Color_Red, None, self.music_update)
+        Button("Exit",  text_interface, 3*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True, True, Color_Green, Color_Red, None, quit_game)
 
 
     def music_update(self):
         Setup.update_init(self.background, Menu_Progressive)
         self.update_state()
+        
+        Text("Music Gallery", display_width/2, display_height/12, text_title, center=True, hollow=True, outline=True, outlinecolor=color_black, stroke=3, setup=True)
+        
+        Button("Return", text_interface, 740, 570, 100, 40, 1, True, True, Color_Button, Color_Red, None, self.title_update)
+        Button_Image(0,     0, False, button_fullscreen_inactive,   button_fullscreen_active,   None, gameDisplay.fullscreen)
+        Button_Image(760,   0, False, button_exit_inactive,         button_exit_active,         None, quit_game)
 
         index = 0
         for row in range(round(0.5+len(list_music)/5)) :
             for col in range(5):
                 if index < len(list_music):
-                    print(index)
-                    Button("Music %i" % (index+1), Text_Button, display_width/64 + display_width/5*col, display_height/12 + display_height/9*row, display_width/6, display_height/12, 4, True, False, Color_Green, Color_Red, list_music[index], Music_Play)
+                    Button("Music %i" % (index+1), Text_Button, display_width/64 + display_width/5*col, display_height/6 + display_height/9*row, display_width/6, display_height/12, 4, True, False, Color_Green, Color_Red, list_music[index], Music_Play)
                     index += 1
                     
         
@@ -944,16 +949,14 @@ class MainIG():
             Setup.update_init(self.background)
             self.update_state(battle=True)
 
-
             # Button
+            for index in range(5):
+                Button(None, None, 120+65*index, 480, 60, 90, 0, True, False, None, None, index, self.battle_select)
+            
             Button_Image(55,  480, False, base_card_ok_inactive,        base_card_ok_active,        None, self.battle_phase)
             Button_Image(0,     0, False, button_fullscreen_inactive,   button_fullscreen_active,   None, gameDisplay.fullscreen)
             Button_Image(760,   0, False, button_exit_inactive,         button_exit_active,         None, quit_game)
-
-            for index in range(5):
-                Button(None, None, 120+65*index, 480, 60, 90, 0, True, False, None, None, index, self.battle_select)
-
-            
+        
             # Update
             if enemy == None and self.stage <= len(self.base_enemy)-1:
                 enemy = self.base_enemy[self.stage]
@@ -997,11 +1000,11 @@ class MainIG():
             Status
             """
             for side in range(2):
-                Text("%s"           % self.name[side],              589-376*side, 483-435*side, Text_interface,   True)
-                Text("Health: %s"   % self.health[side],            589-376*side, 523-435*side, Text_interface,   True)
-                Text("AGI:%s"       % self.base_level[side][1][0],  548-456*side, 558-435*side, Text_interface_2, True)
-                Text("STR:%s"       % self.base_level[side][1][1],  628-456*side, 558-435*side, Text_interface_2, True)
-                Text("DEF:%s"       % self.base_level[side][1][2],  708-456*side, 558-435*side, Text_interface_2, True)
+                Text("%s"           % self.name[side],              589-376*side, 483-435*side, text_interface,   True)
+                Text("Health: %s"   % self.health[side],            589-376*side, 523-435*side, text_interface,   True)
+                Text("AGI:%s"       % self.base_level[side][1][0],  548-456*side, 558-435*side, text_interface_2, True)
+                Text("STR:%s"       % self.base_level[side][1][1],  628-456*side, 558-435*side, text_interface_2, True)
+                Text("DEF:%s"       % self.base_level[side][1][2],  708-456*side, 558-435*side, text_interface_2, True)
 
             """
             Battle
@@ -1011,7 +1014,7 @@ class MainIG():
                 gameDisplay.blit(self.arrow, (170, 275))
                 
             for side in range(2):
-                # Initiative
+                # Attacker/Defender
                 if self.initiative != [0, 0]:
                     gameDisplay.blit(self.base_initiative[self.initiative[side]],   (575, 320-100*side))
 
@@ -1036,28 +1039,30 @@ class MainIG():
 
             for index in range(3):
                 for upgrade_type in range(2):
-                    Button(None, Text_interface, 560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, 40, 40, 1, True, True, Color_Red, Color_Button, (index, upgrade_type), self.upgrade_level) 
+                    Button(None, text_interface, 560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, 40, 40, 1, True, True, Color_Red, Color_Button, (index, upgrade_type), self.upgrade_level) 
 
-            Button("Cancel",  Text_interface_2, 635, 570, 100, 40, 1, True, True, Color_Red, Color_Button, None, self.upgrade_cancel)                
-            Button("Confirm", Text_interface_2, 740, 570, 100, 40, 1, True, True, Color_Red, Color_Button, None, self.upgrade_confirm)
-            Button_Image(755, 5, False, button_exit_inactive, button_exit_active, None, quit_game)
+            Button("Cancel",  text_interface_2, 635, 570, 100, 40, 1, True, True, Color_Red, Color_Button, None, self.upgrade_cancel)
+            Button("Confirm", text_interface_2, 740, 570, 100, 40, 1, True, True, Color_Red, Color_Button, None, self.upgrade_confirm)
+            Button_Image(0,     0, False, button_fullscreen_inactive,   button_fullscreen_active,   None, gameDisplay.fullscreen)
+            Button_Image(760,   0, False, button_exit_inactive,         button_exit_active,         None, quit_game)
+
 
 
         elif init == False:
             gameDisplay.blit(base_upgrade, (450, 0))
             gameDisplay.blit(sprite_iris, (20,  110))
 
-            Text("Status Upgrade", 605, 25, Text_interface, True)
+            Text("Status Upgrade", 605, 25, text_interface, True)
 
             Statistics  = [ ["Fire",      "Water",    "Wind"], ["Agility",   "Strength", "Defense"] ]    
             for upgrade_type in range(2):
                 for index in range(3):
                     Cost = self.upgrade_cost(index, upgrade_type)
-                    Text("%i"       % Cost,                                     560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, Text_interface, True)
-                    Text("%s"       % Statistics[upgrade_type][index],          640-40*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, Text_interface, True)
-                    Text("LvL %i"   % self.base_level[0][upgrade_type][index],  745-25*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, Text_interface, True)
+                    Text("%i"       % Cost,                                     560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, text_interface, True)
+                    Text("%s"       % Statistics[upgrade_type][index],          640-40*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, text_interface, True)
+                    Text("LvL %i"   % self.base_level[0][upgrade_type][index],  745-25*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, text_interface, True)
 
-            Text("EXP: %i" % self.experience[0], 520, 570, Text_interface, True)
+            Text("EXP: %i" % self.experience[0], 520, 570, text_interface, True)
 
        
 ############################################################  
