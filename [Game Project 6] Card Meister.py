@@ -923,6 +923,8 @@ class MainIG():
         Button("Start", text_interface, 1*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True, True, Color_Green, Color_Red, True, self.battle_update)
         Button("Music", text_interface, 2*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True, True, Color_Green, Color_Red, None, self.music_update)
         Button("Exit",  text_interface, 3*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True, True, Color_Green, Color_Red, None, quit_game)
+        Button_Image(0,     0, False, button_fullscreen_inactive,   button_fullscreen_active,   None, gameDisplay.fullscreen)
+        Button_Image(760,   0, False, button_exit_inactive,         button_exit_active,         None, quit_game)
 
 
     def music_update(self):
@@ -983,8 +985,8 @@ class MainIG():
             Card (Hand/Board)
             """
             for side in range(2):
-                for index in range(len(self.hand[side])):
-                    if self.hand[side][index] != None:
+                for index in range(5):
+                    if index in self.hand[side]:
                         type_card   = self.card[side][index][0]
                         level_card  = self.card[side][index][1]
                         gameDisplay.blit(self.base_card[type_card],                 (120+65*index+305*side, 480-450*side))
@@ -1043,8 +1045,8 @@ class MainIG():
 
             Button("Cancel",  text_interface_2, 635, 570, 100, 40, 1, True, True, Color_Red, Color_Button, None, self.upgrade_cancel)
             Button("Confirm", text_interface_2, 740, 570, 100, 40, 1, True, True, Color_Red, Color_Button, None, self.upgrade_confirm)
-            Button_Image(0,     0, False, button_fullscreen_inactive,   button_fullscreen_active,   None, gameDisplay.fullscreen)
-            Button_Image(760,   0, False, button_exit_inactive,         button_exit_active,         None, quit_game)
+            Button_Image(5,     5, False, button_fullscreen_inactive,   button_fullscreen_active,   None, gameDisplay.fullscreen)
+            Button_Image(755,   5, False, button_exit_inactive,         button_exit_active,         None, quit_game)
 
 
 
@@ -1084,15 +1086,16 @@ class MainIG():
         for side in range(2):
             for index in range(5):
                 # Focus card
-                if self.hand[side][index] != None:
+                if index in self.hand[side]:
                     self.card[side][index] = [self.card[side][index][0], self.card[side][index][1] + 2]
-
+                
                 # Random card type & level
-                else:
+                else:       
                     random_type  = random.randint(0, 2)
                     random_level = random.randint(-2, 2) + self.base_level[side][0][random_type]
                     self.card[side][index] = [random_type, random_level]
-                    
+                    self.hand[side].append(index)
+                
                 # Minimum level
                 if self.card[side][index][1] < 1:
                     self.card[side][index][1] = 1
@@ -1101,21 +1104,15 @@ class MainIG():
                 if self.card[side][index][1] > 9:
                     self.card[side][index][1] = 9
 
-
             # Sort card
             self.card[side]  = sorted(self.card[side], key=itemgetter(1), reverse=True)  # Level
             self.card[side]  = sorted(self.card[side], key=itemgetter(0))                # Type
-
-            # Add card type to hand
-            for index in range(5):
-                self.hand[side][index] = self.card[side][index][0]
-
 
         # Play enemy cards randomly
         while len(self.board[1]) == 0:
             for index in range(5):
                 if len(self.board[1]) < 4 and random.choice([True, False]) == True:
-                    self.hand[1][index] = None
+                    self.hand[1].remove(index)
                     self.board[1].append(index)
                 
         self.element_update()
@@ -1127,16 +1124,16 @@ class MainIG():
 
         # Play the remaining enemy cards
         for index in range(5):
-            if self.hand[1][index] != None:
-                self.hand[1][index] = None
+            if index in self.hand[1]:
+                self.hand[1].remove(index)
                 self.board[1].append(index)
             
         self.element_update()
 
 
     def battle_select(self, index):
-        if len(self.board[0]) < 4 and self.hand[0][index] != None:
-            self.hand[0][index] = None
+        if len(self.board[0]) < 4 and index in self.hand[0]:
+            self.hand[0].remove(index)
             self.board[0].append(index)
             self.element_update()
         
@@ -1145,7 +1142,7 @@ class MainIG():
         for event in Tools.events:
             if self.board[0] != [] and Tools.event.type == pygame.MOUSEBUTTONDOWN and Tools.event.button == 3:
                 index = self.board[0][len(self.board[0])-1]
-                self.hand[0][index] = self.card[0][index][0]
+                self.hand[0].append(index)
                 self.board[0].remove(index)
                 self.element_update()
 
