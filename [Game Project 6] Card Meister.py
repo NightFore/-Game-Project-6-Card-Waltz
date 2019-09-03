@@ -98,7 +98,7 @@ class Setup():
         # Text
         if self.text == True:
             for index in self.list_text:
-                index.display()
+                index.update()
 Setup = Setup()
 
 
@@ -152,8 +152,8 @@ class Button():
 
             # Center
             if self.center == True:
-                self.x = self.x - self.w/2
-                self.y = self.y - self.h/2
+                self.x  = self.x - self.w/2
+                self.y  = self.y - self.h/2
             self.rect   = pygame.Rect(self.x, self.y, self.w, self.h)
 
         # Button Image
@@ -239,6 +239,91 @@ class Button():
                         self.action()       
             else:
                 self.display = self.inactive
+
+
+
+
+class Text():
+    def __init__(self, text, pos, hollow=False, outline=False, stroke=0, setup=False):
+        """
+        Setup       : Add text to the text_list
+        Text        : Text string, font, color
+        Position    : Position x, y, surface, center
+        """
+        # Text
+        self.text               = text[0]
+        self.font, self.color   = text[1]()
+
+        # Position
+        self.center = pos[0]
+        self.x      = pos[1]
+        self.y      = pos[2]
+        self.textSurface = self.font.render(self.text, True, self.color)
+    
+        # Center
+        if self.center == False:
+            self.textRect = (self.x, self.y)
+            
+        elif self.center == True:
+            self.textRect = self.textSurface.get_rect()
+            self.textRect.center = (self.x, self.y)
+
+
+        """
+        Custom settings
+        """
+
+        # Hollow/Outline
+        self.hollow     = hollow
+        self.outline    = outline
+        self.stroke     = stroke
+
+        if isinstance(self.outline, tuple) == True:
+            self.textSurface = self.textOutline(self.font, self.text, self.color, self.outline, self.stroke)
+
+        elif hollow == True:
+            self.textSurface = self.textHollow(self.font, self.text, self.color, self.stroke)
+
+        
+        # Setup
+        if setup == True:
+            Setup.text = True
+            Setup.list_text.append(self)
+            
+        elif setup == False:
+            gameDisplay.blit(self.textSurface, self.textRect)
+
+
+    def textHollow(self, font, message, fontcolor, stroke):
+        notcolor = [c^0xFF for c in fontcolor]
+        base = font.render(message, 0, fontcolor, notcolor)
+        size = base.get_width() + stroke, base.get_height() + stroke
+        img = pygame.Surface(size, 16)
+        img.fill(notcolor)
+        base.set_colorkey(0)
+
+        for a in range(-stroke, 3+stroke):
+            for b in range(-stroke, 3+stroke):
+                img.blit(base, (a, b))
+
+        base.set_colorkey(0)
+        base.set_palette_at(1, notcolor)
+        img.blit(base, (1, 1))
+        img.set_colorkey(notcolor)
+        return img
+
+    def textOutline(self, font, message, fontcolor, outlinecolor, stroke):
+        base    = font.render(message, 0, fontcolor)
+        outline = self.textHollow(font, message, outlinecolor, stroke)
+        img = pygame.Surface(outline.get_size(), 16)
+        img.blit(base, (1, 1))
+        img.blit(outline, (0, 0))
+        img.set_colorkey(0)
+        return img
+            
+
+    def update(self):
+        gameDisplay.blit(self.textSurface, self.textRect)
 
 
 
@@ -578,92 +663,6 @@ def Main_Screen():
 
 
 
-class Text():
-    def __init__(self, text, pos, hollow=False, outline=False, outlinecolor=None, stroke=0, setup=False):
-        """
-        Setup       : Add text to the text_list
-        Text        : Text string, font, color
-        Position    : Position x, y, surface, center
-        """
-        # Text
-        self.text               = text[0]
-        self.font, self.color   = text[1]()
-
-        # Position
-        self.center = pos[0]
-        self.x      = pos[1]
-        self.y      = pos[2]
-        self.textSurface = self.font.render(self.text, True, self.color)
-
-
-        """
-        Custom settings
-            
-        """
-        # Center
-        if self.center == False:
-            self.textRect = (self.x, self.y)
-            
-        elif self.center == True:
-            self.textRect = self.textSurface.get_rect()
-            self.textRect.center = (self.x, self.y)
-
-        # Hollow/Outline
-        self.hollow         = hollow
-        self.outline        = outline
-        self.outlinecolor   = outlinecolor
-        self.stroke         = stroke
-
-        if self.outline == True and self.outlinecolor != None:
-            self.textSurface = self.textOutline(self.font, self.text, self.color, self.outlinecolor, self.stroke)
-
-        elif hollow == True:
-            self.textSurface = self.textHollow(self.font, self.text, self.color, self.stroke)
-
-        
-        # Setup
-        if setup == True:
-            Setup.text = True
-            Setup.list_text.append(self)
-            
-        elif setup == False:
-            gameDisplay.blit(self.textSurface, self.textRect)
-
-
-    def textHollow(self, font, message, fontcolor, stroke):
-        notcolor = [c^0xFF for c in fontcolor]
-        base = font.render(message, 0, fontcolor, notcolor)
-        size = base.get_width() + 2, base.get_height() + 2
-        img = pygame.Surface(size, 16)
-        img.fill(notcolor)
-        base.set_colorkey(0)
-
-        for a in range(-stroke, 3+stroke):
-            for b in range(-stroke, 3+stroke):
-                img.blit(base, (a, b))
-
-        base.set_colorkey(0)
-        base.set_palette_at(1, notcolor)
-        img.blit(base, (1, 1))
-        img.set_colorkey(notcolor)
-        return img
-
-    def textOutline(self, font, message, fontcolor, outlinecolor, stroke):
-        base    = font.render(message, 0, fontcolor)
-        outline = self.textHollow(font, message, outlinecolor, stroke)
-        img = pygame.Surface(outline.get_size(), 16)
-        img.blit(base, (1, 1))
-        img.blit(outline, (0, 0))
-        img.set_colorkey(0)
-        return img
-            
-
-    def display(self):
-        gameDisplay.blit(self.textSurface, self.textRect)
-
-
-
-
 
         
 class Player():
@@ -839,7 +838,7 @@ class MainIG():
         Button((None, None), (False, 0,   0), (button_fullscreen_inactive,  button_fullscreen_active),  None, gameDisplay.fullscreen)
         Button((None, None), (False, 760, 0), (button_exit_inactive,        button_exit_active),        None, quit_game)
 
-        Text((project_title, text_title), (True, display_width/2, display_height/4), hollow=True, outline=True, outlinecolor=color_black, stroke=3, setup=True)
+        Text((project_title, text_title), (True, display_width/2, display_height/4), True, color_black, 6, setup=True)
         Button(("Start", text_interface), (True, 1*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True), (Color_Green, Color_Red), True, self.battle_update)
         Button(("Music", text_interface), (True, 2*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True), (Color_Green, Color_Red), None, self.music_update)
         Button(("Exit",  text_interface), (True, 3*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True), (Color_Green, Color_Red), None, quit_game)
@@ -859,7 +858,7 @@ class MainIG():
                     Button(("Music %i" % (index+1), Text_Button), (False, display_width/64 + display_width/5*col, display_height/6 + display_height/9*row, display_width/6, display_height/12, 4, True), (Color_Green, Color_Red), list_music[index], Music_Play)
                     index += 1
                 
-        Text(("Music Gallery", text_title), (True, display_width/2, display_height/12), hollow=True, outline=True, outlinecolor=color_black, stroke=3, setup=True)
+        Text(("Music Gallery", text_title), (True, display_width/2, display_height/12), True, color_black, 3, setup=True)
         Button(("Return", text_interface), (True, 740, 570, 100, 40, 1, True), (Color_Button, Color_Red), None, self.title_update)
                     
 
