@@ -31,9 +31,8 @@ class Setup():
         self.text   = False
 
         # State Update
-        self.list_text          = []
-        self.list_button        = []
-        self.list_button_image  = []
+        self.list_button    = []
+        self.list_text      = []
 
 
     def update_music(self, music):
@@ -58,9 +57,8 @@ class Setup():
         self.text   = text
 
         # Reset
-        self.list_button        = []
-        self.list_button_image  = []
-        self.list_text          = []
+        self.list_button    = []
+        self.list_text      = []
         
         # Load
         self.background = background
@@ -93,28 +91,14 @@ class Setup():
             Text
         """
         # Button
-        for index in range(len(self.list_button)):
-            self.list_button[index].display(index)
-        for index in range(len(self.list_button_image)):
-            self.list_button_image[index].display(index)
-
         if self.button == True:
-            # Check Mouse Position & Action
-            for event in Tools.events:
-                length = len(self.list_button)
-                for index in range(length):
-                    if length == len(self.list_button):
-                        self.list_button[index].update(index)
-                    
-                length = len(self.list_button_image)
-                for index in range(length):
-                    if length == len(self.list_button_image):
-                        self.list_button_image[index].update(index)
+            for index in self.list_button:
+                index.display()
 
         # Text
         if self.text == True:
-            for index in range(len(self.list_text)):
-                self.list_text[index].display()
+            for index in self.list_text:
+                index.display()
 Setup = Setup()
 
 
@@ -200,7 +184,7 @@ class Button():
             self.resize = False
     
         
-    def update(self, index):
+    def update(self):
         mouse = pygame.mouse.get_pos()
         self.update_scale()
 
@@ -209,13 +193,14 @@ class Button():
             if Tools.event.type == pygame.MOUSEBUTTONDOWN and Tools.event.button == 1:
                 if self.action != None and self.selection != None:
                     self.action(self.selection)
+                
                 elif self.action != None:
                     self.action()       
         else:
             self.color = self.inactive
         
 
-    def display(self, index):
+    def display(self):
         # Button
         if self.inactive != None and self.active != None:
             pygame.draw.rect(gameDisplay, self.color, self.rect)
@@ -231,6 +216,9 @@ class Button():
             textRect.center = self.x+self.w/2, self.y+self.h/2
             gameDisplay.blit(textSurf, textRect)
     
+        for event in Tools.events:
+            self.update()
+    
 
 
 class Button_Image():
@@ -238,7 +226,7 @@ class Button_Image():
         """
         Setup       :
             Enable buttons
-            Add button to list_button_image
+            Add button to list_button
             
         Image       :
             Active/Inactive image of the button
@@ -253,7 +241,7 @@ class Button_Image():
         """
         # Tools
         Setup.button = True
-        Setup.list_button_image.append(self)
+        Setup.list_button.append(self)
 
         # Image
         self.inactive   = inactive.convert()
@@ -302,10 +290,9 @@ class Button_Image():
         if self.resize == True:
             self.rect_scaled =  pygame.Rect(self.x_scaled, self.y_scaled, self.w_scaled, self.h_scaled)
             self.resize = False
-            
 
-
-    def update(self, index):
+        
+    def update(self):
         mouse = pygame.mouse.get_pos()
         self.update_scale()
         
@@ -314,14 +301,18 @@ class Button_Image():
             if Tools.event.type == pygame.MOUSEBUTTONDOWN and Tools.event.button == 1:
                 if self.action != None and self.selection != None:
                     self.action(self.selection)
+                
                 elif self.action != None:
                     self.action()         
         else:
             self.image = self.inactive
 
 
-    def display(self, index):
+    def display(self):
         gameDisplay.blit(self.image, self.rect)
+    
+        for event in Tools.events:
+            self.update()
 
 
 
@@ -1060,7 +1051,7 @@ class MainIG():
 
             Text("Status Upgrade", 605, 25, text_interface, True)
 
-            Statistics  = [ ["Fire",      "Water",    "Wind"], ["Agility",   "Strength", "Defense"] ]    
+            Statistics  = [ ["Fire",      "Water",    "Wind"], ["Agility",   "Strength", "Defense"] ] 
             for upgrade_type in range(2):
                 for index in range(3):
                     Cost = self.upgrade_cost(index, upgrade_type)
