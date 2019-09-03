@@ -23,8 +23,8 @@ class Setup():
             Text        : Display the texts in the list of texts
 
         Tools :
-            event       : ---
-            events      : ---
+            events      : pygame.event.get()
+            event       : event in self.events
         """
         # Information
         self.background     = None
@@ -40,7 +40,8 @@ class Setup():
         # Tools
         self.event          = ""
         self.events         = "" 
-    
+
+
     def update_init(self, background=None, music=None, button=False, text=False):
         self.background = background
         self.update_music(music)
@@ -98,23 +99,22 @@ Setup = Setup()
 class Button():
     def __init__(self, text, pos, display, selection, action=None):
         """
-        Setup       :
+        Setup :
             Enable buttons
             Add button to list_button
         
-        Position    :
+        Position :
             x, y, width, height, border width, border, center
             
-        Text        :
-            Add the centered text of the button to the text list
+        Text :
+            Add centered text on the button
             
-        Color       :
-            Active/Inactive color of the button
-            Color changes depending of the mouse position
+        Display :
+            Active/Inactive button depending of the mouse position
         
-        Action      :
-            Selection   : Button index
-            Action      : Button action
+        Action :
+            Selection   : Variable
+            Action      : Callable function
         """
         # Setup
         Setup.button = True
@@ -129,6 +129,7 @@ class Button():
         self.center     = pos[0]
         self.x          = pos[1]
         self.y          = pos[2]
+        
         if len(pos) > 3:
             self.w      = pos[3]
             self.h      = pos[4]
@@ -148,6 +149,7 @@ class Button():
                 self.y  = self.y - self.h/2
             self.rect   = pygame.Rect(self.x, self.y, self.w, self.h)
 
+
         # Button Image
         elif isinstance(display[0], pygame.Surface) == True:
             self.inactive   = display[0].convert()
@@ -160,7 +162,6 @@ class Button():
 
             elif self.center == True:
                 self.rect = self.display.get_rect(center=(self.x, self.y))
-            
         
         # Action
         self.selection  = selection
@@ -223,15 +224,13 @@ class Button():
 
             if self.rect_scaled.collidepoint(mouse):
                 self.display = self.active
-                if Setup.event.type == pygame.MOUSEBUTTONDOWN and Setup.event.button == 1:
-                    if self.action != None and self.selection != None:
+                if Setup.event.type == pygame.MOUSEBUTTONDOWN and Setup.event.button == 1 and self.action != None:
+                    if self.selection != None:
                         self.action(self.selection)
-                    
-                    elif self.action != None:
+                    else:
                         self.action()       
             else:
                 self.display = self.inactive
-
 
 
 
@@ -247,23 +246,19 @@ class Text():
         self.font, self.color   = text[1]()
 
         # Position
-        self.center = pos[0]
-        self.x      = pos[1]
-        self.y      = pos[2]
+        self.center      = pos[0]
+        self.x           = pos[1]
+        self.y           = pos[2]
         self.textSurface = self.font.render(self.text, True, self.color)
     
         # Center
         if self.center == False:
-            self.textRect = (self.x, self.y)
+            self.textRect        = (self.x, self.y)
             
         elif self.center == True:
-            self.textRect = self.textSurface.get_rect()
+            self.textRect        = self.textSurface.get_rect()
             self.textRect.center = (self.x, self.y)
 
-
-        """
-        Custom settings
-        """
 
         # Hollow/Outline
         self.hollow     = hollow
@@ -288,9 +283,9 @@ class Text():
 
     def textHollow(self, font, message, fontcolor, stroke):
         notcolor = [c^0xFF for c in fontcolor]
-        base = font.render(message, 0, fontcolor, notcolor)
-        size = base.get_width() + stroke, base.get_height() + stroke
-        img = pygame.Surface(size, 16)
+        base     = font.render(message, 0, fontcolor, notcolor)
+        size     = base.get_width() + stroke, base.get_height() + stroke
+        img      = pygame.Surface(size, 16)
         img.fill(notcolor)
         base.set_colorkey(0)
 
@@ -307,7 +302,7 @@ class Text():
     def textOutline(self, font, message, fontcolor, outlinecolor, stroke):
         base    = font.render(message, 0, fontcolor)
         outline = self.textHollow(font, message, outlinecolor, stroke)
-        img = pygame.Surface(outline.get_size(), 16)
+        img     = pygame.Surface(outline.get_size(), 16)
         img.blit(base, (1, 1))
         img.blit(outline, (0, 0))
         img.set_colorkey(0)
@@ -371,7 +366,7 @@ class ScaledGame(pygame.Surface):
         # Window Settings
         self.game_size  = game_size
         screen_info     = pygame.display.Info()                                 # Required to set a good resolution for the game screen
-        first_screen    = (screen_info.current_w, screen_info.current_h - 120)  # Take 120 pixels from the height because the menu bar, window bar and dock takes space
+        first_screen    = (screen_info.current_w, screen_info.current_h - 120)  # Take 120 pixels from the height because of the menu bar, window bar and dock takes space
 
         # self.screen     = pygame.display.set_mode(first_screen, RESIZABLE)
         self.screen     = pygame.display.set_mode(game_size, RESIZABLE)
@@ -458,7 +453,6 @@ def transparent_image(image, x, y, opacity, screen):
     alpha_surface = pygame.Surface(image.get_size(), pygame.SRCALPHA)
     alpha_surface.fill((255, 255, 255, opacity))
     image.blit(alpha_surface, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
-    
     return screen.blit(image, (x, y))
 
 
@@ -823,7 +817,7 @@ class MainIG():
         Button((None, None), (False, 0,   0), (button_fullscreen_inactive,  button_fullscreen_active),  None, gameDisplay.fullscreen)
         Button((None, None), (False, 760, 0), (button_exit_inactive,        button_exit_active),        None, quit_game)
 
-        Text((project_title, text_title), (True, display_width/2, display_height/4), True, color_black, 6, setup=True)
+        Text((project_title, text_title), (True, display_width/2, display_height/4), True, color_black, 3, setup=True)
         Button(("Start", text_interface), (True, 1*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True), (Color_Green, Color_Red), True, self.battle_update)
         Button(("Music", text_interface), (True, 2*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True), (Color_Green, Color_Red), None, self.music_update)
         Button(("Exit",  text_interface), (True, 3*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True), (Color_Green, Color_Red), None, quit_game)
@@ -933,6 +927,9 @@ class MainIG():
                         gameDisplay.blit(self.base_card[self.element_type[side]],   (240, 305-100*side))
                         gameDisplay.blit(self.base_number[self.element_type[side]][self.base_level[side][0][self.element_type[side]]], (263, 354-100*side))
 
+                    else:
+                        gameDisplay.blit(self.base_board[self.element_type[side]],  (240, 305-100*side))
+
             self.battle_unselect()
             self.battle_transition()
 
@@ -959,7 +956,7 @@ class MainIG():
             gameDisplay.blit(base_upgrade, (450, 0))
             gameDisplay.blit(sprite_iris, (20,  110))
 
-            Text(("Status Upgrade", text_interface), (605, 25), True)
+            Text(("Status Upgrade", text_interface), (True, 605, 25))
 
             Statistics  = [ ["Fire",      "Water",    "Wind"], ["Agility",   "Strength", "Defense"] ] 
             for upgrade_type in range(2):
@@ -1010,8 +1007,8 @@ class MainIG():
                     self.card[side][index][1] = 9
 
             # Sort card
-            self.card[side]  = sorted(self.card[side], key=itemgetter(1), reverse=True)  # Level
-            self.card[side]  = sorted(self.card[side], key=itemgetter(0))                # Type
+            self.card[side] = sorted(self.card[side], key=itemgetter(1), reverse=True)  # Level
+            self.card[side] = sorted(self.card[side], key=itemgetter(0))                # Type
 
         # Play enemy cards randomly
         while len(self.board[1]) == 0:
