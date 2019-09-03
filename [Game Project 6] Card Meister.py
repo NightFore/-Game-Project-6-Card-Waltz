@@ -777,6 +777,7 @@ class MainIG():
         Transition_x        : Speed of the scrolling image
         Transition_time     : Time since the beginning of the transition
 
+        Upgrade_button      : List of upgrade buttons
         Cancel_experience   : Refunds the experience points spent during the upgrade
         Cancel_level        : Returns the statistics levels at the beginning of the upgrade
         """
@@ -793,6 +794,7 @@ class MainIG():
         self.transition_x       = 800
         self.transition_time    = 0
         
+        self.upgrade_button     = [ [ [], [], [] ], [ [], [], [] ] ]
         self.cancel_experience  = 0
         self.cancel_level       = [ [0, 0, 0], [0, 0, 0] ]
 
@@ -938,14 +940,15 @@ class MainIG():
         if init == True:
             Setup.update_init(self.background)
             self.update_state(upgrade=True)
-            Button((None, None), (False, 0,   0), (button_fullscreen_inactive,  button_fullscreen_active),  None, gameDisplay.fullscreen)
-            Button((None, None), (False, 760, 0), (button_exit_inactive,        button_exit_active),        None, quit_game)
+            Button((None, None), (False, 5,   5), (button_fullscreen_inactive,  button_fullscreen_active),  None, gameDisplay.fullscreen)
+            Button((None, None), (False, 755, 5), (button_exit_inactive,        button_exit_active),        None, quit_game)
             
 
             self.experience[0] += self.experience[1]
             for index in range(3):
                 for upgrade_type in range(2):
-                    Button((None, None), (True, 560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, 40, 40, 1, True), (Color_Red, Color_Button), (index, upgrade_type), self.upgrade_level) 
+                    Cost = self.upgrade_cost(index, upgrade_type)
+                    self.upgrade_button[upgrade_type][index] = Button(("%i" % Cost, text_interface), (True, 560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, 40, 40, 1, True), (Color_Red, Color_Button), (index, upgrade_type), self.upgrade_level) 
 
             Button(("Cancel",  text_interface_2), (True, 635, 570, 100, 40, 1, True), (Color_Red, Color_Button), None, self.upgrade_cancel)
             Button(("Confirm", text_interface_2), (True, 740, 570, 100, 40, 1, True), (Color_Red, Color_Button), None, self.upgrade_confirm)
@@ -958,11 +961,13 @@ class MainIG():
 
             Text(("Status Upgrade", text_interface), (True, 605, 25))
 
-            Statistics  = [ ["Fire",      "Water",    "Wind"], ["Agility",   "Strength", "Defense"] ] 
+            Statistics  = [ ["Fire",      "Water",    "Wind"], ["Agility",   "Strength", "Defense"] ]
             for upgrade_type in range(2):
                 for index in range(3):
-                    Cost = self.upgrade_cost(index, upgrade_type)
-                    Text(("%i"      % Cost,                                     text_interface), (True, 560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index))
+                    if self.upgrade_button[upgrade_type][index] == None:
+                        Cost = self.upgrade_cost(index, upgrade_type)
+                        self.upgrade_button[upgrade_type][index] = Button(("%i" % Cost, text_interface), (True, 560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, 40, 40, 1, True), (Color_Red, Color_Button), (index, upgrade_type), self.upgrade_level) 
+
                     Text(("%s"      % Statistics[upgrade_type][index],          text_interface), (True, 640-40*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index))
                     Text(("LvL %i"  % self.base_level[0][upgrade_type][index],  text_interface), (True, 745-25*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index))
 
@@ -1209,10 +1214,10 @@ class MainIG():
         
         if upgrade_type == 0:
             Cost = 15 + (Level-3) * (18 + (Level-4) * 2) / 2
-
+            
         elif upgrade_type == 1:
             Cost = 10 + (Level-6) * (8  + (Level-7) * 2) / 2
-
+        
         return Cost
             
 
@@ -1221,6 +1226,9 @@ class MainIG():
         Cost = self.upgrade_cost(index, upgrade_type)
 
         if self.experience[0] >= Cost:
+            Setup.list_button.remove(self.upgrade_button[upgrade_type][index])
+            self.upgrade_button[upgrade_type][index] = None
+            
             self.experience[0]      -= Cost
             self.base_level[0][upgrade_type][index] += 1
 
@@ -1228,15 +1236,20 @@ class MainIG():
             self.cancel_level[upgrade_type][index]  += 1
 
 
+
     def upgrade_cancel(self):
         self.experience[0] -= self.cancel_experience
         
         for upgrade_type in range(2):
             for index in range(3):
-                self.base_level[0][upgrade_type][index] -= self.cancel_level[upgrade_type][index]
+                if self.cancel_level[upgrade_type][index] != 0:
+                    Setup.list_button.remove(self.upgrade_button[upgrade_type][index])
+                    self.upgrade_button[upgrade_type][index] = None
+                    self.base_level[0][upgrade_type][index] -= self.cancel_level[upgrade_type][index]
                 
         self.cancel_experience  = 0
         self.cancel_level       = [ [0, 0, 0], [0, 0, 0] ]
+
 
     def upgrade_confirm(self):
         self.cancel_experience  = 0
