@@ -93,7 +93,7 @@ class Setup():
         # Button
         if self.button == True:
             for index in self.list_button:
-                index.display()
+                index.update()
 
         # Text
         if self.text == True:
@@ -104,7 +104,7 @@ Setup = Setup()
 
 
 class Button():
-    def __init__(self, text, pos, center, inactive, active, selection, action=None):
+    def __init__(self, text, pos, display, center, selection, action=None):
         """
         Setup       :
             Enable buttons
@@ -139,16 +139,23 @@ class Button():
         self.b      = pos[4]
         self.border = pos[5]
         self.center = center
+
+        # Display
+        self.inactive   = display[0]
+        self.active     = display[1]
+
+        if isinstance(self.inactive, pygame.Surface) == True:
+            self.inactive   = self.inactive.convert()
+            self.active     = self.active.convert()
+        self.display    = self.inactive
+            
         
         if self.center == True:
             self.x = self.x - self.w/2
             self.y = self.y - self.h/2
         self.rect   = pygame.Rect(self.x, self.y, self.w, self.h)
-
-        # Color
-        self.active     = active
-        self.inactive   = inactive
-        self.color      = inactive
+            
+            
 
         # Action
         self.selection  = selection
@@ -181,28 +188,12 @@ class Button():
         if self.resize == True:
             self.rect_scaled =  pygame.Rect(self.x_scaled, self.y_scaled, self.w_scaled, self.h_scaled)
             self.resize = False
-    
-        
+
+
     def update(self):
-        mouse = pygame.mouse.get_pos()
-        self.update_scale()
-
-        if self.rect_scaled.collidepoint(mouse):
-            self.color = self.active
-            if Tools.event.type == pygame.MOUSEBUTTONDOWN and Tools.event.button == 1:
-                if self.action != None and self.selection != None:
-                    self.action(self.selection)
-                
-                elif self.action != None:
-                    self.action()       
-        else:
-            self.color = self.inactive
-        
-
-    def display(self):
         # Button
         if self.inactive != None and self.active != None:
-            pygame.draw.rect(gameDisplay, self.color, self.rect)
+            pygame.draw.rect(gameDisplay, self.display, self.rect)
 
             if self.border == True:
                 pygame.draw.rect(gameDisplay, color_black, self.rect, self.b)
@@ -214,9 +205,22 @@ class Button():
             textRect = textSurf.get_rect()
             textRect.center = self.x+self.w/2, self.y+self.h/2
             gameDisplay.blit(textSurf, textRect)
-    
+
+
         for event in Tools.events:
-            self.update()
+            mouse = pygame.mouse.get_pos()
+            self.update_scale()
+
+            if self.rect_scaled.collidepoint(mouse):
+                self.display = self.active
+                if Tools.event.type == pygame.MOUSEBUTTONDOWN and Tools.event.button == 1:
+                    if self.action != None and self.selection != None:
+                        self.action(self.selection)
+                    
+                    elif self.action != None:
+                        self.action()       
+            else:
+                self.display = self.inactive
     
 
 
@@ -292,26 +296,22 @@ class Button_Image():
 
         
     def update(self):
-        mouse = pygame.mouse.get_pos()
-        self.update_scale()
-        
-        if self.rect_scaled.collidepoint(mouse):
-            self.image = self.active
-            if Tools.event.type == pygame.MOUSEBUTTONDOWN and Tools.event.button == 1:
-                if self.action != None and self.selection != None:
-                    self.action(self.selection)
-                
-                elif self.action != None:
-                    self.action()         
-        else:
-            self.image = self.inactive
-
-
-    def display(self):
         gameDisplay.blit(self.image, self.rect)
     
         for event in Tools.events:
-            self.update()
+            mouse = pygame.mouse.get_pos()
+            self.update_scale()
+            
+            if self.rect_scaled.collidepoint(mouse):
+                self.image = self.active
+                if Tools.event.type == pygame.MOUSEBUTTONDOWN and Tools.event.button == 1:
+                    if self.action != None and self.selection != None:
+                        self.action(self.selection)
+                    
+                    elif self.action != None:
+                        self.action()         
+            else:
+                self.image = self.inactive
 
 
 
@@ -912,9 +912,9 @@ class MainIG():
 
         Text(project_title, display_width/2, display_height/4, text_title, center=True, hollow=True, outline=True, outlinecolor=color_black, stroke=3, setup=True)
 
-        Button(("Start", text_interface), (1*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True), True, Color_Green, Color_Red, True, self.battle_update)
-        Button(("Music", text_interface), (2*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True), True, Color_Green, Color_Red, None, self.music_update)
-        Button(("Exit",  text_interface), (3*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True), True, Color_Green, Color_Red, None, quit_game)
+        Button(("Start", text_interface), (1*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True), (Color_Green, Color_Red), True, True, self.battle_update)
+        Button(("Music", text_interface), (2*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True), (Color_Green, Color_Red), True, None, self.music_update)
+        Button(("Exit",  text_interface), (3*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True), (Color_Green, Color_Red), True, None, quit_game)
         Button_Image(0,     0, False, button_fullscreen_inactive,   button_fullscreen_active,   None, gameDisplay.fullscreen)
         Button_Image(760,   0, False, button_exit_inactive,         button_exit_active,         None, quit_game)
 
@@ -929,11 +929,11 @@ class MainIG():
         for row in range(round(0.5+len(list_music)/5)) :
             for col in range(5):
                 if index < len(list_music):
-                    Button(("Music %i" % (index+1), Text_Button), (display_width/64 + display_width/5*col, display_height/6 + display_height/9*row, display_width/6, display_height/12, 4, True), False, Color_Green, Color_Red, list_music[index], Music_Play)
+                    Button(("Music %i" % (index+1), Text_Button), (display_width/64 + display_width/5*col, display_height/6 + display_height/9*row, display_width/6, display_height/12, 4, True), (Color_Green, Color_Red), False, list_music[index], Music_Play)
                     index += 1
                 
         Text("Music Gallery", display_width/2, display_height/12, text_title, center=True, hollow=True, outline=True, outlinecolor=color_black, stroke=3, setup=True)
-        Button(("Return", text_interface), (740, 570, 100, 40, 1, True), True, Color_Button, Color_Red, None, self.title_update)
+        Button(("Return", text_interface), (740, 570, 100, 40, 1, True), (Color_Button, Color_Red), True, None, self.title_update)
                     
 
                 
@@ -951,7 +951,7 @@ class MainIG():
             Button_Image(55,  480, False, base_card_ok_inactive,        base_card_ok_active,        None, self.battle_phase)
 
             for index in range(5):
-                Button((None, None), (120+65*index, 480, 60, 90, 0, True), False, None, None, index, self.battle_select)
+                Button((None, None), (120+65*index, 480, 60, 90, 0, True), None, False, index, self.battle_select)
                     
             # Update
             if enemy == None and self.stage <= len(self.base_enemy)-1:
@@ -1037,10 +1037,10 @@ class MainIG():
             self.experience[0] += self.experience[1]
             for index in range(3):
                 for upgrade_type in range(2):
-                    Button((None, None), (560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, 40, 40, 1, True), True, Color_Red, Color_Button, (index, upgrade_type), self.upgrade_level) 
+                    Button((None, None), (560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, 40, 40, 1, True), (Color_Red, Color_Button), True, (index, upgrade_type), self.upgrade_level) 
 
-            Button(("Cancel",  text_interface_2), (635, 570, 100, 40, 1, True), True, Color_Red, Color_Button, None, self.upgrade_cancel)
-            Button(("Confirm", text_interface_2), (740, 570, 100, 40, 1, True), True, Color_Red, Color_Button, None, self.upgrade_confirm)
+            Button(("Cancel",  text_interface_2), (635, 570, 100, 40, 1, True), (Color_Red, Color_Button), True, None, self.upgrade_cancel)
+            Button(("Confirm", text_interface_2), (740, 570, 100, 40, 1, True), (Color_Red, Color_Button), True, None, self.upgrade_confirm)
 
 
 
