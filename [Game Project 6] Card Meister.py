@@ -164,10 +164,10 @@ class Button():
 
             # Center
             if self.center == False:
-                self.rect = self.display.get_rect(topleft=(x,y))
+                self.rect = self.display.get_rect(topleft=(self.x, self.y))
 
             elif self.center == True:
-                self.rect = self.display.get_rect(center=(x,y))
+                self.rect = self.display.get_rect(center=(self.x, self.y))
             
         
         # Action
@@ -239,97 +239,6 @@ class Button():
                         self.action()       
             else:
                 self.display = self.inactive
-    
-
-
-class Button_Image():
-    def __init__(self, x, y, center, inactive, active, selection, action=None):
-        """
-        Setup       :
-            Enable buttons
-            Add button to list_button
-            
-        Image       :
-            Active/Inactive image of the button
-            Image changes depending of the mouse position
-        
-        Position    :
-            x, y, center
-            
-        Action      :
-            Selection   : Button index
-            Action      : Button action
-        """
-        # Tools
-        Setup.button = True
-        Setup.list_button.append(self)
-
-        # Image
-        self.inactive   = inactive.convert()
-        self.active     = active.convert()
-        self.image      = inactive.convert()
-
-        # Position
-        self.x = x
-        self.y = y
-        self.center = center
-        
-        if self.center == False:
-            self.rect = self.active.get_rect(topleft=(x,y))
-
-        if self.center == True:
-            self.rect = self.active.get_rect(center=(x,y))
-
-        # Action
-        self.selection  = selection
-        self.action     = action
-
-        # Scale
-        self.factor_w       = 1
-        self.factor_h       = 1
-        self.x_scaled       = self.rect[0]
-        self.y_scaled       = self.rect[1]
-        self.w_scaled       = self.rect[2]
-        self.h_scaled       = self.rect[3]
-        self.rect_scaled    = self.rect
-        self.resize         = False
-
-
-    def update_scale(self):
-        if self.factor_w != gameDisplay.factor_w:
-            self.factor_w = gameDisplay.factor_w
-            self.x_scaled = self.rect[0] * self.factor_w
-            self.w_scaled = self.rect[2] * self.factor_w
-            self.resize   = True
-            
-        if self.factor_h != gameDisplay.factor_h:
-            self.factor_h = gameDisplay.factor_h
-            self.y_scaled = self.rect[1] * self.factor_h
-            self.h_scaled = self.rect[3] * self.factor_h
-            self.resize   = True
-
-        if self.resize == True:
-            self.rect_scaled =  pygame.Rect(self.x_scaled, self.y_scaled, self.w_scaled, self.h_scaled)
-            self.resize = False
-
-        
-    def update(self):
-        gameDisplay.blit(self.image, self.rect)
-    
-        for event in Tools.events:
-            mouse = pygame.mouse.get_pos()
-            self.update_scale()
-            
-            if self.rect_scaled.collidepoint(mouse):
-                self.image = self.active
-                if Tools.event.type == pygame.MOUSEBUTTONDOWN and Tools.event.button == 1:
-                    if self.action != None and self.selection != None:
-                        self.action(self.selection)
-                    
-                    elif self.action != None:
-                        self.action()         
-            else:
-                self.image = self.inactive
 
 
 
@@ -927,21 +836,22 @@ class MainIG():
     def title_update(self):
         Setup.update_init(self.background, Menu_Progressive)
         self.update_state()
+        Button((None, None), (0, 0),    (button_fullscreen_inactive,   button_fullscreen_active),   False, None, gameDisplay.fullscreen)
+        Button((None, None), (760, 0),  (button_exit_inactive,         button_exit_active),         False, None, quit_game)
 
         Text(project_title, display_width/2, display_height/4, text_title, center=True, hollow=True, outline=True, outlinecolor=color_black, stroke=3, setup=True)
 
-        Button(("Start", text_interface), (1*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True), (Color_Green, Color_Red), True, True, self.battle_update)
-        Button(("Music", text_interface), (2*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True), (Color_Green, Color_Red), True, None, self.music_update)
-        Button(("Exit",  text_interface), (3*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True), (Color_Green, Color_Red), True, None, quit_game)
-        Button_Image(0,     0, False, button_fullscreen_inactive,   button_fullscreen_active,   None, gameDisplay.fullscreen)
-        Button_Image(760,   0, False, button_exit_inactive,         button_exit_active,         None, quit_game)
+        Button(("Start", text_interface),   (1*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True), (Color_Green, Color_Red), True, True, self.battle_update)
+        Button(("Music", text_interface),   (2*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True), (Color_Green, Color_Red), True, None, self.music_update)
+        Button(("Exit",  text_interface),   (3*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True), (Color_Green, Color_Red), True, None, quit_game)
 
 
     def music_update(self):
         Setup.update_init(self.background, Menu_Progressive)
         self.update_state()
-        Button_Image(0,     0, False, button_fullscreen_inactive,   button_fullscreen_active,   None, gameDisplay.fullscreen)
-        Button_Image(760,   0, False, button_exit_inactive,         button_exit_active,         None, quit_game)
+        Button((None, None), (0, 0),    (button_fullscreen_inactive,   button_fullscreen_active),   False, None, gameDisplay.fullscreen)
+        Button((None, None), (760, 0),  (button_exit_inactive,         button_exit_active),         False, None, quit_game)
+
 
         index = 0
         for row in range(round(0.5+len(list_music)/5)) :
@@ -961,12 +871,12 @@ class MainIG():
             # Setup
             Setup.update_init(self.background)
             self.update_state(battle=True)
-            Button_Image(0,     0, False, button_fullscreen_inactive,   button_fullscreen_active,   None, gameDisplay.fullscreen)
-            Button_Image(760,   0, False, button_exit_inactive,         button_exit_active,         None, quit_game)
+            Button((None, None), (0, 0),    (button_fullscreen_inactive,   button_fullscreen_active),   False, None, gameDisplay.fullscreen)
+            Button((None, None), (760, 0),  (button_exit_inactive,         button_exit_active),         False, None, quit_game)
 
 
             # Button
-            Button_Image(55,  480, False, base_card_ok_inactive,        base_card_ok_active,        None, self.battle_phase)
+            Button((None, None), (55, 480), (base_card_ok_inactive, base_card_ok_active), False, None, self.battle_phase)
 
             for index in range(5):
                 Button((None, None), (120+65*index, 480, 60, 90, 0, True), (None, None), False, index, self.battle_select)
@@ -1048,8 +958,8 @@ class MainIG():
         if init == True:
             Setup.update_init(self.background)
             self.update_state(upgrade=True)
-            Button_Image(5,     5, False, button_fullscreen_inactive,   button_fullscreen_active,   None, gameDisplay.fullscreen)
-            Button_Image(755,   5, False, button_exit_inactive,         button_exit_active,         None, quit_game)
+            Button((None, None), (0, 0),    (button_fullscreen_inactive,   button_fullscreen_active),   False, None, gameDisplay.fullscreen)
+            Button((None, None), (760, 0),  (button_exit_inactive,         button_exit_active),         False, None, quit_game)
             
 
             self.experience[0] += self.experience[1]
