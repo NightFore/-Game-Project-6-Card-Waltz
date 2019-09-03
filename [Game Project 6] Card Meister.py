@@ -128,35 +128,48 @@ class Button():
         Setup.button = True
         Setup.list_button.append(self)
 
+
         # Text
         self.text, self.font = text[0], text[1]
 
+
         # Position
-        self.x      = pos[0]
-        self.y      = pos[1]
-        self.w      = pos[2]
-        self.h      = pos[3]
-        self.b      = pos[4]
-        self.border = pos[5]
+        self.x          = pos[0]
+        self.y          = pos[1]
+        if len(pos) > 2:
+            self.w      = pos[2]
+            self.h      = pos[3]
+            self.b      = pos[4]
+            self.border = pos[5]
         self.center = center
 
-        # Display
-        self.inactive   = display[0]
-        self.active     = display[1]
 
-        if isinstance(self.inactive, pygame.Surface) == True:
-            self.inactive   = self.inactive.convert()
-            self.active     = self.active.convert()
-        self.display    = self.inactive
+        # Button
+        if isinstance(display[0], tuple) == True or display[0] is None:
+            self.inactive   = display[0]
+            self.active     = display[1]
+            self.display    = self.inactive
+
+            # Center
+            if self.center == True:
+                self.x = self.x - self.w/2
+                self.y = self.y - self.h/2
+            self.rect   = pygame.Rect(self.x, self.y, self.w, self.h)
+
+        # Button Image
+        elif isinstance(display[0], pygame.Surface) == True:
+            self.inactive   = display[0].convert()
+            self.active     = display[1].convert()
+            self.display    = self.inactive
+
+            # Center
+            if self.center == False:
+                self.rect = self.display.get_rect(topleft=(x,y))
+
+            elif self.center == True:
+                self.rect = self.display.get_rect(center=(x,y))
             
         
-        if self.center == True:
-            self.x = self.x - self.w/2
-            self.y = self.y - self.h/2
-        self.rect   = pygame.Rect(self.x, self.y, self.w, self.h)
-            
-            
-
         # Action
         self.selection  = selection
         self.action     = action
@@ -192,18 +205,23 @@ class Button():
 
     def update(self):
         # Button
-        if self.inactive != None and self.active != None:
+        if isinstance(self.display, tuple) == True:
             pygame.draw.rect(gameDisplay, self.display, self.rect)
 
             if self.border == True:
                 pygame.draw.rect(gameDisplay, color_black, self.rect, self.b)
 
+        # Button Image
+        elif isinstance(self.display, pygame.Surface) == True:
+            gameDisplay.blit(self.display, self.rect)
+
+        
         # Text
-        if self.text != None:
-            font, color = self.font()
-            textSurf = font.render(self.text, True, color)
-            textRect = textSurf.get_rect()
-            textRect.center = self.x+self.w/2, self.y+self.h/2
+        if self.text != None or self.font != None:
+            font, color     = self.font()
+            textSurf        = font.render(self.text, True, color)
+            textRect        = textSurf.get_rect()
+            textRect.center = (self.x + self.w/2), (self.y + self.h/2)
             gameDisplay.blit(textSurf, textRect)
 
 
@@ -951,7 +969,7 @@ class MainIG():
             Button_Image(55,  480, False, base_card_ok_inactive,        base_card_ok_active,        None, self.battle_phase)
 
             for index in range(5):
-                Button((None, None), (120+65*index, 480, 60, 90, 0, True), None, False, index, self.battle_select)
+                Button((None, None), (120+65*index, 480, 60, 90, 0, True), (None, None), False, index, self.battle_select)
                     
             # Update
             if enemy == None and self.stage <= len(self.base_enemy)-1:
