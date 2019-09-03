@@ -104,7 +104,7 @@ Setup = Setup()
 
 
 class Button():
-    def __init__(self, text, pos, display, center, selection, action=None):
+    def __init__(self, text, pos, display, selection, action=None):
         """
         Setup       :
             Enable buttons
@@ -134,14 +134,14 @@ class Button():
 
 
         # Position
-        self.x          = pos[0]
-        self.y          = pos[1]
-        if len(pos) > 2:
-            self.w      = pos[2]
-            self.h      = pos[3]
-            self.b      = pos[4]
-            self.border = pos[5]
-        self.center = center
+        self.center     = pos[0]
+        self.x          = pos[1]
+        self.y          = pos[2]
+        if len(pos) > 3:
+            self.w      = pos[3]
+            self.h      = pos[4]
+            self.b      = pos[5]
+            self.border = pos[6]
 
 
         # Button
@@ -579,20 +579,20 @@ def Main_Screen():
 
 
 class Text():
-    def __init__(self, text, font, x, y, center=False, hollow=False, outline=False, outlinecolor=None, stroke=0, setup=False):
+    def __init__(self, text, pos, hollow=False, outline=False, outlinecolor=None, stroke=0, setup=False):
         """
         Setup       : Add text to the text_list
         Text        : Text string, font, color
         Position    : Position x, y, surface, center
         """
         # Text
-        self.text = text
-        self.font, self.color = font()
+        self.text               = text[0]
+        self.font, self.color   = text[1]()
 
         # Position
-        self.x = x
-        self.y = y
-        self.center = center
+        self.center = pos[0]
+        self.x      = pos[1]
+        self.y      = pos[2]
         self.textSurface = self.font.render(self.text, True, self.color)
 
 
@@ -601,10 +601,10 @@ class Text():
             
         """
         # Center
-        if center == False:
+        if self.center == False:
             self.textRect = (self.x, self.y)
             
-        elif center == True:
+        elif self.center == True:
             self.textRect = self.textSurface.get_rect()
             self.textRect.center = (self.x, self.y)
 
@@ -836,31 +836,31 @@ class MainIG():
     def title_update(self):
         Setup.update_init(self.background, Menu_Progressive)
         self.update_state()
-        Button((None, None), (0,   0),  (button_fullscreen_inactive,   button_fullscreen_active),   False, None, gameDisplay.fullscreen)
-        Button((None, None), (760, 0),  (button_exit_inactive,         button_exit_active),         False, None, quit_game)
+        Button((None, None), (False, 0,   0), (button_fullscreen_inactive,  button_fullscreen_active),  None, gameDisplay.fullscreen)
+        Button((None, None), (False, 760, 0), (button_exit_inactive,        button_exit_active),        None, quit_game)
 
-        Text(project_title, text_title, display_width/2, display_height/4, center=True, hollow=True, outline=True, outlinecolor=color_black, stroke=3, setup=True)
-        Button(("Start", text_interface),   (1*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True), (Color_Green, Color_Red), True, True, self.battle_update)
-        Button(("Music", text_interface),   (2*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True), (Color_Green, Color_Red), True, None, self.music_update)
-        Button(("Exit",  text_interface),   (3*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True), (Color_Green, Color_Red), True, None, quit_game)
+        Text((project_title, text_title), (True, display_width/2, display_height/4), hollow=True, outline=True, outlinecolor=color_black, stroke=3, setup=True)
+        Button(("Start", text_interface), (True, 1*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True), (Color_Green, Color_Red), True, self.battle_update)
+        Button(("Music", text_interface), (True, 2*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True), (Color_Green, Color_Red), None, self.music_update)
+        Button(("Exit",  text_interface), (True, 3*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True), (Color_Green, Color_Red), None, quit_game)
 
 
     def music_update(self):
         Setup.update_init(self.background, Menu_Progressive)
         self.update_state()
-        Button((None, None), (0,   0),  (button_fullscreen_inactive,   button_fullscreen_active),   False, None, gameDisplay.fullscreen)
-        Button((None, None), (760, 0),  (button_exit_inactive,         button_exit_active),         False, None, quit_game)
+        Button((None, None), (False, 0,   0), (button_fullscreen_inactive,  button_fullscreen_active),  None, gameDisplay.fullscreen)
+        Button((None, None), (False, 760, 0), (button_exit_inactive,        button_exit_active),        None, quit_game)
 
 
         index = 0
         for row in range(round(0.5+len(list_music)/5)) :
             for col in range(5):
                 if index < len(list_music):
-                    Button(("Music %i" % (index+1), Text_Button), (display_width/64 + display_width/5*col, display_height/6 + display_height/9*row, display_width/6, display_height/12, 4, True), (Color_Green, Color_Red), False, list_music[index], Music_Play)
+                    Button(("Music %i" % (index+1), Text_Button), (False, display_width/64 + display_width/5*col, display_height/6 + display_height/9*row, display_width/6, display_height/12, 4, True), (Color_Green, Color_Red), list_music[index], Music_Play)
                     index += 1
                 
-        Text("Music Gallery", text_title, display_width/2, display_height/12, center=True, hollow=True, outline=True, outlinecolor=color_black, stroke=3, setup=True)
-        Button(("Return", text_interface), (740, 570, 100, 40, 1, True), (Color_Button, Color_Red), True, None, self.title_update)
+        Text(("Music Gallery", text_title), (True, display_width/2, display_height/12), hollow=True, outline=True, outlinecolor=color_black, stroke=3, setup=True)
+        Button(("Return", text_interface), (True, 740, 570, 100, 40, 1, True), (Color_Button, Color_Red), None, self.title_update)
                     
 
                 
@@ -870,15 +870,15 @@ class MainIG():
             # Setup
             Setup.update_init(self.background)
             self.update_state(battle=True)
-            Button((None, None), (0,   0),  (button_fullscreen_inactive,   button_fullscreen_active),   False, None, gameDisplay.fullscreen)
-            Button((None, None), (760, 0),  (button_exit_inactive,         button_exit_active),         False, None, quit_game)
+            Button((None, None), (False, 0,   0), (button_fullscreen_inactive,  button_fullscreen_active),  None, gameDisplay.fullscreen)
+            Button((None, None), (False, 760, 0), (button_exit_inactive,        button_exit_active),        None, quit_game)
 
 
             # Button
-            Button((None, None), (55, 480), (base_card_ok_inactive, base_card_ok_active), False, None, self.battle_phase)
+            Button((None, None), (False, 55, 480), (base_card_ok_inactive, base_card_ok_active), None, self.battle_phase)
 
             for index in range(5):
-                Button((None, None), (120+65*index, 480, 60, 90, 0, True), (None, None), False, index, self.battle_select)
+                Button((None, None), (False, 120+65*index, 480, 60, 90, 0, True), (None, None), index, self.battle_select)
                     
             # Update
             if enemy == None and self.stage <= len(self.base_enemy)-1:
@@ -923,11 +923,11 @@ class MainIG():
             Status
             """
             for side in range(2):
-                Text("%s"           % self.name[side],              text_interface,     589-376*side, 483-435*side, True)
-                Text("Health: %s"   % self.health[side],            text_interface,     589-376*side, 523-435*side, True)
-                Text("AGI:%s"       % self.base_level[side][1][0],  text_interface_2,   548-456*side, 558-435*side, True)
-                Text("STR:%s"       % self.base_level[side][1][1],  text_interface_2,   628-456*side, 558-435*side, True)
-                Text("DEF:%s"       % self.base_level[side][1][2],  text_interface_2,   708-456*side, 558-435*side, True)
+                Text(("%s"          % self.name[side],              text_interface),    (True, 589-376*side, 483-435*side))
+                Text(("Health: %s"  % self.health[side],            text_interface),    (True, 589-376*side, 523-435*side))
+                Text(("AGI:%s"      % self.base_level[side][1][0],  text_interface_2),  (True, 548-456*side, 558-435*side))
+                Text(("STR:%s"      % self.base_level[side][1][1],  text_interface_2),  (True, 628-456*side, 558-435*side))
+                Text(("DEF:%s"      % self.base_level[side][1][2],  text_interface_2),  (True, 708-456*side, 558-435*side))
 
             """
             Battle
@@ -957,17 +957,17 @@ class MainIG():
         if init == True:
             Setup.update_init(self.background)
             self.update_state(upgrade=True)
-            Button((None, None), (0,   0),  (button_fullscreen_inactive,   button_fullscreen_active),   False, None, gameDisplay.fullscreen)
-            Button((None, None), (760, 0),  (button_exit_inactive,         button_exit_active),         False, None, quit_game)
+            Button((None, None), (False, 0,   0), (button_fullscreen_inactive,  button_fullscreen_active),  None, gameDisplay.fullscreen)
+            Button((None, None), (False, 760, 0), (button_exit_inactive,        button_exit_active),        None, quit_game)
             
 
             self.experience[0] += self.experience[1]
             for index in range(3):
                 for upgrade_type in range(2):
-                    Button((None, None), (560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, 40, 40, 1, True), (Color_Red, Color_Button), True, (index, upgrade_type), self.upgrade_level) 
+                    Button((None, None), (True, 560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, 40, 40, 1, True), (Color_Red, Color_Button), (index, upgrade_type), self.upgrade_level) 
 
-            Button(("Cancel",  text_interface_2), (635, 570, 100, 40, 1, True), (Color_Red, Color_Button), True, None, self.upgrade_cancel)
-            Button(("Confirm", text_interface_2), (740, 570, 100, 40, 1, True), (Color_Red, Color_Button), True, None, self.upgrade_confirm)
+            Button(("Cancel",  text_interface_2), (True, 635, 570, 100, 40, 1, True), (Color_Red, Color_Button), None, self.upgrade_cancel)
+            Button(("Confirm", text_interface_2), (True, 740, 570, 100, 40, 1, True), (Color_Red, Color_Button), None, self.upgrade_confirm)
 
 
 
@@ -975,17 +975,17 @@ class MainIG():
             gameDisplay.blit(base_upgrade, (450, 0))
             gameDisplay.blit(sprite_iris, (20,  110))
 
-            Text("Status Upgrade", 605, 25, text_interface, True)
+            Text(("Status Upgrade", text_interface), (605, 25), True)
 
             Statistics  = [ ["Fire",      "Water",    "Wind"], ["Agility",   "Strength", "Defense"] ] 
             for upgrade_type in range(2):
                 for index in range(3):
                     Cost = self.upgrade_cost(index, upgrade_type)
-                    Text("%i"       % Cost,                                     text_interface, 560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, True)
-                    Text("%s"       % Statistics[upgrade_type][index],          text_interface, 640-40*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, True)
-                    Text("LvL %i"   % self.base_level[0][upgrade_type][index],  text_interface, 745-25*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, True)
+                    Text(("%i"      % Cost,                                     text_interface), (True, 560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index))
+                    Text(("%s"      % Statistics[upgrade_type][index],          text_interface), (True, 640-40*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index))
+                    Text(("LvL %i"  % self.base_level[0][upgrade_type][index],  text_interface), (True, 745-25*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index))
 
-            Text("EXP: %i" % self.experience[0], text_interface, 520, 570, True)
+            Text(("EXP: %i" % self.experience[0], text_interface), (True, 520, 570))
 
        
 ############################################################  
