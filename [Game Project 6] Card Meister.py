@@ -69,7 +69,7 @@ class Setup():
             self.update_music(music)
             
 
-    def update(self):
+    def update_1(self):
         """
         Setup :
             Update game screen and background
@@ -83,6 +83,8 @@ class Setup():
             Tools.event = event
 
         
+
+    def update_2(self):
         """
         Interface :
             Button:
@@ -113,7 +115,6 @@ class Setup():
         if self.text == True:
             for index in range(len(self.list_text)):
                 self.list_text[index].display()
-                
 Setup = Setup()
 
 
@@ -219,8 +220,8 @@ class Button():
         if self.inactive != None and self.active != None:
             pygame.draw.rect(gameDisplay, self.color, self.rect)
 
-        if self.border == True:
-            pygame.draw.rect(gameDisplay, color_black, self.rect, self.b)
+            if self.border == True:
+                pygame.draw.rect(gameDisplay, color_black, self.rect, self.b)
 
         # Text
         if self.text != None:
@@ -548,7 +549,7 @@ base_2nd_phase              = pygame.image.load('Data\Graphics\Base_2nd_phase.pn
 base_initiative_attacker    = pygame.image.load('Data\Graphics\Base_initiative_attacker.png').convert()
 base_initiative_defender    = pygame.image.load('Data\Graphics\Base_initiative_defender.png').convert()
 
-base_hand_player            = pygame.image.load("Data\Graphics\Base_hand_player.png")
+base_hand_player            = pygame.image.load("Data\Graphics\Base_hand_player.png").convert()
 base_hand_enemy             = pygame.image.load("Data\Graphics\Base_hand_enemy.png").convert()
 base_board                  = pygame.image.load("Data\Graphics\Base_board.png").convert()
 
@@ -614,7 +615,7 @@ icon_direwolf               = pygame.image.load("Data\Graphics\Icon_direwolf.png
 icon_zombie                 = pygame.image.load("Data\Graphics\Icon_zombie.png").convert()
 icon_ghoul                  = pygame.image.load("Data\Graphics\Icon_ghoul.png").convert()
 
-base_upgrade                = pygame.image.load("Data\Graphics\Base_upgrade.png")
+base_upgrade                = pygame.image.load("Data\Graphics\Base_upgrade.png").convert()
 sprite_iris                 = pygame.image.load("Data\Graphics\Sprite_iris.png")
 
 Battle_Desert_Journey                       = "Data\Music\Battle_Desert_Journey.mp3"
@@ -649,8 +650,9 @@ def Main_Screen():
     gameExit = False
     while not gameExit:
         gameDisplay.update()
-        Setup.update()
+        Setup.update_1()
         MainIG.update()
+        Setup.update_2()
         
         for event in Tools.events:    
             if event.type == pygame.QUIT:
@@ -930,10 +932,6 @@ class MainIG():
     def music_update(self):
         Setup.update_init(self.background, Menu_Progressive)
         self.update_state()
-        
-        Text("Music Gallery", display_width/2, display_height/12, text_title, center=True, hollow=True, outline=True, outlinecolor=color_black, stroke=3, setup=True)
-        
-        Button("Return", text_interface, 740, 570, 100, 40, 1, True, True, Color_Button, Color_Red, None, self.title_update)
         Button_Image(0,     0, False, button_fullscreen_inactive,   button_fullscreen_active,   None, gameDisplay.fullscreen)
         Button_Image(760,   0, False, button_exit_inactive,         button_exit_active,         None, quit_game)
 
@@ -943,22 +941,28 @@ class MainIG():
                 if index < len(list_music):
                     Button("Music %i" % (index+1), Text_Button, display_width/64 + display_width/5*col, display_height/6 + display_height/9*row, display_width/6, display_height/12, 4, True, False, Color_Green, Color_Red, list_music[index], Music_Play)
                     index += 1
+                
+        Text("Music Gallery", display_width/2, display_height/12, text_title, center=True, hollow=True, outline=True, outlinecolor=color_black, stroke=3, setup=True)
+        Button("Return", text_interface, 740, 570, 100, 40, 1, True, True, Color_Button, Color_Red, None, self.title_update)
                     
-        
+
+                
+    
     def battle_update(self, init=False, enemy=None):
         if init == True:
             # Setup
             Setup.update_init(self.background)
             self.update_state(battle=True)
-
-            # Button
-            for index in range(5):
-                Button(None, None, 120+65*index, 480, 60, 90, 0, True, False, None, None, index, self.battle_select)
-            
-            Button_Image(55,  480, False, base_card_ok_inactive,        base_card_ok_active,        None, self.battle_phase)
             Button_Image(0,     0, False, button_fullscreen_inactive,   button_fullscreen_active,   None, gameDisplay.fullscreen)
             Button_Image(760,   0, False, button_exit_inactive,         button_exit_active,         None, quit_game)
-        
+
+
+            # Button
+            Button_Image(55,  480, False, base_card_ok_inactive,        base_card_ok_active,        None, self.battle_phase)
+
+            for index in range(5):
+                Button(None, None, 120+65*index, 480, 60, 90, 0, True, False, None, None, index, self.battle_select)
+                    
             # Update
             if enemy == None and self.stage <= len(self.base_enemy)-1:
                 enemy = self.base_enemy[self.stage]
@@ -1036,17 +1040,17 @@ class MainIG():
         if init == True:
             Setup.update_init(self.background)
             self.update_state(upgrade=True)
+            Button_Image(5,     5, False, button_fullscreen_inactive,   button_fullscreen_active,   None, gameDisplay.fullscreen)
+            Button_Image(755,   5, False, button_exit_inactive,         button_exit_active,         None, quit_game)
             
-            self.experience[0] += self.experience[1]
 
+            self.experience[0] += self.experience[1]
             for index in range(3):
                 for upgrade_type in range(2):
                     Button(None, text_interface, 560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, 40, 40, 1, True, True, Color_Red, Color_Button, (index, upgrade_type), self.upgrade_level) 
 
             Button("Cancel",  text_interface_2, 635, 570, 100, 40, 1, True, True, Color_Red, Color_Button, None, self.upgrade_cancel)
             Button("Confirm", text_interface_2, 740, 570, 100, 40, 1, True, True, Color_Red, Color_Button, None, self.upgrade_confirm)
-            Button_Image(5,     5, False, button_fullscreen_inactive,   button_fullscreen_active,   None, gameDisplay.fullscreen)
-            Button_Image(755,   5, False, button_exit_inactive,         button_exit_active,         None, quit_game)
 
 
 
