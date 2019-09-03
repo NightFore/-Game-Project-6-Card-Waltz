@@ -21,50 +21,42 @@ class Setup():
         State :
             Button      : Displays the buttons in the list of buttons
             Text        : Display the texts in the list of texts
+
+        Tools :
+            event       : ---
+            events      : ---
         """
         # Information
-        self.background = False
-        self.music = False
+        self.background     = None
+        self.music          = None
 
         # State
-        self.button = False
-        self.text   = False
-
-        # State Update
+        self.button         = False
         self.list_button    = []
+        
+        self.text           = False
+        self.list_text      = []
+
+        # Tools
+        self.event          = ""
+        self.events         = "" 
+    
+    def update_init(self, background=None, music=None, button=False, text=False):
+        self.background = background
+        self.update_music(music)
+
+        self.button         = button
+        self.list_button    = []
+        
+        self.text           = text
         self.list_text      = []
 
 
     def update_music(self, music):
-        """
-        Update : Load Music
-        """
-        if self.music != music:
+        if self.music != music and music != None:
             self.music = music
             pygame.mixer.music.load(music)
             pygame.mixer.music.play(-1)
-        
-
-    def update_init(self, background=None, music=None, button=False, text=False):
-        """
-        Update :
-            Setup   : Load all states
-            Reset   : Clean all lists and reset user interface states
-            Load    : Load Background & Music
-        """
-        # Setup
-        self.button = button
-        self.text   = text
-
-        # Reset
-        self.list_button    = []
-        self.list_text      = []
-        
-        # Load
-        self.background = background
-
-        if music != None: 
-            self.update_music(music)
             
 
     def update_1(self):
@@ -76,9 +68,9 @@ class Setup():
         if self.background != None:
             gameDisplay.blit(self.background, (0,0))
         
-        Tools.events = pygame.event.get()
-        for event in Tools.events:
-            Tools.event = event
+        self.events = pygame.event.get()
+        for event in self.events:
+            self.event = event
 
         
 
@@ -225,13 +217,13 @@ class Button():
             gameDisplay.blit(textSurf, textRect)
 
 
-        for event in Tools.events:
+        for event in Setup.events:
             mouse = pygame.mouse.get_pos()
             self.update_scale()
 
             if self.rect_scaled.collidepoint(mouse):
                 self.display = self.active
-                if Tools.event.type == pygame.MOUSEBUTTONDOWN and Tools.event.button == 1:
+                if Setup.event.type == pygame.MOUSEBUTTONDOWN and Setup.event.button == 1:
                     if self.action != None and self.selection != None:
                         self.action(self.selection)
                     
@@ -429,7 +421,7 @@ class ScaledGame(pygame.Surface):
 
         #Updates screen properly
         win_size_done = False #Changes to True if the window size is got by the VIDEORESIZE event below
-        for event in Tools.events:
+        for event in Setup.events:
             if event.type == VIDEORESIZE:
                 ss = [event.w, event.h]
                 self.resize = True
@@ -486,13 +478,6 @@ gameDisplay = ScaledGame(project_title, Screen_size)
 """
     Tools Functions
 """
-class Tools():
-    def __init__(self):
-        self.event          = ""    # Button
-        self.events         = ""    # Text
-Tools = Tools()
-
-
 def file_len(file):
     with open(file) as f:
         for i, l in enumerate(f):
@@ -656,7 +641,7 @@ def Main_Screen():
         MainIG.update()
         Setup.update_2()
         
-        for event in Tools.events:    
+        for event in Setup.events:    
             if event.type == pygame.QUIT:
                 quit_game()
 
@@ -1059,8 +1044,8 @@ class MainIG():
         
 
     def battle_unselect(self):
-        for event in Tools.events:
-            if self.board[0] != [] and Tools.event.type == pygame.MOUSEBUTTONDOWN and Tools.event.button == 3:
+        for event in Setup.events:
+            if self.board[0] != [] and Setup.event.type == pygame.MOUSEBUTTONDOWN and Setup.event.button == 3:
                 index = self.board[0][len(self.board[0])-1]
                 self.hand[0].append(index)
                 self.board[0].remove(index)
