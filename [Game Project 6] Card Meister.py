@@ -579,7 +579,7 @@ def Main_Screen():
 
 
 class Text():
-    def __init__(self, text, x, y, font, center=False, hollow=False, outline=False, outlinecolor=None, stroke=0, setup=False):
+    def __init__(self, text, font, x, y, center=False, hollow=False, outline=False, outlinecolor=None, stroke=0, setup=False):
         """
         Setup       : Add text to the text_list
         Text        : Text string, font, color
@@ -836,11 +836,10 @@ class MainIG():
     def title_update(self):
         Setup.update_init(self.background, Menu_Progressive)
         self.update_state()
-        Button((None, None), (0, 0),    (button_fullscreen_inactive,   button_fullscreen_active),   False, None, gameDisplay.fullscreen)
+        Button((None, None), (0,   0),  (button_fullscreen_inactive,   button_fullscreen_active),   False, None, gameDisplay.fullscreen)
         Button((None, None), (760, 0),  (button_exit_inactive,         button_exit_active),         False, None, quit_game)
 
-        Text(project_title, display_width/2, display_height/4, text_title, center=True, hollow=True, outline=True, outlinecolor=color_black, stroke=3, setup=True)
-
+        Text(project_title, text_title, display_width/2, display_height/4, center=True, hollow=True, outline=True, outlinecolor=color_black, stroke=3, setup=True)
         Button(("Start", text_interface),   (1*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True), (Color_Green, Color_Red), True, True, self.battle_update)
         Button(("Music", text_interface),   (2*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True), (Color_Green, Color_Red), True, None, self.music_update)
         Button(("Exit",  text_interface),   (3*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True), (Color_Green, Color_Red), True, None, quit_game)
@@ -849,7 +848,7 @@ class MainIG():
     def music_update(self):
         Setup.update_init(self.background, Menu_Progressive)
         self.update_state()
-        Button((None, None), (0, 0),    (button_fullscreen_inactive,   button_fullscreen_active),   False, None, gameDisplay.fullscreen)
+        Button((None, None), (0,   0),  (button_fullscreen_inactive,   button_fullscreen_active),   False, None, gameDisplay.fullscreen)
         Button((None, None), (760, 0),  (button_exit_inactive,         button_exit_active),         False, None, quit_game)
 
 
@@ -860,7 +859,7 @@ class MainIG():
                     Button(("Music %i" % (index+1), Text_Button), (display_width/64 + display_width/5*col, display_height/6 + display_height/9*row, display_width/6, display_height/12, 4, True), (Color_Green, Color_Red), False, list_music[index], Music_Play)
                     index += 1
                 
-        Text("Music Gallery", display_width/2, display_height/12, text_title, center=True, hollow=True, outline=True, outlinecolor=color_black, stroke=3, setup=True)
+        Text("Music Gallery", text_title, display_width/2, display_height/12, center=True, hollow=True, outline=True, outlinecolor=color_black, stroke=3, setup=True)
         Button(("Return", text_interface), (740, 570, 100, 40, 1, True), (Color_Button, Color_Red), True, None, self.title_update)
                     
 
@@ -871,7 +870,7 @@ class MainIG():
             # Setup
             Setup.update_init(self.background)
             self.update_state(battle=True)
-            Button((None, None), (0, 0),    (button_fullscreen_inactive,   button_fullscreen_active),   False, None, gameDisplay.fullscreen)
+            Button((None, None), (0,   0),  (button_fullscreen_inactive,   button_fullscreen_active),   False, None, gameDisplay.fullscreen)
             Button((None, None), (760, 0),  (button_exit_inactive,         button_exit_active),         False, None, quit_game)
 
 
@@ -924,11 +923,11 @@ class MainIG():
             Status
             """
             for side in range(2):
-                Text("%s"           % self.name[side],              589-376*side, 483-435*side, text_interface,   True)
-                Text("Health: %s"   % self.health[side],            589-376*side, 523-435*side, text_interface,   True)
-                Text("AGI:%s"       % self.base_level[side][1][0],  548-456*side, 558-435*side, text_interface_2, True)
-                Text("STR:%s"       % self.base_level[side][1][1],  628-456*side, 558-435*side, text_interface_2, True)
-                Text("DEF:%s"       % self.base_level[side][1][2],  708-456*side, 558-435*side, text_interface_2, True)
+                Text("%s"           % self.name[side],              text_interface,     589-376*side, 483-435*side, True)
+                Text("Health: %s"   % self.health[side],            text_interface,     589-376*side, 523-435*side, True)
+                Text("AGI:%s"       % self.base_level[side][1][0],  text_interface_2,   548-456*side, 558-435*side, True)
+                Text("STR:%s"       % self.base_level[side][1][1],  text_interface_2,   628-456*side, 558-435*side, True)
+                Text("DEF:%s"       % self.base_level[side][1][2],  text_interface_2,   708-456*side, 558-435*side, True)
 
             """
             Battle
@@ -958,7 +957,7 @@ class MainIG():
         if init == True:
             Setup.update_init(self.background)
             self.update_state(upgrade=True)
-            Button((None, None), (0, 0),    (button_fullscreen_inactive,   button_fullscreen_active),   False, None, gameDisplay.fullscreen)
+            Button((None, None), (0,   0),  (button_fullscreen_inactive,   button_fullscreen_active),   False, None, gameDisplay.fullscreen)
             Button((None, None), (760, 0),  (button_exit_inactive,         button_exit_active),         False, None, quit_game)
             
 
@@ -982,11 +981,11 @@ class MainIG():
             for upgrade_type in range(2):
                 for index in range(3):
                     Cost = self.upgrade_cost(index, upgrade_type)
-                    Text("%i"       % Cost,                                     560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, text_interface, True)
-                    Text("%s"       % Statistics[upgrade_type][index],          640-40*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, text_interface, True)
-                    Text("LvL %i"   % self.base_level[0][upgrade_type][index],  745-25*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, text_interface, True)
+                    Text("%i"       % Cost,                                     text_interface, 560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, True)
+                    Text("%s"       % Statistics[upgrade_type][index],          text_interface, 640-40*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, True)
+                    Text("LvL %i"   % self.base_level[0][upgrade_type][index],  text_interface, 745-25*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, True)
 
-            Text("EXP: %i" % self.experience[0], 520, 570, text_interface, True)
+            Text("EXP: %i" % self.experience[0], text_interface, 520, 570, True)
 
        
 ############################################################  
