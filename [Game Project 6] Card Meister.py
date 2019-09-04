@@ -690,11 +690,11 @@ GhoulIG = Ghoul()
 
 class Shadow_fire():
     def __init__(self):
-        self.name       = "Shadow Fire"
+        self.name       = "Fire"
         self.icon       = icon_shadow_fire
         self.maxhealth  = 75
         self.health     = self.maxhealth
-        self.base_level = [ [6, 5, 5], [5, 15, 10] ]
+        self.base_level = [ [6, 5, 5], [8, 15, 12] ]
         self.experience = 125
 Shadow_fireIG = Shadow_fire()
 
@@ -702,11 +702,11 @@ Shadow_fireIG = Shadow_fire()
 
 class Shadow_water():
     def __init__(self):
-        self.name       = "Shadow Water"
+        self.name       = "Water"
         self.icon       = icon_shadow_water
         self.maxhealth  = 75
         self.health     = self.maxhealth
-        self.base_level = [ [6, 6, 5], [10, 10, 10] ]
+        self.base_level = [ [5, 6, 5], [10, 12, 10] ]
         self.experience = 125
 Shadow_waterIG = Shadow_water()
 
@@ -714,11 +714,11 @@ Shadow_waterIG = Shadow_water()
 
 class Shadow_wind():
     def __init__(self):
-        self.name       = "Shadow Wind"
+        self.name       = "Wind"
         self.icon       = icon_shadow_wind
         self.maxhealth  = 75
         self.health     = self.maxhealth
-        self.base_level = [ [6, 6, 6], [10, 15, 12] ]
+        self.base_level = [ [5, 5, 6], [12, 10, 8] ]
         self.experience = 125
 Shadow_windIG = Shadow_wind()
 
@@ -731,7 +731,7 @@ class Debug():
         self.maxhealth  = -1
         self.health     = self.maxhealth
         self.base_level = [ [2, 2, 2], [1, 2, 3] ]
-        self.experience = 50   
+        self.experience = 50
 DebugIG = Debug()
 
 
@@ -748,6 +748,9 @@ class MainIG():
         self.battle     = False
         self.upgrade    = False
 
+        self.stage              = 10
+        self.list_enemy         = [WolfIG, DirewolfIG, ZombieIG, GhoulIG, Shadow_fireIG, Shadow_waterIG, Shadow_windIG]
+
 
         """
         Character status
@@ -758,10 +761,7 @@ class MainIG():
         self.health             = [self.maxhealth[0], self.maxhealth[1]]
         self.base_level         = [ [ [1, 1, 1], [1, 1, 1] ], [ [1, 1, 1], [1, 1, 1] ] ]    # [Character][Type][Stats]
         self.experience         = [0, 0]
-
-        self.stage              = 0
-        self.list_enemy         = [WolfIG, DirewolfIG, ZombieIG, GhoulIG, Shadow_fireIG, Shadow_waterIG, Shadow_windIG]
-
+    
         self.battle_character(PlayerIG, 0)        
         
         
@@ -875,13 +875,13 @@ class MainIG():
                 enemy = self.list_enemy[self.stage]
                 
             else:
-                enemy = random.randint(0, len(self.list_enemy)-1)
+                enemy = self.list_enemy[random.randint(4, 6)]
 
             if music == None and self.stage <= len(self.list_music[1:8]):
                 music = self.list_music[1+self.stage]
 
             else:
-                music = random.randint(1, 7)
+                music = self.list_music[random.randint(1, 7)]
 
 
             # Setup
@@ -967,7 +967,7 @@ class MainIG():
         if init == True:
             Setup.update_init(self.background, self.list_music[8])
             self.update_state(upgrade=True)
-            Button((None, None), (False, 0,     5),     (button_fullscreen_inactive,    button_fullscreen_active),  None, gameDisplay.fullscreen)
+            Button((None, None), (False, 5,     5),     (button_fullscreen_inactive,    button_fullscreen_active),  None, gameDisplay.fullscreen)
             Button((None, None), (False, 755,   5),     (button_exit_inactive,          button_exit_active),        None, quit_game)
             
 
