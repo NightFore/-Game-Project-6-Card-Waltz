@@ -599,24 +599,12 @@ icon_ghoul                  = pygame.image.load("Data\Graphics\Icon_ghoul.png").
 base_upgrade                = pygame.image.load("Data\Graphics\Base_upgrade.png").convert()
 sprite_iris                 = pygame.image.load("Data\Graphics\Sprite_iris.png")
 
-Battle_Desert_Journey                       = "Data\Music\Battle_Desert_Journey.mp3"
-Battle_Elite_Guard                          = "Data\Music\Battle_Elite_Guard.mp3"
 Battle_Friendly_Confrontation               = "Data\Music\Battle_Friendly_Confrontation.mp3"
-Battle_Heroic_Entrance                      = "Data\Music\Battle_Heroic_Entrance.mp3"
-Battle_Thug_Fight                           = "Data\Music\Battle_Thug_Fight.mp3"
 Battle_To_the_Hill_where_the_Sunset_Falls   = "Data\Music\Battle_To_the_Hill_where_the_Sunset_Falls.mp3"
-Battle_Underground_Encounter                = "Data\Music\Battle_Underground_Encounter.mp3"
-Boss_Devil_Soul                             = "Data\Music\Boss_Devil_Soul.mp3"
-Event_Reasoning                             = "Data\Music\Event_Reasoning.mp3"
 Event_Running_to_See_Everyone               = "Data\Music\Event_Running_to_See_Everyone.mp3"
-Map_Runaway                                 = "Data\Music\Map_Runaway.mp3"
 Menu_Progressive                            = "Data\Music\Menu_Progressive.mp3"
 
-list_music = [Battle_Desert_Journey, Battle_Elite_Guard, Battle_Friendly_Confrontation, Battle_Heroic_Entrance, Battle_Thug_Fight, Battle_To_the_Hill_where_the_Sunset_Falls, Battle_Underground_Encounter,
-              Boss_Devil_Soul,
-              Event_Reasoning, Event_Running_to_See_Everyone,
-              Map_Runaway,
-              Menu_Progressive]
+list_music = [Battle_Friendly_Confrontation, Battle_To_the_Hill_where_the_Sunset_Falls, Event_Running_to_See_Everyone, Menu_Progressive]
 
 ############################################################
 """
@@ -737,8 +725,9 @@ class MainIG():
         self.base_level         = [ [ [1, 1, 1], [1, 1, 1] ], [ [1, 1, 1], [1, 1, 1] ] ]    # [Character][Type][Stats]
         self.experience         = [0, 0]
 
-        self.stage      = 0
-        self.base_enemy = [WolfIG, DirewolfIG, GhoulIG, ZombieIG]
+        self.stage              = 0
+        self.base_enemy         = [WolfIG, DirewolfIG, GhoulIG, ZombieIG]
+        self.base_music         = [Battle_Heroic_Entrance]
 
         self.battle_character(PlayerIG, 0)        
         
@@ -845,28 +834,27 @@ class MainIG():
 
                 
     
-    def battle_update(self, init=False, enemy=None):
+    def battle_update(self, init=False, enemy=None, music=list_music[0]):
         if init == True:
+            # Update enemy
+            if enemy == None and self.stage <= len(self.base_enemy)-1:
+                enemy = self.base_enemy[self.stage]
+                
+            else:
+                enemy = random.randint(0, len(self.base_enemy)-1)
+            
             # Setup
-            Setup.update_init(self.background)
+            Setup.update_init(self.background, music)
             self.update_state(battle=True)
             Button((None, None), (False, 0,   0), (button_fullscreen_inactive,  button_fullscreen_active),  None, gameDisplay.fullscreen)
             Button((None, None), (False, 760, 0), (button_exit_inactive,        button_exit_active),        None, quit_game)
-
 
             # Button
             Button((None, None), (False, 55, 480), (base_card_ok_inactive, base_card_ok_active), None, self.battle_phase)
 
             for index in range(5):
                 Button((None, None), (False, 120+65*index, 480, 60, 90, 0, True), (None, None), index, self.battle_select)
-                    
-            # Update
-            if enemy == None and self.stage <= len(self.base_enemy)-1:
-                enemy = self.base_enemy[self.stage]
-            
-            else:
-                enemy = random.randint(0, len(self.base_enemy)-1)
-                
+
             self.battle_character(enemy)
             self.battle_card_phase_1()
 
@@ -1246,7 +1234,7 @@ class MainIG():
                     Setup.list_button.remove(self.upgrade_button[upgrade_type][index])
                     self.upgrade_button[upgrade_type][index] = None
                     self.base_level[0][upgrade_type][index] -= self.cancel_level[upgrade_type][index]
-                
+            
         self.cancel_experience  = 0
         self.cancel_level       = [ [0, 0, 0], [0, 0, 0] ]
 
