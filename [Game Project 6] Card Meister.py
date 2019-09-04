@@ -599,13 +599,6 @@ icon_ghoul                  = pygame.image.load("Data\Graphics\Icon_ghoul.png").
 base_upgrade                = pygame.image.load("Data\Graphics\Base_upgrade.png").convert()
 sprite_iris                 = pygame.image.load("Data\Graphics\Sprite_iris.png")
 
-Battle_Friendly_Confrontation               = "Data\Music\Battle_Friendly_Confrontation.mp3"
-Battle_To_the_Hill_where_the_Sunset_Falls   = "Data\Music\Battle_To_the_Hill_where_the_Sunset_Falls.mp3"
-Event_Running_to_See_Everyone               = "Data\Music\Event_Running_to_See_Everyone.mp3"
-Menu_Progressive                            = "Data\Music\Menu_Progressive.mp3"
-
-list_music = [Battle_Friendly_Confrontation, Battle_To_the_Hill_where_the_Sunset_Falls, Event_Running_to_See_Everyone, Menu_Progressive]
-
 ############################################################
 """
     Game Functions
@@ -668,27 +661,28 @@ DirewolfIG = Direwolf()
 
 
 
-class Ghoul():
-    def __init__(self):
-        self.name       = "Ghoul"
-        self.icon       = icon_ghoul
-        self.maxhealth  = 30
-        self.health     = self.maxhealth
-        self.base_level = [ [5, 3, 3], [6, 10, 10] ]
-        self.experience = 75
-GhoulIG = Ghoul()
-
-
-
 class Zombie():
     def __init__(self):
         self.name       = "Zombie"
         self.icon       = icon_zombie
+        self.maxhealth  = 30
+        self.health     = self.maxhealth
+        self.base_level = [ [5, 3, 3], [4, 12, 10] ]
+        self.experience = 80
+ZombieIG = Zombie()
+
+
+
+class Ghoul():
+    def __init__(self):
+        self.name       = "Ghoul"
+        self.icon       = icon_ghoul
         self.maxhealth  = 50
         self.health     = self.maxhealth
-        self.base_level = [ [5, 5, 5], [2, 20, 5] ]
-        self.experience = 100
-ZombieIG = Zombie()
+        self.base_level = [ [5, 5, 5], [8, 15, 3] ]
+        self.experience = 120
+GhoulIG = Ghoul()
+
 
 
 class Debug():
@@ -710,6 +704,7 @@ class MainIG():
         Game status
         """
         self.background = background
+        self.list_music = load_file("Data\Music")
         
         self.battle     = False
         self.upgrade    = False
@@ -726,8 +721,7 @@ class MainIG():
         self.experience         = [0, 0]
 
         self.stage              = 0
-        self.base_enemy         = [WolfIG, DirewolfIG, GhoulIG, ZombieIG]
-        self.base_music         = [Battle_Heroic_Entrance]
+        self.list_enemy         = [WolfIG, DirewolfIG, ZombieIG, GhoulIG]
 
         self.battle_character(PlayerIG, 0)        
         
@@ -803,10 +797,10 @@ class MainIG():
 
 
     def title_update(self):
-        Setup.update_init(self.background, Menu_Progressive)
+        Setup.update_init(self.background, self.list_music[0])
         self.update_state()
-        Button((None, None), (False, 0,   0), (button_fullscreen_inactive,  button_fullscreen_active),  None, gameDisplay.fullscreen)
-        Button((None, None), (False, 760, 0), (button_exit_inactive,        button_exit_active),        None, quit_game)
+        Button((None, None), (False, 0,     0),     (button_fullscreen_inactive,    button_fullscreen_active),  None, gameDisplay.fullscreen)
+        Button((None, None), (False, 760,   0),     (button_exit_inactive,          button_exit_active),        None, quit_game)
 
         Text((project_title, text_title), (True, display_width/2, display_height/4), True, color_black, 3, setup=True)
         Button(("Start", text_interface), (True, 1*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True), (Color_Green, Color_Red), True, self.battle_update)
@@ -815,17 +809,16 @@ class MainIG():
 
 
     def music_update(self):
-        Setup.update_init(self.background, Menu_Progressive)
+        Setup.update_init(self.background, self.list_music[0])
         self.update_state()
-        Button((None, None), (False, 0,   0), (button_fullscreen_inactive,  button_fullscreen_active),  None, gameDisplay.fullscreen)
-        Button((None, None), (False, 760, 0), (button_exit_inactive,        button_exit_active),        None, quit_game)
-
+        Button((None, None), (False, 0,     0),     (button_fullscreen_inactive,    button_fullscreen_active),  None, gameDisplay.fullscreen)
+        Button((None, None), (False, 760,   0),     (button_exit_inactive,          button_exit_active),        None, quit_game)
 
         index = 0
-        for row in range(round(0.5+len(list_music)/5)) :
+        for row in range(round(0.5+len(self.list_music)/5)) :
             for col in range(5):
-                if index < len(list_music):
-                    Button(("Music %i" % (index+1), Text_Button), (False, display_width/64 + display_width/5*col, display_height/6 + display_height/9*row, display_width/6, display_height/12, 4, True), (Color_Green, Color_Red), list_music[index], Music_Play)
+                if index < len(self.list_music):
+                    Button(("Music %i" % (index+1), Text_Button), (False, display_width/64 + display_width/5*col, display_height/6 + display_height/9*row, display_width/6, display_height/12, 4, True), (Color_Green, Color_Red), self.list_music[index], Music_Play)
                     index += 1
                 
         Text(("Music Gallery", text_title), (True, display_width/2, display_height/12), True, color_black, 3, setup=True)
@@ -834,23 +827,28 @@ class MainIG():
 
                 
     
-    def battle_update(self, init=False, enemy=None, music=list_music[0]):
+    def battle_update(self, init=False, enemy=None, music=None):
         if init == True:
-            # Update enemy
-            if enemy == None and self.stage <= len(self.base_enemy)-1:
-                enemy = self.base_enemy[self.stage]
+            # Update enemy & music
+            if enemy == None and self.stage <= len(self.list_enemy)-1:
+                enemy = self.list_enemy[self.stage]
                 
             else:
-                enemy = random.randint(0, len(self.base_enemy)-1)
-            
+                enemy = random.randint(0, len(self.list_enemy)-1)
+
+            if music == None and self.stage <= len(self.list_music[1:8]):
+                music = self.list_music[1+self.stage]
+
+            else:
+                music = random.randint(1, 7)
+
+
             # Setup
             Setup.update_init(self.background, music)
             self.update_state(battle=True)
-            Button((None, None), (False, 0,   0), (button_fullscreen_inactive,  button_fullscreen_active),  None, gameDisplay.fullscreen)
-            Button((None, None), (False, 760, 0), (button_exit_inactive,        button_exit_active),        None, quit_game)
-
-            # Button
-            Button((None, None), (False, 55, 480), (base_card_ok_inactive, base_card_ok_active), None, self.battle_phase)
+            Button((None, None), (False, 0,     0),     (button_fullscreen_inactive,    button_fullscreen_active),  None, gameDisplay.fullscreen)
+            Button((None, None), (False, 760,   0),     (button_exit_inactive,          button_exit_active),        None, quit_game)
+            Button((None, None), (False, 55,    480),   (base_card_ok_inactive,         base_card_ok_active),       None, self.battle_phase)
 
             for index in range(5):
                 Button((None, None), (False, 120+65*index, 480, 60, 90, 0, True), (None, None), index, self.battle_select)
@@ -926,10 +924,10 @@ class MainIG():
 
     def upgrade_update(self, init=False):
         if init == True:
-            Setup.update_init(self.background)
+            Setup.update_init(self.background, self.list_music[8])
             self.update_state(upgrade=True)
-            Button((None, None), (False, 5,   5), (button_fullscreen_inactive,  button_fullscreen_active),  None, gameDisplay.fullscreen)
-            Button((None, None), (False, 755, 5), (button_exit_inactive,        button_exit_active),        None, quit_game)
+            Button((None, None), (False, 0,     0),     (button_fullscreen_inactive,    button_fullscreen_active),  None, gameDisplay.fullscreen)
+            Button((None, None), (False, 760,   0),     (button_exit_inactive,          button_exit_active),        None, quit_game)
             
 
             self.experience[0] += self.experience[1]
