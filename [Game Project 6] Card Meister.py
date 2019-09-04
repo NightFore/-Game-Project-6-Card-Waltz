@@ -706,7 +706,7 @@ class Shadow_water():
         self.icon       = icon_shadow_water
         self.maxhealth  = 75
         self.health     = self.maxhealth
-        self.base_level = [ [5, 6, 5], [15, 10, 5] ]
+        self.base_level = [ [6, 6, 5], [10, 10, 10] ]
         self.experience = 125
 Shadow_waterIG = Shadow_water()
 
@@ -718,7 +718,7 @@ class Shadow_wind():
         self.icon       = icon_shadow_wind
         self.maxhealth  = 75
         self.health     = self.maxhealth
-        self.base_level = [ [6, 6, 6], [10, 10, 15] ]
+        self.base_level = [ [6, 6, 6], [10, 15, 12] ]
         self.experience = 125
 Shadow_windIG = Shadow_wind()
 
