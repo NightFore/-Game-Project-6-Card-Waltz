@@ -595,6 +595,9 @@ icon_wolf                   = pygame.image.load("Data\Graphics\Icon_wolf.png").c
 icon_direwolf               = pygame.image.load("Data\Graphics\Icon_direwolf.png").convert()
 icon_zombie                 = pygame.image.load("Data\Graphics\Icon_zombie.png").convert()
 icon_ghoul                  = pygame.image.load("Data\Graphics\Icon_ghoul.png").convert()
+icon_shadow_fire            = pygame.image.load("Data\Graphics\Icon_shadow_fire.png").convert()
+icon_shadow_water           = pygame.image.load("Data\Graphics\Icon_shadow_water.png").convert()
+icon_shadow_wind            = pygame.image.load("Data\Graphics\Icon_shadow_wind.png").convert()
 
 base_upgrade                = pygame.image.load("Data\Graphics\Base_upgrade.png").convert()
 sprite_iris                 = pygame.image.load("Data\Graphics\Sprite_iris.png")
@@ -653,7 +656,7 @@ class Direwolf():
     def __init__(self):
         self.name       = "Direwolf"
         self.icon       = icon_direwolf
-        self.maxhealth  = 20
+        self.maxhealth  = 25
         self.health     = self.maxhealth
         self.base_level = [ [3, 3, 3], [6, 6, 4] ]
         self.experience = 50
@@ -665,7 +668,7 @@ class Zombie():
     def __init__(self):
         self.name       = "Zombie"
         self.icon       = icon_zombie
-        self.maxhealth  = 30
+        self.maxhealth  = 40
         self.health     = self.maxhealth
         self.base_level = [ [5, 3, 3], [4, 12, 10] ]
         self.experience = 80
@@ -677,11 +680,47 @@ class Ghoul():
     def __init__(self):
         self.name       = "Ghoul"
         self.icon       = icon_ghoul
-        self.maxhealth  = 50
+        self.maxhealth  = 60
         self.health     = self.maxhealth
         self.base_level = [ [5, 5, 5], [8, 15, 3] ]
         self.experience = 120
 GhoulIG = Ghoul()
+
+
+
+class Shadow_fire():
+    def __init__(self):
+        self.name       = "Shadow Fire"
+        self.icon       = icon_shadow_fire
+        self.maxhealth  = 100
+        self.health     = self.maxhealth
+        self.base_level = [ [7, 5, 5], [5, 15, 10] ]
+        self.experience = 200
+Shadow_fireIG = Shadow_fire()
+
+
+
+class Shadow_water():
+    def __init__(self):
+        self.name       = "Shadow Water"
+        self.icon       = icon_shadow_water
+        self.maxhealth  = 100
+        self.health     = self.maxhealth
+        self.base_level = [ [5, 7, 5], [10, 5, 15] ]
+        self.experience = 200
+Shadow_waterIG = Shadow_water()
+
+
+
+class Shadow_wind():
+    def __init__(self):
+        self.name       = "Shadow Wind"
+        self.icon       = icon_shadow_wind
+        self.maxhealth  = 100
+        self.health     = self.maxhealth
+        self.base_level = [ [5, 5, 7], [15, 10, 5] ]
+        self.experience = 200
+Shadow_windIG = Shadow_wind()
 
 
 
@@ -721,7 +760,7 @@ class MainIG():
         self.experience         = [0, 0]
 
         self.stage              = 0
-        self.list_enemy         = [WolfIG, DirewolfIG, ZombieIG, GhoulIG]
+        self.list_enemy         = [WolfIG, DirewolfIG, ZombieIG, GhoulIG, Shadow_fireIG, Shadow_waterIG, Shadow_windIG]
 
         self.battle_character(PlayerIG, 0)        
         
