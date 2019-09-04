@@ -644,10 +644,10 @@ class Wolf():
     def __init__(self):
         self.name       = "Wolf"
         self.icon       = icon_wolf
-        self.maxhealth  = 10
+        self.maxhealth  = 25
         self.health     = self.maxhealth
-        self.base_level = [ [2, 2, 3], [4, 3, 2] ]
-        self.experience = 40
+        self.base_level = [ [2, 2, 2], [6, 4, 4] ]
+        self.experience = 25
 WolfIG = Wolf()
 
 
@@ -656,10 +656,10 @@ class Direwolf():
     def __init__(self):
         self.name       = "Direwolf"
         self.icon       = icon_direwolf
-        self.maxhealth  = 25
+        self.maxhealth  = 40
         self.health     = self.maxhealth
-        self.base_level = [ [3, 3, 3], [6, 6, 4] ]
-        self.experience = 50
+        self.base_level = [ [3, 3, 4], [6, 6, 6] ]
+        self.experience = 45
 DirewolfIG = Direwolf()
 
 
@@ -668,10 +668,10 @@ class Zombie():
     def __init__(self):
         self.name       = "Zombie"
         self.icon       = icon_zombie
-        self.maxhealth  = 40
+        self.maxhealth  = 50
         self.health     = self.maxhealth
-        self.base_level = [ [5, 3, 3], [4, 12, 10] ]
-        self.experience = 80
+        self.base_level = [ [4, 4, 4], [6, 8, 8] ]
+        self.experience = 65
 ZombieIG = Zombie()
 
 
@@ -682,8 +682,8 @@ class Ghoul():
         self.icon       = icon_ghoul
         self.maxhealth  = 60
         self.health     = self.maxhealth
-        self.base_level = [ [5, 5, 5], [8, 15, 3] ]
-        self.experience = 120
+        self.base_level = [ [5, 5, 5], [8, 10, 8] ]
+        self.experience = 100
 GhoulIG = Ghoul()
 
 
@@ -692,10 +692,10 @@ class Shadow_fire():
     def __init__(self):
         self.name       = "Shadow Fire"
         self.icon       = icon_shadow_fire
-        self.maxhealth  = 100
+        self.maxhealth  = 75
         self.health     = self.maxhealth
-        self.base_level = [ [7, 5, 5], [5, 15, 10] ]
-        self.experience = 200
+        self.base_level = [ [6, 5, 5], [5, 15, 10] ]
+        self.experience = 150
 Shadow_fireIG = Shadow_fire()
 
 
@@ -704,10 +704,10 @@ class Shadow_water():
     def __init__(self):
         self.name       = "Shadow Water"
         self.icon       = icon_shadow_water
-        self.maxhealth  = 100
+        self.maxhealth  = 75
         self.health     = self.maxhealth
-        self.base_level = [ [5, 7, 5], [10, 5, 15] ]
-        self.experience = 200
+        self.base_level = [ [5, 6, 5], [10, 5, 15] ]
+        self.experience = 150
 Shadow_waterIG = Shadow_water()
 
 
@@ -716,10 +716,10 @@ class Shadow_wind():
     def __init__(self):
         self.name       = "Shadow Wind"
         self.icon       = icon_shadow_wind
-        self.maxhealth  = 100
+        self.maxhealth  = 75
         self.health     = self.maxhealth
-        self.base_level = [ [5, 5, 7], [15, 10, 5] ]
-        self.experience = 200
+        self.base_level = [ [5, 5, 6], [15, 10, 5] ]
+        self.experience = 150
 Shadow_windIG = Shadow_wind()
 
 
@@ -868,7 +868,9 @@ class MainIG():
     
     def battle_update(self, init=False, enemy=None, music=None):
         if init == True:
-            # Update enemy & music
+            # Update hand / enemy & music
+            self.hand = [[None, None, None, None, None], [None, None, None, None, None]]
+            
             if enemy == None and self.stage <= len(self.list_enemy)-1:
                 enemy = self.list_enemy[self.stage]
                 
@@ -965,8 +967,8 @@ class MainIG():
         if init == True:
             Setup.update_init(self.background, self.list_music[8])
             self.update_state(upgrade=True)
-            Button((None, None), (False, 0,     0),     (button_fullscreen_inactive,    button_fullscreen_active),  None, gameDisplay.fullscreen)
-            Button((None, None), (False, 760,   0),     (button_exit_inactive,          button_exit_active),        None, quit_game)
+            Button((None, None), (False, 0,     5),     (button_fullscreen_inactive,    button_fullscreen_active),  None, gameDisplay.fullscreen)
+            Button((None, None), (False, 755,   5),     (button_exit_inactive,          button_exit_active),        None, quit_game)
             
 
             self.experience[0] += self.experience[1]
@@ -1017,7 +1019,7 @@ class MainIG():
 
         for side in range(2):
             for index in range(5):
-                # Focus card
+                # Upgrade Card
                 if index in self.hand[side]:
                     self.card[side][index] = [self.card[side][index][0], self.card[side][index][1] + 2]
                 
