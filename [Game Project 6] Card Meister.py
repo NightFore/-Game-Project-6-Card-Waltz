@@ -658,7 +658,7 @@ class Direwolf():
         self.icon       = icon_direwolf
         self.maxhealth  = 40
         self.health     = self.maxhealth
-        self.base_level = [ [3, 3, 4], [6, 6, 6] ]
+        self.base_level = [ [2, 2, 3], [6, 6, 6] ]
         self.experience = 45
 DirewolfIG = Direwolf()
 
@@ -670,8 +670,8 @@ class Zombie():
         self.icon       = icon_zombie
         self.maxhealth  = 50
         self.health     = self.maxhealth
-        self.base_level = [ [4, 4, 4], [6, 8, 8] ]
-        self.experience = 65
+        self.base_level = [ [3, 3, 3], [6, 8, 8] ]
+        self.experience = 70
 ZombieIG = Zombie()
 
 
@@ -682,7 +682,7 @@ class Ghoul():
         self.icon       = icon_ghoul
         self.maxhealth  = 60
         self.health     = self.maxhealth
-        self.base_level = [ [5, 5, 5], [8, 10, 8] ]
+        self.base_level = [ [4, 4, 4], [8, 10, 8] ]
         self.experience = 100
 GhoulIG = Ghoul()
 
@@ -694,7 +694,7 @@ class Shadow_fire():
         self.icon       = icon_shadow_fire
         self.maxhealth  = 75
         self.health     = self.maxhealth
-        self.base_level = [ [6, 5, 5], [5, 15, 10] ]
+        self.base_level = [ [6, 4, 4], [5, 12, 8] ]
         self.experience = 150
 Shadow_fireIG = Shadow_fire()
 
@@ -706,7 +706,7 @@ class Shadow_water():
         self.icon       = icon_shadow_water
         self.maxhealth  = 75
         self.health     = self.maxhealth
-        self.base_level = [ [5, 6, 5], [10, 5, 15] ]
+        self.base_level = [ [4, 6, 4], [8, 5, 12] ]
         self.experience = 150
 Shadow_waterIG = Shadow_water()
 
@@ -718,7 +718,7 @@ class Shadow_wind():
         self.icon       = icon_shadow_wind
         self.maxhealth  = 75
         self.health     = self.maxhealth
-        self.base_level = [ [5, 5, 6], [15, 10, 5] ]
+        self.base_level = [ [4, 4, 6], [12, 8, 5] ]
         self.experience = 150
 Shadow_windIG = Shadow_wind()
 
