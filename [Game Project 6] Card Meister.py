@@ -761,6 +761,9 @@ class MainIG():
 
         """
         Character status
+            base_level:
+                -LvL max Card  : 9
+                -LvL max Stats : 20
         """
         self.name               = ["", ""]
         self.icon               = [None, None]
@@ -917,7 +920,7 @@ class MainIG():
             else:
                 enemy = self.list_enemy[random.randint(4, 6)]
 
-            if music == None and self.stage <= len(self.list_music[1:8]):
+            if music == None and self.stage <= len(self.list_music[1:7]):
                 music = self.list_music[1+self.stage]
 
             else:
@@ -1007,7 +1010,7 @@ class MainIG():
         if init == True:
             Setup.update_init(self.background, self.list_music[8])
             self.update_state(upgrade=True)
-            Button((None, None), (False, 5,     5),     (button_fullscreen_inactive,    button_fullscreen_active),  None, gameDisplay.fullscreen)
+            Button((None, None), (False, 0,     0),     (button_fullscreen_inactive,    button_fullscreen_active),  None, gameDisplay.fullscreen)
             Button((None, None), (False, 755,   5),     (button_exit_inactive,          button_exit_active),        None, quit_game)
 
             if self.difficulty == "Easy":
@@ -1029,7 +1032,7 @@ class MainIG():
             Statistics  = [ ["Fire",      "Water",    "Wind"], ["Agility",   "Strength", "Defense"] ]
             for upgrade_type in range(2):
                 for index in range(3):
-                    if self.upgrade_button[upgrade_type][index] not in Setup.list_button:
+                    if self.upgrade_button[upgrade_type][index] not in Setup.list_button and self.base_level[0][upgrade_type][index] < 9+11*upgrade_type:
                         Cost = self.upgrade_cost(index, upgrade_type)
                         self.upgrade_button[upgrade_type][index] = Button(("%i" % Cost, text_interface), (True, 560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, 40, 40, 1, True), (Color_Red, Color_Button), (index, upgrade_type), self.upgrade_level) 
 
@@ -1257,7 +1260,7 @@ class MainIG():
                     wait_time = 0
 
                 elif self.fast_mode == "off":
-                    wait_time = 100
+                    wait_time = 75
                 
                 if self.transition_time >= wait_time:
                     self.transition_init[index] = False
