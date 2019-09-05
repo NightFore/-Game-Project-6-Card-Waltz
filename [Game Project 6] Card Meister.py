@@ -609,7 +609,7 @@ sprite_iris                 = pygame.image.load("Data\Graphics\Sprite_iris.png")
 def Main_Screen():
     # Setup
     Setup.update_init(background)
-    MainIG.title_update()
+    MainIG.title_update(True)
 
     # Loop
     gameExit = False
@@ -745,12 +745,19 @@ class MainIG():
         self.background = background
         self.list_music = load_file("Data\Music")
         
+        self.fullscreen     = "off"
+        self.difficulty     = "Normal"
+        self.fast_mode      = "off"
+    
+        self.title_button   = [ [None, None, None], ["Fullscreen: ", "Difficulty: ", "Fast Mode: "] ]
+        self.upgrade_button = [ [ [], [], [] ], [ [], [], [] ] ]
+    
+        self.title      = False
         self.battle     = False
         self.upgrade    = False
 
         self.stage              = 10
         self.list_enemy         = [WolfIG, DirewolfIG, ZombieIG, GhoulIG, Shadow_fireIG, Shadow_waterIG, Shadow_windIG]
-
 
         """
         Character status
@@ -815,38 +822,72 @@ class MainIG():
         self.transition_init    = [True, False]
         self.transition_x       = 800
         self.transition_time    = 0
-        
-        self.upgrade_button     = [ [ [], [], [] ], [ [], [], [] ] ]
+    
         self.cancel_experience  = 0
         self.cancel_level       = [ [0, 0, 0], [0, 0, 0] ]
 
 
 
     def update(self):
-        if self.battle == True:
+        if self.title == True:
+            self.title_update()
+        
+        elif self.battle == True:
             self.battle_update()
 
         elif self.upgrade == True:
             self.upgrade_update()
      
 
-    def update_state(self, battle=False, upgrade=False):
+    def update_state(self, title=False, battle=False, upgrade=False):
+        self.title      = title
         self.battle     = battle
         self.upgrade    = upgrade
 
 
-    def title_update(self):
-        Setup.update_init(self.background, self.list_music[0])
-        self.update_state()
-        Button((None, None), (False, 0,     0),     (button_fullscreen_inactive,    button_fullscreen_active),  None, gameDisplay.fullscreen)
-        Button((None, None), (False, 760,   0),     (button_exit_inactive,          button_exit_active),        None, quit_game)
+    def settings_update(self, index):
+        Setup.list_button.remove(self.title_button[0][index])
+        self.title_button[0][index] = None
+                
+        if index == 0:
+            gameDisplay.fullscreen()
 
-        Text((project_title, text_title), (True, display_width/2, display_height/4), True, color_black, 3, setup=True)
-        Button(("Start", text_interface), (True, 1*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True), (Color_Green, Color_Red), True, self.battle_update)
-        Button(("Music", text_interface), (True, 2*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True), (Color_Green, Color_Red), None, self.music_update)
-        Button(("Exit",  text_interface), (True, 3*display_width/4, 3*display_height/4, display_width/6, display_height/12, 5, True), (Color_Green, Color_Red), None, quit_game)
+        elif index == 1:
+            if self.difficulty != "Normal":
+                self.difficulty = "Normal"
+            else:
+                self.difficulty = "Easy"
+        
+        elif index == 2:
+            if self.fast_mode != "on":
+                self.fast_mode = "on"
+            else:
+                self.fast_mode = "off"
+    
+        self.fullscreen = gameDisplay.set_fullscreen
+        if self.fullscreen == True:
+            self.fullscreen = "on"
+        elif self.fullscreen == False:
+            self.fullscreen = "off"
+    
 
+    def title_update(self, init=False):
+        if init == True:
+            Setup.update_init(self.background, self.list_music[0])
+            self.update_state(title=True)
 
+            Text((project_title, text_title), (True, display_width/2, display_height/4), True, color_black, 3, setup=True)
+            Button(("Start", text_interface), (True, 1*display_width/4, 11*display_height/16, display_width/6, display_height/12, 5, True), (Color_Green, Color_Red), True, self.battle_update)
+            Button(("Music", text_interface), (True, 2*display_width/4, 11*display_height/16, display_width/6, display_height/12, 5, True), (Color_Green, Color_Red), None, self.music_update)
+            Button(("Exit",  text_interface), (True, 3*display_width/4, 11*display_height/16, display_width/6, display_height/12, 5, True), (Color_Green, Color_Red), None, quit_game)
+        
+        if init == False:
+            for index in range(3):
+                if self.title_button[0][index] == None:
+                    settings = [self.fullscreen, self.difficulty, self.fast_mode]
+                    self.title_button[0][index] = Button((self.title_button[1][index] + settings[index], text_interface), (True, 150+250*index, 525, 230, 50, 5, True), (Color_Green, Color_Red), index, self.settings_update)
+
+    
     def music_update(self):
         Setup.update_init(self.background, self.list_music[0])
         self.update_state()
