@@ -598,6 +598,7 @@ icon_ghoul                  = pygame.image.load("Data\Graphics\Icon_ghoul.png").
 icon_shadow_fire            = pygame.image.load("Data\Graphics\Icon_shadow_fire.png").convert()
 icon_shadow_water           = pygame.image.load("Data\Graphics\Icon_shadow_water.png").convert()
 icon_shadow_wind            = pygame.image.load("Data\Graphics\Icon_shadow_wind.png").convert()
+icon_gyrei                  = pygame.image.load("Data\Graphics\Icon_gyrei.png").convert()
 
 base_upgrade                = pygame.image.load("Data\Graphics\Base_upgrade.png").convert()
 sprite_iris                 = pygame.image.load("Data\Graphics\Sprite_iris.png")
@@ -724,15 +725,15 @@ Shadow_windIG = Shadow_wind()
 
 
 
-class Debug():
+class Gyrei():
     def __init__(self):
-        self.name       = "Debug"
-        self.icon       = icon_direwolf
-        self.maxhealth  = -1
+        self.name       = "Gyrei (Boss)"
+        self.icon       = icon_gyrei
+        self.maxhealth  = 50
         self.health     = self.maxhealth
-        self.base_level = [ [2, 2, 2], [1, 2, 3] ]
-        self.experience = 50
-DebugIG = Debug()
+        self.base_level = PlayerIG.base_level
+        self.experience = 200
+GyreiIG = Gyrei()
 
 
 
@@ -757,7 +758,7 @@ class MainIG():
         self.upgrade        = False
 
         self.stage          = 0
-        self.list_enemy     = [WolfIG, DirewolfIG, ZombieIG, GhoulIG, Shadow_fireIG, Shadow_waterIG, Shadow_windIG]
+        self.list_enemy     = [WolfIG, DirewolfIG, ZombieIG, GhoulIG, Shadow_fireIG, Shadow_waterIG, Shadow_windIG, GyreiIG]
 
         """
         Character status
@@ -918,13 +919,13 @@ class MainIG():
                 enemy = self.list_enemy[self.stage]
                 
             else:
-                enemy = self.list_enemy[random.randint(4, 6)]
+                enemy = self.list_enemy[7]
 
-            if music == None and self.stage <= len(self.list_music[1:7]):
+            if music == None and self.stage <= len(self.list_music[1:8]):
                 music = self.list_music[1+self.stage]
 
             else:
-                music = self.list_music[random.randint(1, 7)]
+                music = self.list_music[random.randint(1, 8)]
 
 
             # Setup
