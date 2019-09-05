@@ -750,14 +750,14 @@ class MainIG():
         self.fast_mode      = "off"
     
         self.title_button   = [ [None, None, None], ["Fullscreen: ", "Difficulty: ", "Fast Mode: "] ]
-        self.upgrade_button = [ [ [], [], [] ], [ [], [], [] ] ]
+        self.upgrade_button = [ [None, None, None], [None, None, None] ]
     
-        self.title      = False
-        self.battle     = False
-        self.upgrade    = False
+        self.title          = False
+        self.battle         = False
+        self.upgrade        = False
 
-        self.stage              = 10
-        self.list_enemy         = [WolfIG, DirewolfIG, ZombieIG, GhoulIG, Shadow_fireIG, Shadow_waterIG, Shadow_windIG]
+        self.stage          = 0
+        self.list_enemy     = [WolfIG, DirewolfIG, ZombieIG, GhoulIG, Shadow_fireIG, Shadow_waterIG, Shadow_windIG]
 
         """
         Character status
@@ -1010,18 +1010,16 @@ class MainIG():
             self.update_state(upgrade=True)
             Button((None, None), (False, 5,     5),     (button_fullscreen_inactive,    button_fullscreen_active),  None, gameDisplay.fullscreen)
             Button((None, None), (False, 755,   5),     (button_exit_inactive,          button_exit_active),        None, quit_game)
+
+            if self.difficulty == "Easy":
+                self.experience[0] += 2*self.experience[1]
+
+            elif self.difficulty == "Normal":
+                self.experience[0] += self.experience[1]
             
-
-            self.experience[0] += self.experience[1]
-            for index in range(3):
-                for upgrade_type in range(2):
-                    Cost = self.upgrade_cost(index, upgrade_type)
-                    self.upgrade_button[upgrade_type][index] = Button(("%i" % Cost, text_interface), (True, 560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, 40, 40, 1, True), (Color_Red, Color_Button), (index, upgrade_type), self.upgrade_level) 
-
             Button(("Cancel",  text_interface_2), (True, 635, 570, 100, 40, 1, True), (Color_Red, Color_Button), None, self.upgrade_cancel)
             Button(("Confirm", text_interface_2), (True, 740, 570, 100, 40, 1, True), (Color_Red, Color_Button), None, self.upgrade_confirm)
-
-
+        
 
         elif init == False:
             gameDisplay.blit(base_upgrade, (450, 0))
@@ -1242,6 +1240,7 @@ class MainIG():
         transition_init     : Initiate  Transition
         transition_x        : Slides 18 pixels to the left in each frame
         transition_time     : Sliding time (45 frames) / Waiting time (55 frames)
+        wait_time           : Time before the transition ends
         """
         for index in range(2):
             if self.transition_init[index] == True:
@@ -1255,8 +1254,13 @@ class MainIG():
                 else:
                     self.transition_x = 0
 
-                if self.transition_time >= 0: # Debug Mode
-                #if self.transition_time >= 100:
+                if self.fast_mode == "on":
+                    wait_time = 0
+
+                elif self.fast_mode == "off":
+                    wait_time = 100
+                
+                if self.transition_time >= wait_time:
                     self.transition_init[index] = False
                     self.transition_x           = 800
                     self.transition_time        = 0
