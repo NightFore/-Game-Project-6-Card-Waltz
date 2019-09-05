@@ -847,7 +847,6 @@ class MainIG():
 
     def settings_update(self, index):
         Setup.list_button.remove(self.title_button[0][index])
-        self.title_button[0][index] = None
                 
         if index == 0:
             gameDisplay.fullscreen()
@@ -878,17 +877,17 @@ class MainIG():
 
             Text((project_title, text_title), (True, display_width/2, display_height/4), True, color_black, 3, setup=True)
             Button(("Start", text_interface), (True, 1*display_width/4, 11*display_height/16, display_width/6, display_height/12, 5, True), (Color_Green, Color_Red), True, self.battle_update)
-            Button(("Music", text_interface), (True, 2*display_width/4, 11*display_height/16, display_width/6, display_height/12, 5, True), (Color_Green, Color_Red), None, self.music_update)
+            Button(("Music", text_interface), (True, 2*display_width/4, 11*display_height/16, display_width/6, display_height/12, 5, True), (Color_Green, Color_Red), True, self.music_update)
             Button(("Exit",  text_interface), (True, 3*display_width/4, 11*display_height/16, display_width/6, display_height/12, 5, True), (Color_Green, Color_Red), None, quit_game)
         
         if init == False:
+            settings = [self.fullscreen, self.difficulty, self.fast_mode]
             for index in range(3):
-                if self.title_button[0][index] == None:
-                    settings = [self.fullscreen, self.difficulty, self.fast_mode]
+                if self.title_button[0][index] not in Setup.list_button:
                     self.title_button[0][index] = Button((self.title_button[1][index] + settings[index], text_interface), (True, 150+250*index, 525, 230, 50, 5, True), (Color_Green, Color_Red), index, self.settings_update)
 
     
-    def music_update(self):
+    def music_update(self, init=False):
         Setup.update_init(self.background, self.list_music[0])
         self.update_state()
         Button((None, None), (False, 0,     0),     (button_fullscreen_inactive,    button_fullscreen_active),  None, gameDisplay.fullscreen)
@@ -902,7 +901,7 @@ class MainIG():
                     index += 1
                 
         Text(("Music Gallery", text_title), (True, display_width/2, display_height/12), True, color_black, 3, setup=True)
-        Button(("Return", text_interface), (True, 740, 570, 100, 40, 1, True), (Color_Button, Color_Red), None, self.title_update)
+        Button(("Return", text_interface), (True, 740, 570, 100, 40, 1, True), (Color_Button, Color_Red), True, self.title_update)
                     
 
                 
@@ -1030,7 +1029,7 @@ class MainIG():
             Statistics  = [ ["Fire",      "Water",    "Wind"], ["Agility",   "Strength", "Defense"] ]
             for upgrade_type in range(2):
                 for index in range(3):
-                    if self.upgrade_button[upgrade_type][index] == None:
+                    if self.upgrade_button[upgrade_type][index] not in Setup.list_button:
                         Cost = self.upgrade_cost(index, upgrade_type)
                         self.upgrade_button[upgrade_type][index] = Button(("%i" % Cost, text_interface), (True, 560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, 40, 40, 1, True), (Color_Red, Color_Button), (index, upgrade_type), self.upgrade_level) 
 
