@@ -951,7 +951,7 @@ class MainIG():
             self.update_init(music, battle=True)
 
             # Main
-            Button((None, None), (False, 55, 480), (se_system_4, None), (base_card_ok_inactive, base_card_ok_active), None, self.battle_phase)
+            Button((None, None), (False, 55, 480), (se_system_4, None), (base_card_ok_inactive, base_card_ok_active), None, self.battle_initiative)
 
             for index in range(5):
                 Button((None, None), (False, 120+65*index, 480, 60, 90, 0, True), (None, None), (None, None), index, self.battle_select)
@@ -1187,17 +1187,14 @@ class MainIG():
                 self.advantage      = [False, True]
             
 
-    def battle_phase(self):
+    def battle_initiative(self):
         if self.board[0] != []:
             if self.initiative == [0, 0]:
                 """
                 Battle Phase 1 : Initiative Phase
-                    Initiative = Board_power + Agility
-                        -Initiative Advantage
-                        -Update base_initiative display
-                    
-                    Update Card         : Reset Board and play Enemy remaining card
-                    transition_init     : Transition 2nd Phase
+                    Initiative      : Board_power + Agility
+                    Battle_phase_2  : Reset Board and play the remaining enemy cards
+                    transition_init : Transition to the second phase
                 """
                 p_initiative = self.board_power[0] + self.base_level[0][1][0]
                 e_initiative = self.board_power[1] + self.base_level[1][1][0]
@@ -1210,11 +1207,11 @@ class MainIG():
                 else:
                     self.initiative[1] = 1
 
-                self.battle_phase_2()
                 self.transition_init[1] = True
+                self.battle_phase_2()
 
             
-            elif self.initiative != [0, 0]:
+            else:
                 """
                 Battle Phase 2 : Attack Phase
                     Attack  = Board_power + Strength
@@ -1225,6 +1222,8 @@ class MainIG():
                     transition_init     : Transition 1st Phase
                     Initiative          : Reset initiative advantage
                 """
+                self.initiative = [0, 0]
+            
                 for side in range(2):
                     if self.initiative[side] == 1:
                         damage = (self.board_power[side] + self.base_level[side][1][1]) - (self.board_power[1-side] + self.base_level[1-side][1][2])
@@ -1235,9 +1234,8 @@ class MainIG():
                             if self.health[1-side] < 0:
                                 self.health[1-side] = 0
                         
-                self.battle_phase_1()
                 self.transition_init[0] = True
-                self.initiative = [0, 0]
+                self.battle_phase_1()
                 self.battle_end()
         
 
@@ -1256,35 +1254,36 @@ class MainIG():
                 Setup.button            = False
                 self.transition_time    += 1
                 transparent_image(self.base_phase[index], self.transition_x, 225, 225, gameDisplay)
-                
-                if self.transition_time < 40:
-                    self.transition_x -= 20
 
+            
+                if self.transition_time < 40:
+                    self.transition_x -= display_width / 40
                 else:
                     self.transition_x = 0
 
+
                 if self.fast_mode == "on":
                     wait_time = 0
-
                 elif self.fast_mode == "off":
                     wait_time = 70
+
                 
                 if self.transition_time >= wait_time:
                     self.transition_init[index] = False
                     self.transition_x           = 800
                     self.transition_time        = 0
                     Setup.button                = True
-                    
-
+                
 
     def battle_end(self):
         # Win Condition
-        if self.health[0] <= 0:
-            self.title_update()
-
-        elif self.health[1] <= 0:
+        sif self.health[1] <= 0:
             self.upgrade_update(True)
             self.stage += 1
+        
+        # Lose Condition
+        elif self.health[0] <= 0:
+            self.title_update()
 
 
 ############################################################
