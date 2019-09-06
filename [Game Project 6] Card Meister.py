@@ -1251,8 +1251,8 @@ class MainIG():
                 self.transition_time    += 1
                 transparent_image(self.base_phase[index], self.transition_x, 225, 225, gameDisplay)
                 
-                if self.transition_time < 45:
-                    self.transition_x -= 18
+                if self.transition_time < 40:
+                    self.transition_x -= 20
 
                 else:
                     self.transition_x = 0
@@ -1261,7 +1261,7 @@ class MainIG():
                     wait_time = 0
 
                 elif self.fast_mode == "off":
-                    wait_time = 75
+                    wait_time = 70
                 
                 if self.transition_time >= wait_time:
                     self.transition_init[index] = False
@@ -1286,10 +1286,12 @@ class MainIG():
             
     def upgrade_cost(self, index, upgrade_type):
         Level = self.base_level[0][upgrade_type][index]
-        
+
+        # Card Upgrade
         if upgrade_type == 0:
             Cost = 15 + (Level-3) * (18 + (Level-4) * 2) / 2
-            
+
+        # Stats Upgrade
         elif upgrade_type == 1:
             Cost = 10 + (Level-6) * (8  + (Level-7) * 2) / 2
         
@@ -1301,6 +1303,7 @@ class MainIG():
         Cost = self.upgrade_cost(index, upgrade_type)
 
         if self.experience[0] >= Cost:
+            # Update Button
             Setup.list_button.remove(self.upgrade_button[upgrade_type][index])
             self.upgrade_button[upgrade_type][index] = None
             
@@ -1318,6 +1321,7 @@ class MainIG():
         for upgrade_type in range(2):
             for index in range(3):
                 if self.cancel_level[upgrade_type][index] != 0:
+                    # Update Button
                     Setup.list_button.remove(self.upgrade_button[upgrade_type][index])
                     self.upgrade_button[upgrade_type][index] = None
                     self.base_level[0][upgrade_type][index] -= self.cancel_level[upgrade_type][index]
