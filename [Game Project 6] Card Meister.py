@@ -838,7 +838,7 @@ class MainIG():
         Cancel_level        : Returns the statistics levels at the beginning of the upgrade
         """
         self.card               = [ [ [], [], [], [], [] ],  [ [], [], [], [], [] ] ]
-        self.hand               = [[None, None, None, None, None], [None, None, None, None, None]]
+        self.hand               = [ [], [] ]
         self.board              = [ [], [] ]
         
         self.board_power        = [ [0, 0, 0], [0, 0, 0] ]
@@ -915,50 +915,43 @@ class MainIG():
             settings = [self.fullscreen, self.difficulty, self.fast_mode]
             for index in range(3):
                 if self.title_button[0][index] not in Setup.list_button:
-                    self.title_button[0][index] = Button((self.title_button[1][index]+settings[index], text_interface), (se_system_2, None), (True, 150+250*index, 525, 230, 50, 5, True), (color_green, color_red), index, self.settings_update)
+                    self.title_button[0][index] = Button((self.title_button[1][index]+settings[index], text_interface),
+                                                         (se_system_2, None), (True, 150+250*index, 525, 230, 50, 5, True), (color_green, color_red), index, self.settings_update)
 
     
     def music_update(self, init=False):
         self.update_init(self.list_music[0])
+                
+        Text(("Music Gallery", text_title), (True, display_width/2, display_height/12), True, color_black, 3, setup=True)
+        Button(("Return", text_interface),  (True, 740, 570, 100, 40, 1, True), (color_button, color_red), True, self.title_update, se_system_1)
 
         index = 0
-        for row in range(round(0.5+len(self.list_music)/5)) :
+        for row in range(round(0.5+len(self.list_music)/5)):
             for col in range(5):
                 if index < len(self.list_music):
                     Button(("Music %i" % (index+1), Text_Button), (False, display_width/64 + display_width/5*col, display_height/6 + display_height/9*row, display_width/6, display_height/12, 4, True), (color_green, color_red), self.list_music[index], Music_Play, se_system_3)
                     index += 1
-                
-        Text(("Music Gallery", text_title), (True, display_width/2, display_height/12), True, color_black, 3, setup=True)
-        Button(("Return", text_interface), (True, 740, 570, 100, 40, 1, True), (color_button, color_red), True, self.title_update, se_system_1)
                     
 
                 
     
-    def battle_update(self, init=False, enemy=None, music=None):
+    def battle_update(self, init=False):
         if init == True:
-            # Update hand / enemy & music
-            self.hand = [[None, None, None, None, None], [None, None, None, None, None]]
-            
-            if enemy == None and self.stage <= len(self.list_enemy)-1:
+            self.hand = [ [], [] ]
+
+            if self.stage <= 7:
                 enemy = self.list_enemy[self.stage]
-                
+                music = self.list_music[1+self.stage]
             else:
                 enemy = self.list_enemy[7]
-
-            if music == None and self.stage <= len(self.list_music[1:8]):
-                music = self.list_music[1+self.stage]
-
-            else:
                 music = self.list_music[random.randint(1, 8)]
 
 
-            # Setup
             self.update_init(music, battle=True)
 
-            Button((None, None), (False, 55,    480),   (base_card_ok_inactive,         base_card_ok_active),       None, self.battle_phase, se_system_4)
-        
             for index in range(5):
-                Button((None, None), (False, 120+65*index, 480, 60, 90, 0, True), (None, None), index, self.battle_select, se_system_3)
+                Button((None, None), (se_system_3, None), (False, 120+65*index, 480, 60, 90, 0, True), (None, None), index, self.battle_select)
+            Button((None, None),     (se_system_4, None), (False, 55, 480), (base_card_ok_inactive, base_card_ok_active), None, self.battle_phase)
 
             self.battle_character(enemy)
             self.battle_card_phase_1()
@@ -966,7 +959,7 @@ class MainIG():
 
         elif init == False:
             """
-            Interface
+            User Interface
             """
             gameDisplay.blit(base_board, (235, 200))
             for side in range(2):
@@ -975,22 +968,22 @@ class MainIG():
                 gameDisplay.blit(self.icon[side],           (665-615*side, 460-435*side))
                 pygame.draw.rect(gameDisplay, color_green,  (510-375*side, 505-435*side, 155*self.health[side]/self.maxhealth[side], 35))
 
+
             """
             Card (Hand/Board)
             """
             for side in range(2):
-                for index in range(5):
-                    if index in self.hand[side]:
-                        type_card   = self.card[side][index][0]
-                        level_card  = self.card[side][index][1]
-                        gameDisplay.blit(self.base_card[type_card],                 (120+65*index+305*side, 480-450*side))
-                        gameDisplay.blit(self.base_number[type_card][level_card],   (143+65*index+305*side, 529-450*side))
-                    
+                for index in self.hand[side]:
+                    type_card   = self.card[side][index][0]
+                    level_card  = self.card[side][index][1]
+                    gameDisplay.blit(self.base_card[type_card],                 (120+65*index+305*side, 480-450*side))
+                    gameDisplay.blit(self.base_number[type_card][level_card],   (143+65*index+305*side, 529-450*side))
+
                 for index in range(len(self.board[side])):
-                    type_card   = self.card[side][self.board[side][index]][0]
-                    level_card  = self.card[side][self.board[side][index]][1]
-                    gameDisplay.blit(self.base_card[type_card],                     (305+65*index, 305-100*side))
-                    gameDisplay.blit(self.base_number[type_card][level_card],       (328+65*index, 354-100*side))
+                    type_card   = self.card[side][index][0]
+                    level_card  = self.card[side][index][1]
+                    gameDisplay.blit(self.base_card[type_card],                 (305+65*index, 305-100*side))
+                    gameDisplay.blit(self.base_number[type_card][level_card],   (328+65*index, 354-100*side))
 
             """
             Status
