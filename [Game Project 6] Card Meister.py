@@ -1110,89 +1110,81 @@ class MainIG():
         for index in self.hand[1]:
             self.hand[1].remove(index)
             self.board[1].append(index)
-            
         self.element_update()
 
 
     def battle_select(self, index):
-        
         if len(self.board[0]) < 4 and index in self.hand[0]:
-            # Play Sound
-            pygame.mixer.Sound.play(se_system_3)
-        
             self.hand[0].remove(index)
             self.board[0].append(index)
             self.element_update()
+        
+            # Play Sound
+            pygame.mixer.Sound.play(se_system_3)
         
 
     def battle_unselect(self):
         for event in Setup.events:
             if self.board[0] != [] and Setup.event.type == pygame.MOUSEBUTTONDOWN and Setup.event.button == 3:
-                # Play Sound
-                pygame.mixer.Sound.play(se_system_1)
-                
                 index = self.board[0][len(self.board[0])-1]
                 self.hand[0].append(index)
                 self.board[0].remove(index)
                 self.element_update()
 
+                # Play Sound
+                pygame.mixer.Sound.play(se_system_1)
+
 
     def element_update(self):
         """
         Element Type:
-            Card            : self.card[side][self.board[side][index]] ([0] = Type / [1] = Level)
-            Element_type    : Highest power of element in play
-            Board_Element   : Update board card element 
-            Banner_element  : Update banner element
-
-            Board_power     : Total power of cards in play
+            Element_type    : Highest value of element power in play
+            Board_power     : Value of total power in play
         """
+        self.element_type   = [None, None]
+        self.board_power    = [[0, 0, 0], [0, 0, 0]]
+
         for side in range(2):
-            self.board_power[side]  = [0, 0, 0]
-        
             if self.board[side] != []:
-                for index in range(len(self.board[side])):
-                    card_type  = self.card[side][self.board[side][index]][0]
-                    card_level = self.card[side][self.board[side][index]][1]
+                for index in self.board[side]:
+                    card_type  = self.card[side][index][0]
+                    card_level = self.card[side][index][1]
                     self.board_power[side][card_type] += card_level
                 
                 self.element_type[side] = self.board_power[side].index(max(self.board_power[side]))
+                self.board_power[side] = sum(self.board_power[side])
 
-            else:
-                self.element_type[side] = None
-
-            self.board_power[side] = sum(self.board_power[side])
 
         """
         Element Advantage
+            Arrow       : Display advantage
             p_type      : Player's element
             e_type      : Enemy's element
-            Neutral     : No advantage
-            Advantage   : Player advantage  (Damage = 1 + Board_power + p_type Card Level)
-            Disavantage : Enemy advantage   (Damage = 1 + Board_power + e_type Card Level)  
+            Neutral     : No Advantage      (Damage = Board Power)
+            Advantage   : Player advantage  (Damage = Board_power + p_type Card Level)
+            Disavantage : Enemy advantage   (Damage = Board_power + e_type Card Level)  
         """
+        self.arrow      = None
+        self.advantage  = [False, False]
+    
         if self.element_type[0] != None and self.element_type[1] != None:
             p_type, e_type = self.element_type[0], self.element_type[1]
 
             # Neutral
             if p_type == e_type:
-                self.arrow      = None
-                self.advantage  = [False, False]
-    
+                pass
+        
             # Advantage
             elif (p_type == 0 and e_type == 2) or (p_type == 1 and e_type == 0) or (p_type == 2 and e_type == 1):
-                self.board_power[0] += self.base_level[0][0][self.element_type[0]]
-                self.arrow      = self.arrow_player
-                self.advantage  = [True, False]
+                self.board_power[0] += self.base_level[0][0][p_type]
+                self.arrow          = self.arrow_player
+                self.advantage      = [True, False]
 
             # Disavantage
             else:
-                self.board_power[1] += self.base_level[1][0][self.element_type[1]]
-                self.arrow      = self.arrow_enemy
-                self.advantage  = [False, True]
-        else:
-            self.arrow = None
-            self.advantage  = [False, False]
+                self.board_power[1] += self.base_level[1][0][e_type]
+                self.arrow          = self.arrow_enemy
+                self.advantage      = [False, True]
             
 
     def battle_phase(self):
