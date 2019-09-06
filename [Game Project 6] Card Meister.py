@@ -842,7 +842,7 @@ class MainIG():
         self.board              = [ [], [] ]
         
         self.board_power        = [ [0, 0, 0], [0, 0, 0] ]
-        self.element_type       = [3, 3]
+        self.element_type       = [None, None]
         self.advantage          = [False, False]
         self.initiative         = [0, 0]
 
@@ -945,12 +945,12 @@ class MainIG():
             else:
                 enemy = self.list_enemy[7]
                 music = self.list_music[random.randint(1, 8)]
-
-
+            
             self.update_init(music, battle=True)
 
             for index in range(5):
                 Button((None, None), (se_system_3, None), (False, 120+65*index, 480, 60, 90, 0, True), (None, None), index, self.battle_select)
+            
             Button((None, None),     (se_system_4, None), (False, 55, 480), (base_card_ok_inactive, base_card_ok_active), None, self.battle_phase)
 
             self.battle_character(enemy)
@@ -958,65 +958,57 @@ class MainIG():
 
 
         elif init == False:
-            """
-            User Interface
-            """
             gameDisplay.blit(base_board, (235, 200))
+        
+            if self.arrow != None:
+                gameDisplay.blit(self.arrow, (170, 275))
+            
             for side in range(2):
+                # User Interface
                 gameDisplay.blit(self.base_hand[side],      (50 +370*side, 475-450*side))
                 gameDisplay.blit(self.base_status[side],    (505-455*side, 460-435*side))
                 gameDisplay.blit(self.icon[side],           (665-615*side, 460-435*side))
                 pygame.draw.rect(gameDisplay, color_green,  (510-375*side, 505-435*side, 155*self.health[side]/self.maxhealth[side], 35))
-
-
-            """
-            Card (Hand/Board)
-            """
-            for side in range(2):
-                for index in self.hand[side]:
-                    type_card   = self.card[side][index][0]
-                    level_card  = self.card[side][index][1]
-                    gameDisplay.blit(self.base_card[type_card],                 (120+65*index+305*side, 480-450*side))
-                    gameDisplay.blit(self.base_number[type_card][level_card],   (143+65*index+305*side, 529-450*side))
-
-                for index in range(len(self.board[side])):
-                    type_card   = self.card[side][index][0]
-                    level_card  = self.card[side][index][1]
-                    gameDisplay.blit(self.base_card[type_card],                 (305+65*index, 305-100*side))
-                    gameDisplay.blit(self.base_number[type_card][level_card],   (328+65*index, 354-100*side))
-
-            """
-            Status
-            """
-            for side in range(2):
+            
+                # Status
                 Text(("%s"          % self.name[side],              text_interface),    (True, 589-376*side, 483-435*side))
                 Text(("Health: %s"  % self.health[side],            text_interface),    (True, 589-376*side, 523-435*side))
                 Text(("AGI:%s"      % self.base_level[side][1][0],  text_interface_2),  (True, 548-456*side, 558-435*side))
                 Text(("STR:%s"      % self.base_level[side][1][1],  text_interface_2),  (True, 628-456*side, 558-435*side))
                 Text(("DEF:%s"      % self.base_level[side][1][2],  text_interface_2),  (True, 708-456*side, 558-435*side))
 
-            """
-            Battle
-            """
-            # Element Advantage
-            if self.arrow != None:
-                gameDisplay.blit(self.arrow, (170, 275))
-                
-            for side in range(2):
-                # Attacker/Defender
+                # Hand
+                for index in self.hand[side]:
+                    type_card   = self.card[side][index][0]
+                    level_card  = self.card[side][index][1]
+                    gameDisplay.blit(self.base_card[type_card],                     (120+65*index+305*side, 480-450*side))
+                    gameDisplay.blit(self.base_number[type_card][level_card],       (143+65*index+305*side, 529-450*side))
+
+                # Board
+                for index in self.board[side]:
+                    type_card   = self.card[side][index][0]
+                    level_card  = self.card[side][index][1]
+                    index       = self.board[side].index(index)
+                    gameDisplay.blit(self.base_card[type_card],                     (305+65*index, 305-100*side))
+                    gameDisplay.blit(self.base_number[type_card][level_card],       (328+65*index, 354-100*side))
+
+                # Phase
                 if self.initiative != [0, 0]:
                     gameDisplay.blit(self.base_initiative[self.initiative[side]],   (575, 320-100*side))
 
-                # Dominant Element
-                if self.element_type[side] != 3:
-                    gameDisplay.blit(self.base_banner[self.element_type[side]],     (160, 335-100*side))
-
+                # Element
+                if self.element_type[side] != None:
+                    type_card   = self.element_type[side]
+                    level_card  = self.base_level[side][0][type_card]
+                    
+                    gameDisplay.blit(self.base_banner[type_card],                   (160, 335-100*side))
+                
                     if self.advantage[side] == True:
-                        gameDisplay.blit(self.base_card[self.element_type[side]],   (240, 305-100*side))
-                        gameDisplay.blit(self.base_number[self.element_type[side]][self.base_level[side][0][self.element_type[side]]], (263, 354-100*side))
+                        gameDisplay.blit(self.base_card[type_card],                 (240, 305-100*side))
+                        gameDisplay.blit(self.base_number[type_card][level_card],   (263, 354-100*side))
 
                     else:
-                        gameDisplay.blit(self.base_board[self.element_type[side]],  (240, 305-100*side))
+                        gameDisplay.blit(self.base_board[type_card],                (240, 305-100*side))
 
             self.battle_unselect()
             self.battle_transition()
@@ -1157,7 +1149,7 @@ class MainIG():
                 self.element_type[side] = self.board_power[side].index(max(self.board_power[side]))
 
             else:
-                self.element_type[side] = 3
+                self.element_type[side] = None
 
             self.board_power[side] = sum(self.board_power[side])
 
@@ -1169,7 +1161,7 @@ class MainIG():
             Advantage   : Player advantage  (Damage = 1 + Board_power + p_type Card Level)
             Disavantage : Enemy advantage   (Damage = 1 + Board_power + e_type Card Level)  
         """
-        if self.element_type[0] != 3 and self.element_type[1] != 3:
+        if self.element_type[0] != None and self.element_type[1] != None:
             p_type, e_type = self.element_type[0], self.element_type[1]
 
             # Neutral
@@ -1197,7 +1189,7 @@ class MainIG():
         if self.board[0] != []:
             if self.initiative == [0, 0]:
                 """
-                Battle Phase 1 : Initiative Phase   (initiative == [0, 0])
+                Battle Phase 1 : Initiative Phase
                     Initiative = Board_power + Agility
                         -Initiative Advantage
                         -Update base_initiative display
@@ -1222,7 +1214,7 @@ class MainIG():
             
             elif self.initiative != [0, 0]:
                 """
-                Battle Phase 2 : Attack Phase       (initiative != [0, 0])
+                Battle Phase 2 : Attack Phase
                     Attack  = Board_power + Strength
                     Defense = Board_power + Defense
                     Damage  = Attack - Defense
@@ -1243,7 +1235,7 @@ class MainIG():
                         
                 self.battle_card_phase_1()
                 self.transition_init[0] = True
-                self.initiative     = [0, 0]
+                self.initiative = [0, 0]
                 self.battle_end()
         
 
