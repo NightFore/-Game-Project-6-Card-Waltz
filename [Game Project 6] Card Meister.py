@@ -1107,9 +1107,10 @@ class MainIG():
         self.board = [ [], [] ]
 
         # Play the remaining enemy cards
-        for index in self.hand[1]:
-            self.hand[1].remove(index)
-            self.board[1].append(index)
+        for index in range(5):
+            if index in self.hand[1]:
+                self.hand[1].remove(index)
+                self.board[1].append(index)
         self.element_update()
 
 
@@ -1222,8 +1223,6 @@ class MainIG():
                     transition_init     : Transition 1st Phase
                     Initiative          : Reset initiative advantage
                 """
-                self.initiative = [0, 0]
-            
                 for side in range(2):
                     if self.initiative[side] == 1:
                         damage = (self.board_power[side] + self.base_level[side][1][1]) - (self.board_power[1-side] + self.base_level[1-side][1][2])
@@ -1234,6 +1233,7 @@ class MainIG():
                             if self.health[1-side] < 0:
                                 self.health[1-side] = 0
                         
+                self.initiative = [0, 0]
                 self.transition_init[0] = True
                 self.battle_phase_1()
                 self.battle_end()
@@ -1273,11 +1273,11 @@ class MainIG():
                     self.transition_x           = 800
                     self.transition_time        = 0
                     Setup.button                = True
-                
+                    
 
     def battle_end(self):
         # Win Condition
-        sif self.health[1] <= 0:
+        if self.health[1] <= 0:
             self.upgrade_update(True)
             self.stage += 1
         
