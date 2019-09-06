@@ -647,17 +647,24 @@ def Main_Screen():
 
 
 
-        
+    
 class Player():
     def __init__(self):
-        self.name       = "NightFore"
+        self.name       = "Iris"
         self.icon       = icon_iris
         self.maxhealth  = 100
         self.health     = self.maxhealth
         self.base_level = [ [3, 3, 3], [6, 6, 6] ] 
         self.experience = 0
-PlayerIG = Player()
 
+class Player_endless():
+    def __init__(self):
+        self.name       = "Iris"
+        self.icon       = icon_iris
+        self.maxhealth  = 100
+        self.health     = self.maxhealth
+        self.base_level = [ [7, 7, 7], [12, 10, 8] ] 
+        self.experience = 0
 
 
 class Wolf():
@@ -668,8 +675,6 @@ class Wolf():
         self.health     = self.maxhealth
         self.base_level = [ [2, 2, 2], [6, 4, 4] ]
         self.experience = 25
-WolfIG = Wolf()
-
 
 
 class Direwolf():
@@ -679,9 +684,8 @@ class Direwolf():
         self.maxhealth  = 40
         self.health     = self.maxhealth
         self.base_level = [ [2, 2, 3], [6, 6, 6] ]
-        self.experience = 45
+        self.experience = 50
 DirewolfIG = Direwolf()
-
 
 
 class Zombie():
@@ -691,9 +695,7 @@ class Zombie():
         self.maxhealth  = 50
         self.health     = self.maxhealth
         self.base_level = [ [3, 4, 3], [6, 8, 8] ]
-        self.experience = 70
-ZombieIG = Zombie()
-
+        self.experience = 75
 
 
 class Ghoul():
@@ -704,7 +706,6 @@ class Ghoul():
         self.health     = self.maxhealth
         self.base_level = [ [5, 4, 4], [8, 12, 8] ]
         self.experience = 100
-GhoulIG = Ghoul()
 
 
 
@@ -714,10 +715,8 @@ class Shadow_fire():
         self.icon       = icon_shadow_fire
         self.maxhealth  = 75
         self.health     = self.maxhealth
-        self.base_level = [ [6, 5, 5], [8, 15, 12] ]
+        self.base_level = [ [6, 5, 5], [8, 15, 10] ]
         self.experience = 125
-Shadow_fireIG = Shadow_fire()
-
 
 
 class Shadow_water():
@@ -726,9 +725,8 @@ class Shadow_water():
         self.icon       = icon_shadow_water
         self.maxhealth  = 75
         self.health     = self.maxhealth
-        self.base_level = [ [5, 6, 5], [10, 12, 10] ]
+        self.base_level = [ [6, 6, 5], [10, 15, 10] ]
         self.experience = 125
-Shadow_waterIG = Shadow_water()
 
 
 
@@ -738,11 +736,8 @@ class Shadow_wind():
         self.icon       = icon_shadow_wind
         self.maxhealth  = 75
         self.health     = self.maxhealth
-        self.base_level = [ [5, 5, 6], [12, 10, 8] ]
+        self.base_level = [ [6, 6, 6], [10, 15, 12] ]
         self.experience = 125
-Shadow_windIG = Shadow_wind()
-
-
 
 class Gyrei():
     def __init__(self):
@@ -750,9 +745,8 @@ class Gyrei():
         self.icon       = icon_gyrei
         self.maxhealth  = 50
         self.health     = self.maxhealth
-        self.base_level = PlayerIG.base_level
+        self.base_level = [ MainIG.base_level[0][0], MainIG.base_level[1][1]]
         self.experience = 200
-GyreiIG = Gyrei()
 
 
 
@@ -762,14 +756,14 @@ class MainIG():
         """
         Game status
         """
-        self.background = background
-        self.list_music = load_file("Data\Music")
+        self.background     = background
+        self.list_music     = load_file("Data\Music")
         
-        self.fullscreen     = "off"
+        self.endless        = "off"
         self.difficulty     = "Normal"
         self.fast_mode      = "off"
     
-        self.title_button   = [ [None, None, None], ["Fullscreen: ", "Difficulty: ", "Fast Mode: "] ]
+        self.title_button   = [ [None, None, None], ["Endless Mode: ", "Difficulty: ", "Fast Mode: "] ]
         self.upgrade_button = [ [None, None, None], [None, None, None] ]
     
         self.title          = False
@@ -777,7 +771,7 @@ class MainIG():
         self.upgrade        = False
 
         self.stage          = 0
-        self.list_enemy     = [WolfIG, DirewolfIG, ZombieIG, GhoulIG, Shadow_fireIG, Shadow_waterIG, Shadow_windIG, GyreiIG]
+        self.list_enemy     = [Wolf, Direwolf, Zombie, Ghoul, Shadow_fire, Shadow_water, Shadow_wind, Gyrei]
 
         """
         Character status
@@ -785,21 +779,23 @@ class MainIG():
                 -LvL max Card  : 9
                 -LvL max Stats : 20
         """
-        self.name               = ["", ""]
-        self.icon               = [None, None]
-        self.maxhealth          = [0, 0]
-        self.health             = [self.maxhealth[0], self.maxhealth[1]]
-        self.base_level         = [ [ [1, 1, 1], [1, 1, 1] ], [ [1, 1, 1], [1, 1, 1] ] ]    # [Character][Type][Stats]
-        self.experience         = [0, 0]
+        self.name           = ["", ""]
+        self.icon           = [None, None]
+        self.maxhealth      = [0, 0]
+        self.health         = [self.maxhealth[0], self.maxhealth[1]]
+        self.base_level     = [ [ [1, 1, 1], [1, 1, 1] ], [ [1, 1, 1], [1, 1, 1] ] ]    # [Character][Type][Stats]
+        self.experience     = [0, 0]
     
-        self.battle_character(PlayerIG, 0)        
+        self.battle_character(Player, 0)
         
         
         """
         Interface
         """
         self.base_card          = [base_card_fire,      base_card_water,    base_card_wind]
-        self.base_number        = [[None, base_number_fire_1,  base_number_fire_2,  base_number_fire_3,  base_number_fire_4,  base_number_fire_5,  base_number_fire_6,  base_number_fire_7,  base_number_fire_8,  base_number_fire_9], [None, base_number_water_1, base_number_water_2, base_number_water_3, base_number_water_4, base_number_water_5, base_number_water_6, base_number_water_7, base_number_water_8, base_number_water_9], [None, base_number_wind_1,  base_number_wind_2,  base_number_wind_3,  base_number_wind_4,  base_number_wind_5,  base_number_wind_6,  base_number_wind_7,  base_number_wind_8,  base_number_wind_9]]
+        self.base_number        = [[None, base_number_fire_1,  base_number_fire_2,  base_number_fire_3,  base_number_fire_4,  base_number_fire_5,  base_number_fire_6,  base_number_fire_7,  base_number_fire_8,  base_number_fire_9],
+                                   [None, base_number_water_1, base_number_water_2, base_number_water_3, base_number_water_4, base_number_water_5, base_number_water_6, base_number_water_7, base_number_water_8, base_number_water_9],
+                                   [None, base_number_wind_1,  base_number_wind_2,  base_number_wind_3,  base_number_wind_4,  base_number_wind_5,  base_number_wind_6,  base_number_wind_7,  base_number_wind_8,  base_number_wind_9]]
 
         self.base_status        = [base_status_player,  base_status_enemy]
         self.base_hand          = [base_hand_player,    base_hand_enemy]
@@ -876,7 +872,14 @@ class MainIG():
         Setup.list_button.remove(self.title_button[0][index])
                 
         if index == 0:
-            gameDisplay.fullscreen()
+            if self.endless != "on":
+                self.battle_character(Player_endless, 0)
+                self.endless = "on"
+                self.stage   = 8
+            else:
+                self.battle_character(Player, 0)
+                self.endless = "off"
+                self.stage   = 0
 
         elif index == 1:
             if self.difficulty != "Normal":
@@ -889,13 +892,6 @@ class MainIG():
                 self.fast_mode = "on"
             else:
                 self.fast_mode = "off"
-    
-            self.fullscreen = gameDisplay.set_fullscreen
-            if self.fullscreen == True:
-                self.fullscreen = "on"
-            
-            elif self.fullscreen == False:
-                self.fullscreen = "off"
 
 
     def title_update(self, init=False):
@@ -911,11 +907,10 @@ class MainIG():
 
     
         if init == False:
-            settings = [self.fullscreen, self.difficulty, self.fast_mode]
+            settings = [self.endless, self.difficulty, self.fast_mode]
             for index in range(3):
                 if self.title_button[0][index] not in Setup.list_button:
-                    self.title_button[0][index] = Button((self.title_button[1][index]+settings[index], text_interface), (True, 150+250*index, 525, 230, 50, 5, True),
-                                                         (se_system_2, None), (color_green, color_red), index, self.settings_update)
+                    self.title_button[0][index] = Button((self.title_button[1][index]+settings[index], text_interface), (True, 150+250*index, 525, 230, 50, 5, True), (se_system_2, None), (color_green, color_red), index, self.settings_update)
 
     
     def music_update(self):
@@ -1057,6 +1052,7 @@ class MainIG():
     
 
     def battle_character(self, character, index=1):
+        character               = character()
         self.name[index]        = character.name
         self.icon[index]        = character.icon
         self.maxhealth[index]   = character.maxhealth
@@ -1292,11 +1288,11 @@ class MainIG():
     def upgrade_cost(self, index, upgrade_type):
         Level = self.base_level[0][upgrade_type][index]
 
-        # Card Upgrade
+        # Card upgrade
         if upgrade_type == 0:
             Cost = 15 + (Level-3) * (18 + (Level-4) * 2) / 2
 
-        # Stats Upgrade
+        # Stats upgrade
         elif upgrade_type == 1:
             Cost = 10 + (Level-6) * (8  + (Level-7) * 2) / 2
         
@@ -1308,7 +1304,7 @@ class MainIG():
         Cost = self.upgrade_cost(index, upgrade_type)
 
         if self.experience[0] >= Cost:
-            # Update Button
+            # Update button
             Setup.list_button.remove(self.upgrade_button[upgrade_type][index])
             self.upgrade_button[upgrade_type][index] = None
             
@@ -1326,9 +1322,10 @@ class MainIG():
         for upgrade_type in range(2):
             for index in range(3):
                 if self.cancel_level[upgrade_type][index] != 0:
-                    # Update Button
+                    # Update button
                     Setup.list_button.remove(self.upgrade_button[upgrade_type][index])
                     self.upgrade_button[upgrade_type][index] = None
+                
                     self.base_level[0][upgrade_type][index] -= self.cancel_level[upgrade_type][index]
             
         self.cancel_experience  = 0
