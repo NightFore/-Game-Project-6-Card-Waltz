@@ -930,9 +930,7 @@ class MainIG():
         for row in range(round(0.5+len(self.list_music)/5)):
             for col in range(5):
                 if index < len(self.list_music):
-                    Button(("Music %i" % (index+1), Text_Button),
-                           (False, display_width/64 + display_width/5*col, display_height/6 + display_height/9*row, display_width/6, display_height/12, 4, True),
-                           (se_system_3, None), (color_green, color_red), self.list_music[index], Setup.update_music)
+                    Button(("Music %i" % (index+1), Text_Button), (False, display_width/64 + display_width/5*col, display_height/6 + display_height/9*row, display_width/6, display_height/12, 4, True), (se_system_3, None), (color_green, color_red), self.list_music[index], Setup.update_music)
                     index += 1
                     
 
@@ -956,10 +954,10 @@ class MainIG():
             Button((None, None), (False, 55, 480), (se_system_4, None), (base_card_ok_inactive, base_card_ok_active), None, self.battle_phase)
 
             for index in range(5):
-                Button((None, None), (False, 120+65*index, 480, 60, 90, 0, True), (se_system_3, None), (None, None), index, self.battle_select)
+                Button((None, None), (False, 120+65*index, 480, 60, 90, 0, True), (None, None), (None, None), index, self.battle_select)
 
             self.battle_character(enemy)
-            self.battle_card_phase_1()
+            self.battle_phase_1()
 
 
         elif init == False:
@@ -1027,10 +1025,8 @@ class MainIG():
             # Main
             if self.difficulty == "Normal":
                 self.experience[0] += self.experience[1]
-                
             elif self.difficulty == "Easy":
                 self.experience[0] += 2*self.experience[1]
-
             else:
                 print("Bug")
             
@@ -1040,23 +1036,21 @@ class MainIG():
 
         elif init == False:
             gameDisplay.blit(base_upgrade, (450, 0))
-            gameDisplay.blit(sprite_iris, (20,  110))
+            gameDisplay.blit(sprite_iris,  (20,  110))
 
-            Text(("Status Upgrade", text_interface), (True, 605, 25))
+            Text(("Status Upgrade", text_interface),                (True, 605, 25))
+            Text(("EXP: %i" % self.experience[0], text_interface),  (True, 520, 570))
 
-            Statistics  = [ ["Fire",      "Water",    "Wind"], ["Agility",   "Strength", "Defense"] ]
+            Statistics  = [["Fire", "Water", "Wind"], ["Agility", "Strength", "Defense"]]
             for upgrade_type in range(2):
                 for index in range(3):
-                    if self.upgrade_button[upgrade_type][index] not in Setup.list_button and self.base_level[0][upgrade_type][index] < 9+11*upgrade_type:
-                        Cost = self.upgrade_cost(index, upgrade_type)
-                        self.upgrade_button[upgrade_type][index] = Button(("%i" % Cost, text_interface),
-                                                                          (True, 560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, 40, 40, 1, True),
-                                                                          (se_system_2, None), (color_red, color_button), (index, upgrade_type), self.upgrade_level)
-
                     Text(("%s"      % Statistics[upgrade_type][index],          text_interface), (True, 640-40*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index))
                     Text(("LvL %i"  % self.base_level[0][upgrade_type][index],  text_interface), (True, 745-25*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index))
+                
+                    if self.upgrade_button[upgrade_type][index] not in Setup.list_button and self.base_level[0][upgrade_type][index] < 9+11*upgrade_type:
+                        Cost = self.upgrade_cost(index, upgrade_type)
+                        self.upgrade_button[upgrade_type][index] = Button(("%i" % Cost, text_interface), (True, 560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, 40, 40, 1, True), (se_system_2, None), (color_red, color_button), (index, upgrade_type), self.upgrade_level)
 
-            Text(("EXP: %i" % self.experience[0], text_interface), (True, 520, 570))
 
        
 ############################################################  
@@ -1071,17 +1065,16 @@ class MainIG():
         self.experience[index]  = character.experience   
         
         
-    def battle_card_phase_1(self):
-        # Reset Board
+    def battle_phase_1(self):
         self.board = [ [], [] ]
 
         for side in range(2):
             for index in range(5):
-                # Upgrade Card
+                # Improve cards
                 if index in self.hand[side]:
-                    self.card[side][index] = [self.card[side][index][0], self.card[side][index][1] + 2]
+                    self.card[side][index][1] += 2
                 
-                # Random card type & level
+                # Draw new cards 
                 else:       
                     random_type  = random.randint(0, 2)
                     random_level = random.randint(-2, 2) + self.base_level[side][0][random_type]
@@ -1100,7 +1093,7 @@ class MainIG():
             self.card[side] = sorted(self.card[side], key=itemgetter(1), reverse=True)  # Level
             self.card[side] = sorted(self.card[side], key=itemgetter(0))                # Type
 
-        # Play enemy cards randomly
+        # Randomly play enemy cards
         while len(self.board[1]) == 0:
             for index in range(5):
                 if len(self.board[1]) < 4 and random.choice([True, False]) == True:
@@ -1110,21 +1103,23 @@ class MainIG():
         self.element_update()
 
 
-    def battle_card_phase_2(self):
-        # Reset Board
+    def battle_phase_2(self):
         self.board = [ [], [] ]
 
         # Play the remaining enemy cards
-        for index in range(5):
-            if index in self.hand[1]:
-                self.hand[1].remove(index)
-                self.board[1].append(index)
+        for index in self.hand[1]:
+            self.hand[1].remove(index)
+            self.board[1].append(index)
             
         self.element_update()
 
 
     def battle_select(self, index):
+        
         if len(self.board[0]) < 4 and index in self.hand[0]:
+            # Play Sound
+            pygame.mixer.Sound.play(se_system_3)
+        
             self.hand[0].remove(index)
             self.board[0].append(index)
             self.element_update()
@@ -1133,6 +1128,9 @@ class MainIG():
     def battle_unselect(self):
         for event in Setup.events:
             if self.board[0] != [] and Setup.event.type == pygame.MOUSEBUTTONDOWN and Setup.event.button == 3:
+                # Play Sound
+                pygame.mixer.Sound.play(se_system_1)
+                
                 index = self.board[0][len(self.board[0])-1]
                 self.hand[0].append(index)
                 self.board[0].remove(index)
@@ -1220,7 +1218,7 @@ class MainIG():
                 else:
                     self.initiative[1] = 1
 
-                self.battle_card_phase_2()
+                self.battle_phase_2()
                 self.transition_init[1] = True
 
             
@@ -1245,7 +1243,7 @@ class MainIG():
                             if self.health[1-side] < 0:
                                 self.health[1-side] = 0
                         
-                self.battle_card_phase_1()
+                self.battle_phase_1()
                 self.transition_init[0] = True
                 self.initiative = [0, 0]
                 self.battle_end()
