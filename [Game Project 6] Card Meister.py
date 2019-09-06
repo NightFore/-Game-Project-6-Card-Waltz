@@ -97,7 +97,7 @@ Setup = Setup()
 
 
 class Button():
-    def __init__(self, text, sound, pos, display, selection, action=None):
+    def __init__(self, text, pos, sound, display, selection, action=None):
         """
         Setup :
             Enable buttons
@@ -473,6 +473,7 @@ def transparent_image(image, x, y, opacity, screen):
     return screen.blit(image, (x, y))
 
 
+
 ############################################################
 """
     Settings
@@ -510,11 +511,6 @@ def load_file(path, image=False):
         if image == True:
             file.append(pygame.image.load(path + os.sep + file_name).convert())
     return file
-
-
-def Music_Play(Selection):
-    pygame.mixer.music.load(Selection)
-    pygame.mixer.music.play(-1)
 
 
 def quit_game():
@@ -868,8 +864,8 @@ class MainIG():
 
     def update_init(self, bgm, title=False, battle=False, upgrade=False):
         Setup.update_init(self.background, bgm)
-        Button((None, None), (se_system_1, None), (False, 0,    0), (button_fullscreen_inactive,    button_fullscreen_active),  None, gameDisplay.fullscreen)
-        Button((None, None), (se_system_1, None), (False, 760,  0), (button_exit_inactive,          button_exit_active),        None, quit_game)
+        Button((None, None), (False, 0,    0), (se_system_1, None), (button_fullscreen_inactive,    button_fullscreen_active),  None, gameDisplay.fullscreen)
+        Button((None, None), (False, 760,  0), (se_system_1, None), (button_exit_inactive,          button_exit_active),        None, quit_game)
         
         self.title      = title
         self.battle     = battle
@@ -901,35 +897,42 @@ class MainIG():
             elif self.fullscreen == False:
                 self.fullscreen = "off"
 
+
     def title_update(self, init=False):
         if init == True:
+            # Setup
             self.update_init(self.list_music[0], title=True)
 
+            # Main
             Text((project_title, text_title), (True, display_width/2, display_height/4), True, color_black, 3, setup=True)
-            Button(("Start", text_interface), (se_system_1, None), (True, 200, 415, 135, 50, 5, True), (color_green, color_red), True, self.battle_update)
-            Button(("Music", text_interface), (se_system_1, None), (True, 400, 415, 135, 50, 5, True), (color_green, color_red), True, self.music_update)
-            Button(("Exit",  text_interface), (se_system_1, None), (True, 600, 415, 135, 50, 5, True), (color_green, color_red), None, quit_game)
+            Button(("Start", text_interface), (True, 200, 415, 135, 50, 5, True), (se_system_1, None), (color_green, color_red), True, self.battle_update)
+            Button(("Music", text_interface), (True, 400, 415, 135, 50, 5, True), (se_system_1, None), (color_green, color_red), None, self.music_update)
+            Button(("Exit",  text_interface), (True, 600, 415, 135, 50, 5, True), (se_system_1, None), (color_green, color_red), None, quit_game)
 
     
         if init == False:
             settings = [self.fullscreen, self.difficulty, self.fast_mode]
             for index in range(3):
                 if self.title_button[0][index] not in Setup.list_button:
-                    self.title_button[0][index] = Button((self.title_button[1][index]+settings[index], text_interface),
-                                                         (se_system_2, None), (True, 150+250*index, 525, 230, 50, 5, True), (color_green, color_red), index, self.settings_update)
+                    self.title_button[0][index] = Button((self.title_button[1][index]+settings[index], text_interface), (True, 150+250*index, 525, 230, 50, 5, True),
+                                                         (se_system_2, None), (color_green, color_red), index, self.settings_update)
 
     
-    def music_update(self, init=False):
+    def music_update(self):
+        # Setup
         self.update_init(self.list_music[0])
-                
+
+        # Main         
         Text(("Music Gallery", text_title), (True, display_width/2, display_height/12), True, color_black, 3, setup=True)
-        Button(("Return", text_interface),  (True, 740, 570, 100, 40, 1, True), (color_button, color_red), True, self.title_update, se_system_1)
+        Button(("Return", text_interface), (True, 740, 570, 100, 40, 1, True), (se_system_1, None), (color_button, color_red), True, self.title_update)
 
         index = 0
         for row in range(round(0.5+len(self.list_music)/5)):
             for col in range(5):
                 if index < len(self.list_music):
-                    Button(("Music %i" % (index+1), Text_Button), (False, display_width/64 + display_width/5*col, display_height/6 + display_height/9*row, display_width/6, display_height/12, 4, True), (color_green, color_red), self.list_music[index], Music_Play, se_system_3)
+                    Button(("Music %i" % (index+1), Text_Button),
+                           (False, display_width/64 + display_width/5*col, display_height/6 + display_height/9*row, display_width/6, display_height/12, 4, True),
+                           (se_system_3, None), (color_green, color_red), self.list_music[index], Setup.update_music)
                     index += 1
                     
 
@@ -937,6 +940,7 @@ class MainIG():
     
     def battle_update(self, init=False):
         if init == True:
+            # Setup
             self.hand = [ [], [] ]
 
             if self.stage <= 7:
@@ -948,10 +952,11 @@ class MainIG():
             
             self.update_init(music, battle=True)
 
+            # Main
+            Button((None, None), (False, 55, 480), (se_system_4, None), (base_card_ok_inactive, base_card_ok_active), None, self.battle_phase)
+
             for index in range(5):
-                Button((None, None), (se_system_3, None), (False, 120+65*index, 480, 60, 90, 0, True), (None, None), index, self.battle_select)
-            
-            Button((None, None),     (se_system_4, None), (False, 55, 480), (base_card_ok_inactive, base_card_ok_active), None, self.battle_phase)
+                Button((None, None), (False, 120+65*index, 480, 60, 90, 0, True), (se_system_3, None), (None, None), index, self.battle_select)
 
             self.battle_character(enemy)
             self.battle_card_phase_1()
@@ -1016,16 +1021,21 @@ class MainIG():
 
     def upgrade_update(self, init=False):
         if init == True:
+            # Setup
             self.update_init(self.list_music[9], upgrade=True)
 
-            if self.difficulty == "Easy":
+            # Main
+            if self.difficulty == "Normal":
+                self.experience[0] += self.experience[1]
+                
+            elif self.difficulty == "Easy":
                 self.experience[0] += 2*self.experience[1]
 
-            elif self.difficulty == "Normal":
-                self.experience[0] += self.experience[1]
+            else:
+                print("Bug")
             
-            Button(("Cancel",  text_interface_2), (True, 635, 570, 100, 40, 1, True), (color_red, color_button), None, self.upgrade_cancel, se_system_1)
-            Button(("Confirm", text_interface_2), (True, 740, 570, 100, 40, 1, True), (color_red, color_button), None, self.upgrade_confirm, se_system_4)
+            Button(("Cancel",  text_interface_2), (True, 635, 570, 100, 40, 1, True), (se_system_1, None), (color_red, color_button), None, self.upgrade_cancel)
+            Button(("Confirm", text_interface_2), (True, 740, 570, 100, 40, 1, True), (se_system_4, None), (color_red, color_button), None, self.upgrade_confirm)
         
 
         elif init == False:
@@ -1039,7 +1049,9 @@ class MainIG():
                 for index in range(3):
                     if self.upgrade_button[upgrade_type][index] not in Setup.list_button and self.base_level[0][upgrade_type][index] < 9+11*upgrade_type:
                         Cost = self.upgrade_cost(index, upgrade_type)
-                        self.upgrade_button[upgrade_type][index] = Button(("%i" % Cost, text_interface), (True, 560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, 40, 40, 1, True), (color_red, color_button), (index, upgrade_type), self.upgrade_level, se_system_2)
+                        self.upgrade_button[upgrade_type][index] = Button(("%i" % Cost, text_interface),
+                                                                          (True, 560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, 40, 40, 1, True),
+                                                                          (se_system_2, None), (color_red, color_button), (index, upgrade_type), self.upgrade_level)
 
                     Text(("%s"      % Statistics[upgrade_type][index],          text_interface), (True, 640-40*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index))
                     Text(("LvL %i"  % self.base_level[0][upgrade_type][index],  text_interface), (True, 745-25*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index))
