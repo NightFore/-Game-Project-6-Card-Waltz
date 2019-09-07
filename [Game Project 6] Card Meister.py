@@ -628,7 +628,6 @@ se_system_4                 = pygame.mixer.Sound("Data\Sound Effect\se_maoudamas
 """
 def Main_Screen():
     # Setup
-    Setup.update_init(background)
     MainIG.title_update(True)
 
     # Loop
@@ -644,9 +643,6 @@ def Main_Screen():
                 quit_game()
 
 
-
-
-
     
 class Player():
     def __init__(self):
@@ -656,6 +652,7 @@ class Player():
         self.health     = self.maxhealth
         self.base_level = [ [3, 3, 3], [6, 6, 6] ] 
         self.experience = 0
+
 
 class Player_endless():
     def __init__(self):
@@ -708,7 +705,6 @@ class Ghoul():
         self.experience = 100
 
 
-
 class Shadow_fire():
     def __init__(self):
         self.name       = "Fire"
@@ -729,7 +725,6 @@ class Shadow_water():
         self.experience = 125
 
 
-
 class Shadow_wind():
     def __init__(self):
         self.name       = "Wind"
@@ -739,13 +734,14 @@ class Shadow_wind():
         self.base_level = [ [6, 6, 6], [10, 15, 12] ]
         self.experience = 125
 
+
 class Gyrei():
     def __init__(self):
         self.name       = "Gyrei (Boss)"
         self.icon       = icon_gyrei
         self.maxhealth  = 50
         self.health     = self.maxhealth
-        self.base_level = [ MainIG.base_level[0][0], MainIG.base_level[1][1]]
+        self.base_level = [MainIG.base_level[0][0], MainIG.base_level[0][1]]
         self.experience = 200
 
 
@@ -927,9 +923,7 @@ class MainIG():
                 if index < len(self.list_music):
                     Button(("Music %i" % (index+1), Text_Button), (False, display_width/64 + display_width/5*col, display_height/6 + display_height/9*row, display_width/6, display_height/12, 4, True), (se_system_3, None), (color_green, color_red), self.list_music[index], Setup.update_music)
                     index += 1
-                    
 
-                
     
     def battle_update(self, init=False):
         if init == True:
@@ -1046,7 +1040,6 @@ class MainIG():
                         Cost = self.upgrade_cost(index, upgrade_type)
                         self.upgrade_button[upgrade_type][index] = Button(("%i" % Cost, text_interface), (True, 560-55*upgrade_type, 105+305*upgrade_type+(110-55*upgrade_type)*index, 40, 40, 1, True), (se_system_2, None), (color_red, color_button), (index, upgrade_type), self.upgrade_level)
 
-
        
 ############################################################  
     
@@ -1094,8 +1087,7 @@ class MainIG():
             for index in range(5):
                 if len(self.board[1]) < 4 and random.choice([True, False]) == True:
                     self.hand[1].remove(index)
-                    self.board[1].append(index)
-                
+                    self.board[1].append(index) 
         self.element_update()
 
 
@@ -1295,7 +1287,6 @@ class MainIG():
         # Stats upgrade
         elif upgrade_type == 1:
             Cost = 10 + (Level-6) * (8  + (Level-7) * 2) / 2
-        
         return Cost
             
 
@@ -1315,7 +1306,6 @@ class MainIG():
             self.cancel_level[upgrade_type][index]  += 1
 
 
-
     def upgrade_cancel(self):
         self.experience[0] -= self.cancel_experience
         
@@ -1325,7 +1315,6 @@ class MainIG():
                     # Update button
                     Setup.list_button.remove(self.upgrade_button[upgrade_type][index])
                     self.upgrade_button[upgrade_type][index] = None
-                
                     self.base_level[0][upgrade_type][index] -= self.cancel_level[upgrade_type][index]
             
         self.cancel_experience  = 0
@@ -1336,10 +1325,6 @@ class MainIG():
         self.cancel_experience  = 0
         self.cancel_level       = [ [0, 0, 0], [0, 0, 0] ]
         self.battle_update(True)
-
-
 MainIG = MainIG()
-
-
 
 Main_Screen()
