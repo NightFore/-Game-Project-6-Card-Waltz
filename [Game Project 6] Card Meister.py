@@ -815,7 +815,7 @@ class MainIG():
         self.difficulty     = "Normal"
         self.fast_mode      = "off"
     
-        self.title_button   = [ [None, None, None, None], ["Endless Mode: ", "Difficulty: ", "Fast Mode: ", "Character Name: "] ]
+        self.title_button   = [ [None, None, None, None], ["Endless Mode: ", "Difficulty: ", "Fast Mode: ", "Name: "] ]
         self.upgrade_button = [ [None, None, None], [None, None, None] ]
     
         self.title          = False
@@ -981,7 +981,7 @@ class MainIG():
 
             # Text Input
             if self.change_name == False and self.title_button[0][3] not in Setup.list_button:
-                self.title_button[0][3] = Button((self.title_button[1][3]+settings[3], text_interface), (True, 400, 300, 350, 50, 5, True), (se_system_2, None), (color_green, color_red), 3, self.settings_update)
+                self.title_button[0][3] = Button((self.title_button[1][3]+settings[3], text_interface), (True, 400, 300, 225, 50, 5, True), (se_system_2, None), (color_green, color_red), 3, self.settings_update)
 
             elif self.change_name == True:
                 name = self.text_input.update()
