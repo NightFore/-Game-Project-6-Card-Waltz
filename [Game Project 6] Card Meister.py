@@ -931,12 +931,14 @@ class MainIG():
                 
         if index == 0:
             if self.endless != "on":
-                Setup.list_button.remove(self.title_button[0][3])
+                if self.title_button[0][3] in Setup.list_button:
+                    Setup.list_button.remove(self.title_button[0][3])
                 self.battle_character(Player_endless, 0)
                 self.endless = "on"
                 self.stage   = 8
             else:
-                Setup.list_button.remove(self.title_button[0][3])
+                if self.title_button[0][3] in Setup.list_button:
+                    Setup.list_button.remove(self.title_button[0][3])
                 self.battle_character(Player, 0)
                 self.endless = "off"
                 self.stage   = 0
