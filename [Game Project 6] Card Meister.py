@@ -484,19 +484,19 @@ class Text_Input():
             self.input_x = self.input_x - self.input_width/2
             self.input_y = self.input_y - self.input_height/2
 
-            
+
     def update(self):
         if self.textinput.update(Setup.events):
             """
-            Input_Line      : Text entered by the keyboard
-            Textinput       : Text Surface
+            Input_Line  : Text entered by the keyboard
+            Textinput   : Text Surface
             """
             self.input_line = self.textinput.get_text()
             self.textinput  = pygame_textinput.TextInput()
             
             if self.input_line != "":
-                self.input_line = ""
                 return self.input_line
+
         self.update_display()
 
 
@@ -518,7 +518,7 @@ class Text_Input():
         size    = (box_w-text_w, box_h-text_h)
         gameDisplay.blit(self.textinput.get_surface(), size)
     
-                          
+                      
 
 def transparent_image(image, x, y, opacity, screen):
     image = image.convert_alpha()
@@ -815,7 +815,7 @@ class MainIG():
         self.difficulty     = "Normal"
         self.fast_mode      = "off"
     
-        self.title_button   = [ [None, None, None, None], ["Endless Mode: ", "Difficulty: ", "Fast Mode: ", ""] ]
+        self.title_button   = [ [None, None, None, None], ["Endless Mode: ", "Difficulty: ", "Fast Mode: ", "Character Name: "] ]
         self.upgrade_button = [ [None, None, None], [None, None, None] ]
     
         self.title          = False
@@ -931,10 +931,12 @@ class MainIG():
                 
         if index == 0:
             if self.endless != "on":
+                Setup.list_button.remove(self.title_button[0][3])
                 self.battle_character(Player_endless, 0)
                 self.endless = "on"
                 self.stage   = 8
             else:
+                Setup.list_button.remove(self.title_button[0][3])
                 self.battle_character(Player, 0)
                 self.endless = "off"
                 self.stage   = 0
@@ -971,16 +973,21 @@ class MainIG():
 
     
         if init == False:
-            settings = [self.endless, self.difficulty, self.fast_mode, ""]
+            settings = [self.endless, self.difficulty, self.fast_mode, self.name[0]]
             for index in range(3):
                 if self.title_button[0][index] not in Setup.list_button:
                     self.title_button[0][index] = Button((self.title_button[1][index]+settings[index], text_interface), (True, 150+250*index, 525, 230, 50, 5, True), (se_system_2, None), (color_green, color_red), index, self.settings_update)
 
-            if self.title_button[0][3] not in Setup.list_button:
-                self.title_button[0][3] = Button((self.title_button[1][3]+settings[3], text_interface), (True, 400, 250, 300, 50, 5, True), (se_system_2, None), (color_green, color_red), 3, self.settings_update)
+            if self.title_button[0][3] not in Setup.list_button and self.change_name == False:
+                self.title_button[0][3] = Button((self.title_button[1][3]+settings[3], text_interface), (True, 400, 300, 300, 50, 5, True), (se_system_2, None), (color_green, color_red), 3, self.settings_update)
 
             if self.change_name == True:
-                a = self.text_input.update()
+                name = self.text_input.update()
+
+                if name != None:
+                    self.name[0] = name
+                    self.change_name = False
+
 
     def music_update(self):
         # Setup
