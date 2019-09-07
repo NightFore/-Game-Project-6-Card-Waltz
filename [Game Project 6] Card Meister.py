@@ -828,7 +828,7 @@ class MainIG():
         """
         Text Input
         """
-        self.text_input     = Text_Input((True, 400, 300, 300, 50, 5))
+        self.text_input     = Text_Input((True, 400, 300, 160, 50, 5))
         self.change_name    = False
 
         """
@@ -973,15 +973,17 @@ class MainIG():
 
     
         if init == False:
+            # Settings
             settings = [self.endless, self.difficulty, self.fast_mode, self.name[0]]
             for index in range(3):
                 if self.title_button[0][index] not in Setup.list_button:
                     self.title_button[0][index] = Button((self.title_button[1][index]+settings[index], text_interface), (True, 150+250*index, 525, 230, 50, 5, True), (se_system_2, None), (color_green, color_red), index, self.settings_update)
 
-            if self.title_button[0][3] not in Setup.list_button and self.change_name == False:
-                self.title_button[0][3] = Button((self.title_button[1][3]+settings[3], text_interface), (True, 400, 300, 300, 50, 5, True), (se_system_2, None), (color_green, color_red), 3, self.settings_update)
+            # Text Input
+            if self.change_name == False and self.title_button[0][3] not in Setup.list_button:
+                self.title_button[0][3] = Button((self.title_button[1][3]+settings[3], text_interface), (True, 400, 300, 350, 50, 5, True), (se_system_2, None), (color_green, color_red), 3, self.settings_update)
 
-            if self.change_name == True:
+            elif self.change_name == True:
                 name = self.text_input.update()
 
                 if name != None:
