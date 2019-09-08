@@ -193,7 +193,7 @@ class Button():
             Enable buttons
             Add button to list_button
         
-        Position : x, y, width, height, border width, border, center
+        Position : center, x, y, width, height, border width, border
 
         Sound    : sound_action, sound_active
             
@@ -322,18 +322,20 @@ class Button():
 class Text():
     def __init__(self, text, pos, hollow=False, outline=False, stroke=0, setup=False):
         """
-        Setup       : Add text to the text_list
-        Text        : Text string, font, color
-        Position    : Position x, y, surface, center
+        Text     : text, font
+        Position : center, x ,y
+        Hollow   : Create a hollow text surface
+        Outline  : Create a surface around the text
+        Setup    : Add text to the list_text
         """
         # Text
         self.text               = text[0]
         self.font, self.color   = text[1]()
 
         # Position
-        self.center      = pos[0]
-        self.x           = pos[1]
-        self.y           = pos[2]
+        self.center = pos[0]
+        self.x      = pos[1]
+        self.y      = pos[2]
         self.textSurface = self.font.render(self.text, True, self.color)
     
         # Center
@@ -419,85 +421,16 @@ def text_interface_2():
 
 
 ############################################################
-class Text_Input():
-    def __init__(self, pos):
-        # Text Input
-        self.textinput  = pygame_textinput.TextInput()
-        self.input_line = self.textinput.get_text()
-        
-        # Position input_box
-        self.input_center   = pos[0]
-        self.input_x        = pos[1]
-        self.input_y        = pos[2]
-        self.input_width    = pos[3]
-        self.input_height   = pos[4]
-        self.input_border   = pos[5]
-    
-        if self.input_center == True:
-            self.input_x = self.input_x - self.input_width/2
-            self.input_y = self.input_y - self.input_height/2
-
-
-    def update(self):
-        if self.textinput.update(Setup.events):
-            """
-            Input_Line  : Text entered by the keyboard
-            Textinput   : Text Surface
-            """
-            self.input_line = self.textinput.get_text()
-            self.textinput  = pygame_textinput.TextInput()
-            
-            if self.input_line != "":
-                return self.input_line
-
-        self.update_display()
-
-
-    def update_display(self):
-        """
-        Background  : Cutscene's User Interface
-        Text        : Character's Dialogue
-        Input Box   : Display Input Field & Text Entered
-        """
-        pygame.draw.rect(gameDisplay, color_grey,   [self.input_x, self.input_y, self.input_width, self.input_height])
-        pygame.draw.rect(gameDisplay, color_black,  [self.input_x, self.input_y, self.input_width, self.input_height], self.input_border)
-
-        # Text Center
-        rect    = self.textinput.get_surface()
-        text_w  = rect.get_width()//2
-        text_h  = rect.get_height()//2
-        box_w   = self.input_x + self.input_width/2
-        box_h   = self.input_y + self.input_height/2
-        size    = (box_w-text_w, box_h-text_h)
-        gameDisplay.blit(self.textinput.get_surface(), size)
-    
-                      
-
-def transparent_image(image, x, y, opacity, screen):
-    image = image.convert_alpha()
-    alpha_surface = pygame.Surface(image.get_size(), pygame.SRCALPHA)
-    alpha_surface.fill((255, 255, 255, opacity))
-    image.blit(alpha_surface, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
-    return screen.blit(image, (x, y))
-
-
-
-############################################################
-"""
-    Settings
-"""
-# Title
-project_title = "Card Meister"
-
-
-# Screen Size
-Screen_size = display_width, display_height = 800, 600
-gameDisplay = ScaledGame(project_title, Screen_size)
 
 
 """
     Tools Functions
 """
+def quit_game():
+    pygame.quit()
+    quit()
+
+
 def file_len(file):
     with open(file) as f:
         for i, l in enumerate(f):
@@ -520,14 +453,80 @@ def load_file(path, image=False):
             file.append(pygame.image.load(path + os.sep + file_name).convert())
     return file
 
+                  
+def transparent_image(image, x, y, opacity, screen):
+    image = image.convert_alpha()
+    alpha_surface = pygame.Surface(image.get_size(), pygame.SRCALPHA)
+    alpha_surface.fill((255, 255, 255, opacity))
+    image.blit(alpha_surface, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
+    return screen.blit(image, (x, y))
 
-def quit_game():
-    pygame.quit()
-    quit()
+
+class Text_Input():
+    def __init__(self, pos):
+        # Text Input
+        self.textinput  = pygame_textinput.TextInput()
+        self.input_line = self.textinput.get_text()
+        
+        # Input box position
+        self.input_center   = pos[0]
+        self.input_x        = pos[1]
+        self.input_y        = pos[2]
+        self.input_width    = pos[3]
+        self.input_height   = pos[4]
+        self.input_border   = pos[5]
+    
+        if self.input_center == True:
+            self.input_x = self.input_x - self.input_width/2
+            self.input_y = self.input_y - self.input_height/2
+
+    def update(self):
+        if self.textinput.update(Setup.events):
+            """
+            Input_Line  : Text entered by the keyboard
+            Textinput   : Text Surface
+            """
+            self.input_line = self.textinput.get_text()
+            self.textinput  = pygame_textinput.TextInput()
+        
+            if self.input_line != "":
+                return self.input_line
+
+        self.update_display()
+
+    def update_display(self):
+        """
+        Background  : Cutscene's User Interface
+        Text        : Character's Dialogue
+        Input Box   : Display Input Field & Text Entered
+        """
+        pygame.draw.rect(gameDisplay, color_grey,   [self.input_x, self.input_y, self.input_width, self.input_height])
+        pygame.draw.rect(gameDisplay, color_black,  [self.input_x, self.input_y, self.input_width, self.input_height], self.input_border)
+
+        # Text Center
+        rect    = self.textinput.get_surface()
+        text_w  = rect.get_width()//2
+        text_h  = rect.get_height()//2
+        box_w   = self.input_x + self.input_width/2
+        box_h   = self.input_y + self.input_height/2
+        size    = (box_w-text_w, box_h-text_h)
+        gameDisplay.blit(self.textinput.get_surface(), size)
 
 
 
 ############################################################
+"""
+    Settings
+"""
+# Title
+project_title = "Card Meister"
+
+
+# Screen Size
+Screen_size = display_width, display_height = 800, 600
+gameDisplay = ScaledGame(project_title, Screen_size)
+
+
 """
     Ressources
 """
@@ -635,23 +634,19 @@ se_system_4                 = pygame.mixer.Sound("Data\Sound Effect\se_system48.
     Game Functions
 """
 def Main_Screen():
-    # Setup
     MainIG.title_update(True)
 
-    # Loop
     gameExit = False
     while not gameExit:
         gameDisplay.update()
         Setup.update_1()
         MainIG.update()
         Setup.update_2()
-        
+    
         for event in Setup.events:    
             if event.type == pygame.QUIT:
                 quit_game()
 
-
-    
 class Player():
     def __init__(self):
         self.name       = "Iris"
@@ -690,7 +685,6 @@ class Direwolf():
         self.health     = self.maxhealth
         self.base_level = [ [2, 2, 3], [6, 6, 6] ]
         self.experience = 50
-DirewolfIG = Direwolf()
 
 
 class Zombie():
@@ -754,7 +748,6 @@ class Gyrei():
 
 
 
-
 class MainIG():
     def __init__(self):
         """
@@ -763,7 +756,6 @@ class MainIG():
         self.background     = background
         self.list_music     = load_file("Data\Music")
 
-        
         self.endless        = "off"
         self.difficulty     = "Normal"
         self.fast_mode      = "off"
@@ -855,7 +847,6 @@ class MainIG():
     
         self.cancel_experience  = 0
         self.cancel_level       = [ [0, 0, 0], [0, 0, 0] ]
-
 
 
     def update(self):
