@@ -362,9 +362,11 @@ def text_interface_2():
 """
 class ScaledGame(pygame.Surface):
     game_size       = None
+    ss              = None
     screen          = None
     clock           = None
     resize          = True
+    zoom            = False
     game_gap        = None
     game_scaled     = None
     title           = None
@@ -383,17 +385,16 @@ class ScaledGame(pygame.Surface):
         pygame.display.set_caption(self.title)
 
         # Window Settings
-        self.game_gap = (0, 0)
+        self.game_size, self.ss = game_size, game_size
+        self.game_gap           = (0, 0)
+        self.screen_info        = pygame.display.Info() # Required to set a good resolution for the game screen
 
         if first_screen == False:
-            self.game_size  = game_size
             self.screen     = pygame.display.set_mode(game_size, RESIZABLE)
         else:
-            screen_info     = pygame.display.Info()                                 # Required to set a good resolution for the game screen
-            first_screen    = (screen_info.current_w, screen_info.current_h - 120)  # Take 120 pixels from the height because of the menu bar, window bar and dock takes space
+            first_screen    = (self.screen_info.current_w, self.screen_info.current_h - 120) # Take 120 pixels from the height because of the menu bar, window bar and dock takes space
             self.screen     = pygame.display.set_mode(first_screen, RESIZABLE)
         
-
         # Sets up the Surface for the game.
         pygame.Surface.__init__(self, self.game_size)
 
@@ -441,25 +442,38 @@ class ScaledGame(pygame.Surface):
                 self.resize = True
                 win_size_done = True
 
+                if ss[0] == self.screen_info.current_w:
+                    self.zoom = True
+
         # Fullscreen
         if self.set_fullscreen == True:
             self.screen.blit(self, self.game_gap)
 
         # Resize
         elif self.resize == True:
-            if win_size_done == False: # Sizes not gotten by resize event
+            # Sizes not gotten by resize event
+            if win_size_done == False:
                 ss = [self.screen.get_width(), self.screen.get_height()]
-            self.game_scaled = self.get_resolution(ss, self.game_size)
-            self.game_scaled = int(self.game_scaled[0]), int(self.game_scaled[1])
+
+            # Zoom
+            if self.zoom == True and ss[0] != self.screen_info.current_w and ss[1] != self.ss[1]:
+                self.game_scaled = self.game_size
+                self.zoom = False
+            else:
+                self.game_scaled = self.get_resolution(ss, self.game_size)
+                self.game_scaled = int(self.game_scaled[0]), int(self.game_scaled[1])
+                
+            # Scale game to screen resolution, keeping aspect ratio 
             self.screen = pygame.display.set_mode(self.game_scaled, RESIZABLE)
             self.resize = False
 
             # Usable Variables
             self.factor_w = self.game_scaled[0] / self.get_width()
             self.factor_h = self.game_scaled[1] / self.get_height()
+            self.ss = ss
 
         # Add game to screen with the scaled size and gap required.                
-        self.screen.blit(pygame.transform.scale(self,self.game_scaled), self.game_gap)
+        self.screen.blit(pygame.transform.scale(self, self.game_scaled), self.game_gap)
         
         pygame.display.flip()
         self.clock.tick(60)
