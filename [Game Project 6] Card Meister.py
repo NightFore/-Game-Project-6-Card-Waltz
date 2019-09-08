@@ -671,10 +671,10 @@ icon_gyrei                  = pygame.image.load("Data\Graphics\Icon_gyrei.png").
 base_upgrade                = pygame.image.load("Data\Graphics\Base_upgrade.png").convert()
 sprite_iris                 = pygame.image.load("Data\Graphics\Sprite_iris.png")
 
-se_system_1                 = pygame.mixer.Sound("Data\Sound Effect\se_maoudamashii_system14.wav")
-se_system_2                 = pygame.mixer.Sound("Data\Sound Effect\se_maoudamashii_system17.wav")
-se_system_3                 = pygame.mixer.Sound("Data\Sound Effect\se_maoudamashii_system21.wav")
-se_system_4                 = pygame.mixer.Sound("Data\Sound Effect\se_maoudamashii_system48.wav")
+se_system_1                 = pygame.mixer.Sound("Data\Sound Effect\se_system14.wav")
+se_system_2                 = pygame.mixer.Sound("Data\Sound Effect\se_system17.wav")
+se_system_3                 = pygame.mixer.Sound("Data\Sound Effect\se_system21.wav")
+se_system_4                 = pygame.mixer.Sound("Data\Sound Effect\se_system48.wav")
 
 
 ############################################################
@@ -1111,7 +1111,7 @@ class MainIG():
             gameDisplay.blit(base_upgrade, (450, 0))
             gameDisplay.blit(sprite_iris,  (20,  110))
 
-            Text(("Status Upgrade", text_interface),                (True, 605, 25))
+            Text(("Upgrade", text_interface),                (True, 605, 25))
             Text(("EXP: %i" % self.experience[0], text_interface),  (True, 520, 570))
 
             Statistics  = [["Fire", "Water", "Wind"], ["Agility", "Strength", "Defense"]]
