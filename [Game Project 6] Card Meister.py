@@ -12,355 +12,8 @@ from operator import itemgetter
 """
     Main Functions
 """
-class Setup():
-    def __init__(self):
-        """
-        Information :
-            Background  : Path to the background
-            Music       : Path to the music
-
-        State :
-            Button      : Displays the buttons in the list of buttons
-            Text        : Display the texts in the list of texts
-
-        Setup :
-            events      : pygame.event.get()
-            event       : event in self.events
-        """
-        # Information
-        self.background     = None
-        self.music          = None
-
-        # State
-        self.button         = False
-        self.list_button    = []
-        
-        self.text           = False
-        self.list_text      = []
-
-        # Setup
-        self.event          = ""
-        self.events         = "" 
-
-
-    def update_init(self, background=None, music=None, button=False, text=False):
-        self.background = background
-        self.update_music(music)
-
-        self.button         = button
-        self.list_button    = []
-        
-        self.text           = text
-        self.list_text      = []
-
-
-    def update_music(self, music):
-        if self.music != music and music != None:
-            self.music = music
-            pygame.mixer.music.load(music)
-            pygame.mixer.music.play(-1)
-            
-
-    def update_1(self):
-        """
-        Setup :
-            Update game screen and background
-            Retrieves game events in global variables
-        """
-        if self.background != None:
-            gameDisplay.blit(self.background, (0,0))
-        
-        self.events = pygame.event.get()
-        for event in self.events:
-            self.event = event
-
-        
-
-    def update_2(self):
-        """
-        Interface :
-            Button:
-                Length prevents crash from removing an element from the list
-                Check for mouse position and call function action() when clicking on it
-            Text
-        """
-        # Button
-        if self.button == True:
-            for index in self.list_button:
-                index.update()
-
-        # Text
-        if self.text == True:
-            for index in self.list_text:
-                index.update()
-Setup = Setup()
-
-
-
-class Button():
-    def __init__(self, text, pos, sound, display, selection, action=None):
-        """
-        Setup :
-            Enable buttons
-            Add button to list_button
-        
-        Position :
-            x, y, width, height, border width, border, center
-            
-        Text :
-            Add centered text on the button
-            
-        Display :
-            Active/Inactive button depending of the mouse position
-        
-        Action :
-            Selection   : Variable
-            Action      : Callable function
-        """
-        # Setup
-        Setup.button = True
-        Setup.list_button.append(self)
-
-
-        # Text
-        self.text, self.font = text[0], text[1]
-
-
-        # Sound Effect
-        self.sound_action   = sound[0]
-        self.sound_active   = sound[1]
-        self.sound_state    = False
-
-
-        # Position
-        self.center     = pos[0]
-        self.x          = pos[1]
-        self.y          = pos[2]
-        
-        if len(pos) > 3:
-            self.w      = pos[3]
-            self.h      = pos[4]
-            self.b      = pos[5]
-            self.border = pos[6]
-
-
-        # Button
-        if isinstance(display[0], tuple) == True or display[0] is None:
-            self.inactive   = display[0]
-            self.active     = display[1]
-            self.display    = self.inactive
-
-            # Center
-            if self.center == True:
-                self.x  = self.x - self.w/2
-                self.y  = self.y - self.h/2
-            self.rect   = pygame.Rect(self.x, self.y, self.w, self.h)
-
-
-        # Button Image
-        elif isinstance(display[0], pygame.Surface) == True:
-            self.inactive   = display[0].convert()
-            self.active     = display[1].convert()
-            self.display    = self.inactive
-
-            # Center
-            if self.center == False:
-                self.rect = self.display.get_rect(topleft=(self.x, self.y))
-
-            elif self.center == True:
-                self.rect = self.display.get_rect(center=(self.x, self.y))
-        
-        # Action
-        self.selection  = selection
-        self.action     = action
-
-        # Scale
-        self.factor_w       = 1
-        self.factor_h       = 1
-        self.x_scaled       = self.rect[0]
-        self.y_scaled       = self.rect[1]
-        self.w_scaled       = self.rect[2]
-        self.h_scaled       = self.rect[3]
-        self.rect_scaled    = self.rect
-        self.resize         = False
-
-
-    def update_scale(self):
-        if self.factor_w != gameDisplay.factor_w:
-            self.factor_w = gameDisplay.factor_w
-            self.x_scaled = self.rect[0] * self.factor_w
-            self.w_scaled = self.rect[2] * self.factor_w
-            self.resize   = True
-            
-        if self.factor_h != gameDisplay.factor_h:
-            self.factor_h = gameDisplay.factor_h
-            self.y_scaled = self.rect[1] * self.factor_h
-            self.h_scaled = self.rect[3] * self.factor_h
-            self.resize   = True
-
-        if self.resize == True:
-            self.rect_scaled =  pygame.Rect(self.x_scaled, self.y_scaled, self.w_scaled, self.h_scaled)
-            self.resize = False
-
-
-    def update(self):
-        # Button
-        if isinstance(self.display, tuple) == True:
-            pygame.draw.rect(gameDisplay, self.display, self.rect)
-
-            if self.border == True:
-                pygame.draw.rect(gameDisplay, color_black, self.rect, self.b)
-
-        # Button Image
-        elif isinstance(self.display, pygame.Surface) == True:
-            gameDisplay.blit(self.display, self.rect)
-
-        
-        # Text
-        if self.text != None or self.font != None:
-            font, color     = self.font()
-            textSurf        = font.render(self.text, True, color)
-            textRect        = textSurf.get_rect()
-            textRect.center = (self.x + self.w/2), (self.y + self.h/2)
-            gameDisplay.blit(textSurf, textRect)
-
-
-        for event in Setup.events:
-            mouse = pygame.mouse.get_pos()
-            self.update_scale()
-
-            if self.rect_scaled.collidepoint(mouse):
-                self.display = self.active
-
-                if self.sound_active != None and self.sound_state == False:
-                    pygame.mixer.Sound.play(self.sound_active)
-                    self.sound_state = True
-
-                if Setup.event.type == pygame.MOUSEBUTTONDOWN and Setup.event.button == 1 and self.action != None:
-                    if self.sound_action != None:
-                        pygame.mixer.Sound.play(self.sound_action)
-
-                    if self.selection != None:
-                        self.action(self.selection)
-                    else:
-                        self.action()
-                
-                    
-            else:
-                self.display     = self.inactive
-                self.sound_state = False
-
-
-
-class Text():
-    def __init__(self, text, pos, hollow=False, outline=False, stroke=0, setup=False):
-        """
-        Setup       : Add text to the text_list
-        Text        : Text string, font, color
-        Position    : Position x, y, surface, center
-        """
-        # Text
-        self.text               = text[0]
-        self.font, self.color   = text[1]()
-
-        # Position
-        self.center      = pos[0]
-        self.x           = pos[1]
-        self.y           = pos[2]
-        self.textSurface = self.font.render(self.text, True, self.color)
-    
-        # Center
-        if self.center == False:
-            self.textRect        = (self.x, self.y)
-            
-        elif self.center == True:
-            self.textRect        = self.textSurface.get_rect()
-            self.textRect.center = (self.x, self.y)
-
-
-        # Hollow/Outline
-        self.hollow     = hollow
-        self.outline    = outline
-        self.stroke     = stroke
-
-        if isinstance(self.outline, tuple) == True:
-            self.textSurface = self.textOutline(self.font, self.text, self.color, self.outline, self.stroke)
-
-        elif hollow == True:
-            self.textSurface = self.textHollow(self.font, self.text, self.color, self.stroke)
-
-        
-        # Setup
-        if setup == True:
-            Setup.text = True
-            Setup.list_text.append(self)
-            
-        elif setup == False:
-            gameDisplay.blit(self.textSurface, self.textRect)
-
-
-    def textHollow(self, font, message, fontcolor, stroke):
-        notcolor = [c^0xFF for c in fontcolor]
-        base     = font.render(message, 0, fontcolor, notcolor)
-        size     = base.get_width() + stroke, base.get_height() + stroke
-        img      = pygame.Surface(size, 16)
-        img.fill(notcolor)
-        base.set_colorkey(0)
-
-        for a in range(-stroke, 3+stroke):
-            for b in range(-stroke, 3+stroke):
-                img.blit(base, (a, b))
-
-        base.set_colorkey(0)
-        base.set_palette_at(1, notcolor)
-        img.blit(base, (1, 1))
-        img.set_colorkey(notcolor)
-        return img
-
-    def textOutline(self, font, message, fontcolor, outlinecolor, stroke):
-        base    = font.render(message, 0, fontcolor)
-        outline = self.textHollow(font, message, outlinecolor, stroke)
-        img     = pygame.Surface(outline.get_size(), 16)
-        img.blit(base, (1, 1))
-        img.blit(outline, (0, 0))
-        img.set_colorkey(0)
-        return img
-            
-
-    def update(self):
-        gameDisplay.blit(self.textSurface, self.textRect)
-
-
-
-def text_title():
-    font = pygame.font.SysFont(None, 100)
-    color = color_button
-    return font, color
-
-
-def Text_Button():
-    font = pygame.font.SysFont(None, 40)
-    color = color_blue
-    return font, color
-
-
-def text_interface():
-    font = pygame.font.SysFont(None, 35)
-    color = color_black
-    return font, color
-
-def text_interface_2():
-    font = pygame.font.SysFont(None, 30)
-    color = color_black
-    return font, color
-
-
-
-############################################################
-"""
-    ScaledGame
-"""
 class ScaledGame(pygame.Surface):
+    os.environ['SDL_VIDEO_CENTERED'] = '1'  # Center window position
     game_size       = None
     ss              = None
     screen          = None
@@ -374,8 +27,6 @@ class ScaledGame(pygame.Surface):
     set_fullscreen  = False
     factor_w        = 1
     factor_h        = 1
-    os.environ['SDL_VIDEO_CENTERED'] = '1'  # Center window position
-
 
     def __init__(self, title, game_size, first_screen=False):
         pygame.init()
@@ -385,15 +36,16 @@ class ScaledGame(pygame.Surface):
         pygame.display.set_caption(self.title)
 
         # Window Settings
-        self.game_size, self.ss = game_size, game_size
-        self.game_gap           = (0, 0)
-        self.screen_info        = pygame.display.Info() # Required to set a good resolution for the game screen
+        self.game_size   = game_size
+        self.ss          = game_size
+        self.game_gap    = (0, 0)
+        self.screen_info = pygame.display.Info() # Required to set a good resolution for the game screen
 
         if first_screen == False:
-            self.screen     = pygame.display.set_mode(game_size, RESIZABLE)
+            self.screen  = pygame.display.set_mode(game_size, RESIZABLE)
         else:
-            first_screen    = (self.screen_info.current_w, self.screen_info.current_h - 120) # Take 120 pixels from the height because of the menu bar, window bar and dock takes space
-            self.screen     = pygame.display.set_mode(first_screen, RESIZABLE)
+            first_screen = (self.screen_info.current_w, self.screen_info.current_h - 120) # Take 120 pixels from the height because of the menu bar, window bar and dock takes space
+            self.screen  = pygame.display.set_mode(first_screen, RESIZABLE)
         
         # Sets up the Surface for the game.
         pygame.Surface.__init__(self, self.game_size)
@@ -401,7 +53,7 @@ class ScaledGame(pygame.Surface):
         # Game Settings
         self.clock = pygame.time.Clock()
 
-        
+    
     def get_resolution(self, ss, gs): 
         gap = float(gs[0]) / float(gs[1]) # Game aspect ratio
         sap = float(ss[0]) / float(ss[1]) # Scaled aspect ratio
@@ -480,6 +132,333 @@ class ScaledGame(pygame.Surface):
 
 
 
+class Setup():
+    def __init__(self):
+        """
+        Information :
+            Background  : Path to the background
+            Music       : Path to the music
+
+        State :
+            Button      : Displays the buttons in the list of buttons
+            Text        : Display the texts in the list of texts
+
+        Setup :
+            events      : pygame.event.get()
+        """
+        # Information
+        self.background     = None
+        self.music          = None
+
+        # State
+        self.button         = False
+        self.list_button    = []
+        
+        self.text           = False
+        self.list_text      = []
+
+        # Setup
+        self.event          = ""
+        self.events         = "" 
+
+
+    def update_init(self, background=None, music=None, button=False, text=False):
+        self.background = background
+        self.update_music(music)
+
+        self.button         = button
+        self.list_button    = []
+        
+        self.text           = text
+        self.list_text      = []
+
+
+    def update_music(self, music):
+        if self.music != music and music != None:
+            self.music = music
+            pygame.mixer.music.load(music)
+            pygame.mixer.music.play(-1)
+            
+
+    def update_1(self):
+        """
+        Setup :
+            Update game screen and background
+            Retrieves game events in global variables
+        """
+        if self.background != None:
+            gameDisplay.blit(self.background, (0,0))
+        
+        self.events = pygame.event.get()
+
+
+    def update_2(self):
+        """
+        Interface :
+            Button:
+                Length prevents crash from removing an element from the list
+                Check for mouse position and call function action() when clicking on it
+            Text
+        """
+        # Button
+        if self.button == True:
+            for index in self.list_button:
+                index.update()
+
+        # Text
+        if self.text == True:
+            for index in self.list_text:
+                index.update()
+Setup = Setup()
+
+
+
+class Button():
+    def __init__(self, text, pos, sound, display, selection, action=None):
+        """
+        Setup :
+            Enable buttons
+            Add button to list_button
+        
+        Position :
+            x, y, width, height, border width, border, center
+            
+        Text :
+            Add centered text on the button
+            
+        Display :
+            Active/Inactive button depending of the mouse position
+        
+        Action :
+            Selection   : Variable
+            Action      : Callable function
+        """
+        # Setup
+        Setup.button = True
+        Setup.list_button.append(self)
+
+        # Text
+        self.text, self.font = text[0], text[1]
+
+        # Sound Effect
+        self.sound_action   = sound[0]
+        self.sound_active   = sound[1]
+        self.sound_state    = False
+
+        # Position
+        self.center     = pos[0]
+        self.x          = pos[1]
+        self.y          = pos[2]
+        
+        if len(pos) > 3:
+            self.w      = pos[3]
+            self.h      = pos[4]
+            self.b      = pos[5]
+            self.border = pos[6]
+
+        # Button
+        if isinstance(display[0], tuple) == True or display[0] is None:
+            self.inactive   = display[0]
+            self.active     = display[1]
+            self.display    = self.inactive
+
+            # Center
+            if self.center == True:
+                self.x  = self.x - self.w/2
+                self.y  = self.y - self.h/2
+            self.rect   = pygame.Rect(self.x, self.y, self.w, self.h)
+
+        # Button Image
+        elif isinstance(display[0], pygame.Surface) == True:
+            self.inactive   = display[0].convert()
+            self.active     = display[1].convert()
+            self.display    = self.inactive
+
+            # Center
+            if self.center == False:
+                self.rect = self.display.get_rect(topleft=(self.x, self.y))
+            elif self.center == True:
+                self.rect = self.display.get_rect(center=(self.x, self.y))
+        
+        # Action
+        self.selection  = selection
+        self.action     = action
+
+        # Scale
+        self.factor_w       = 1
+        self.factor_h       = 1
+        self.x_scaled       = self.rect[0]
+        self.y_scaled       = self.rect[1]
+        self.w_scaled       = self.rect[2]
+        self.h_scaled       = self.rect[3]
+        self.rect_scaled    = self.rect
+        self.resize         = False
+
+
+    def update_scale(self):
+        if self.factor_w != gameDisplay.factor_w:
+            self.factor_w = gameDisplay.factor_w
+            self.x_scaled = self.rect[0] * self.factor_w
+            self.w_scaled = self.rect[2] * self.factor_w
+            self.resize   = True
+            
+        if self.factor_h != gameDisplay.factor_h:
+            self.factor_h = gameDisplay.factor_h
+            self.y_scaled = self.rect[1] * self.factor_h
+            self.h_scaled = self.rect[3] * self.factor_h
+            self.resize   = True
+
+        if self.resize == True:
+            self.rect_scaled =  pygame.Rect(self.x_scaled, self.y_scaled, self.w_scaled, self.h_scaled)
+            self.resize = False
+
+
+    def update(self):
+        # Button
+        if isinstance(self.display, tuple) == True:
+            pygame.draw.rect(gameDisplay, self.display, self.rect)
+            if self.border == True:
+                pygame.draw.rect(gameDisplay, color_black, self.rect, self.b)
+
+        # Button Image
+        elif isinstance(self.display, pygame.Surface) == True:
+            gameDisplay.blit(self.display, self.rect)
+
+        
+        # Text
+        if self.text != None or self.font != None:
+            font, color     = self.font()
+            textSurf        = font.render(self.text, True, color)
+            textRect        = textSurf.get_rect()
+            textRect.center = (self.x + self.w/2), (self.y + self.h/2)
+            gameDisplay.blit(textSurf, textRect)
+
+
+        for event in Setup.events:
+            mouse = pygame.mouse.get_pos()
+            self.update_scale()
+
+            if self.rect_scaled.collidepoint(mouse):
+                self.display = self.active
+
+                if self.sound_active != None and self.sound_state == False:
+                    pygame.mixer.Sound.play(self.sound_active)
+                    self.sound_state = True
+
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.action != None:
+                    if self.sound_action != None:
+                        pygame.mixer.Sound.play(self.sound_action)
+
+                    if self.selection != None:
+                        self.action(self.selection)
+                    else:
+                        self.action() 
+            else:
+                self.display     = self.inactive
+                self.sound_state = False
+
+
+
+class Text():
+    def __init__(self, text, pos, hollow=False, outline=False, stroke=0, setup=False):
+        """
+        Setup       : Add text to the text_list
+        Text        : Text string, font, color
+        Position    : Position x, y, surface, center
+        """
+        # Text
+        self.text               = text[0]
+        self.font, self.color   = text[1]()
+
+        # Position
+        self.center      = pos[0]
+        self.x           = pos[1]
+        self.y           = pos[2]
+        self.textSurface = self.font.render(self.text, True, self.color)
+    
+        # Center
+        if self.center == False:
+            self.textRect        = (self.x, self.y)
+            
+        elif self.center == True:
+            self.textRect        = self.textSurface.get_rect()
+            self.textRect.center = (self.x, self.y)
+
+        # Hollow/Outline
+        self.hollow     = hollow
+        self.outline    = outline
+        self.stroke     = stroke
+
+        if isinstance(self.outline, tuple) == True:
+            self.textSurface = self.textOutline(self.font, self.text, self.color, self.outline, self.stroke)
+
+        elif hollow == True:
+            self.textSurface = self.textHollow(self.font, self.text, self.color, self.stroke)
+        
+        # Setup
+        if setup == True:
+            Setup.text = True
+            Setup.list_text.append(self)
+            
+        elif setup == False:
+            gameDisplay.blit(self.textSurface, self.textRect)
+
+
+    def textHollow(self, font, message, fontcolor, stroke):
+        notcolor = [c^0xFF for c in fontcolor]
+        base     = font.render(message, 0, fontcolor, notcolor)
+        size     = base.get_width() + stroke, base.get_height() + stroke
+        img      = pygame.Surface(size, 16)
+        img.fill(notcolor)
+        base.set_colorkey(0)
+
+        for a in range(-stroke, 3+stroke):
+            for b in range(-stroke, 3+stroke):
+                img.blit(base, (a, b))
+
+        base.set_colorkey(0)
+        base.set_palette_at(1, notcolor)
+        img.blit(base, (1, 1))
+        img.set_colorkey(notcolor)
+        return img
+
+    def textOutline(self, font, message, fontcolor, outlinecolor, stroke):
+        base    = font.render(message, 0, fontcolor)
+        outline = self.textHollow(font, message, outlinecolor, stroke)
+        img     = pygame.Surface(outline.get_size(), 16)
+        img.blit(base, (1, 1))
+        img.blit(outline, (0, 0))
+        img.set_colorkey(0)
+        return img
+            
+    def update(self):
+        gameDisplay.blit(self.textSurface, self.textRect)
+
+
+
+def text_title():
+    font = pygame.font.SysFont(None, 100)
+    color = color_button
+    return font, color
+
+def Text_Button():
+    font = pygame.font.SysFont(None, 40)
+    color = color_blue
+    return font, color
+
+def text_interface():
+    font = pygame.font.SysFont(None, 35)
+    color = color_black
+    return font, color
+
+def text_interface_2():
+    font = pygame.font.SysFont(None, 30)
+    color = color_black
+    return font, color
+
+
+
+############################################################
 class Text_Input():
     def __init__(self, pos):
         # Text Input
@@ -1212,7 +1191,7 @@ class MainIG():
 
     def battle_unselect(self):
         for event in Setup.events:
-            if self.board[0] != [] and Setup.event.type == pygame.MOUSEBUTTONDOWN and Setup.event.button == 3:
+            if self.board[0] != [] and event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
                 index = self.board[0][len(self.board[0])-1]
                 self.hand[0].append(index)
                 self.board[0].remove(index)
