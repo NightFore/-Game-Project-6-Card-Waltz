@@ -134,19 +134,8 @@ class ScaledGame(pygame.Surface):
 
 class Setup():
     def __init__(self):
-        """
-        Information :
-            Background  : Path to the background
-            Music       : Path to the music
-
-        State :
-            Button      : Displays the buttons in the list of buttons
-            Text        : Display the texts in the list of texts
-
-        Setup :
-            events      : pygame.event.get()
-        """
-        # Information
+        # Setup
+        self.events         = ""
         self.background     = None
         self.music          = None
 
@@ -156,10 +145,6 @@ class Setup():
         
         self.text           = False
         self.list_text      = []
-
-        # Setup
-        self.event          = ""
-        self.events         = "" 
 
 
     def update_init(self, background=None, music=None, button=False, text=False):
@@ -181,11 +166,6 @@ class Setup():
             
 
     def update_1(self):
-        """
-        Setup :
-            Update game screen and background
-            Retrieves game events in global variables
-        """
         if self.background != None:
             gameDisplay.blit(self.background, (0,0))
         
@@ -193,13 +173,6 @@ class Setup():
 
 
     def update_2(self):
-        """
-        Interface :
-            Button:
-                Length prevents crash from removing an element from the list
-                Check for mouse position and call function action() when clicking on it
-            Text
-        """
         # Button
         if self.button == True:
             for index in self.list_button:
@@ -214,24 +187,21 @@ Setup = Setup()
 
 
 class Button():
-    def __init__(self, text, pos, sound, display, selection, action=None):
+    def __init__(self, text, pos, sound, display, variable, action=None):
         """
         Setup :
             Enable buttons
             Add button to list_button
         
-        Position :
-            x, y, width, height, border width, border, center
+        Position : x, y, width, height, border width, border, center
+
+        Sound    : sound_action, sound_active
             
-        Text :
-            Add centered text on the button
-            
-        Display :
-            Active/Inactive button depending of the mouse position
+        Text     : text, font
         
-        Action :
-            Selection   : Variable
-            Action      : Callable function
+        Display  : Active/Inactive button display depending of the mouse position
+        
+        Action   : variable, action
         """
         # Setup
         Setup.button = True
@@ -249,7 +219,6 @@ class Button():
         self.center     = pos[0]
         self.x          = pos[1]
         self.y          = pos[2]
-        
         if len(pos) > 3:
             self.w      = pos[3]
             self.h      = pos[4]
@@ -281,7 +250,7 @@ class Button():
                 self.rect = self.display.get_rect(center=(self.x, self.y))
         
         # Action
-        self.selection  = selection
+        self.variable   = variable
         self.action     = action
 
         # Scale
@@ -292,25 +261,17 @@ class Button():
         self.w_scaled       = self.rect[2]
         self.h_scaled       = self.rect[3]
         self.rect_scaled    = self.rect
-        self.resize         = False
 
 
     def update_scale(self):
-        if self.factor_w != gameDisplay.factor_w:
-            self.factor_w = gameDisplay.factor_w
-            self.x_scaled = self.rect[0] * self.factor_w
-            self.w_scaled = self.rect[2] * self.factor_w
-            self.resize   = True
-            
-        if self.factor_h != gameDisplay.factor_h:
-            self.factor_h = gameDisplay.factor_h
-            self.y_scaled = self.rect[1] * self.factor_h
-            self.h_scaled = self.rect[3] * self.factor_h
-            self.resize   = True
-
-        if self.resize == True:
-            self.rect_scaled =  pygame.Rect(self.x_scaled, self.y_scaled, self.w_scaled, self.h_scaled)
-            self.resize = False
+        if self.factor_w != gameDisplay.factor_w or self.factor_h != gameDisplay.factor_h:
+            self.factor_w    = gameDisplay.factor_w
+            self.factor_h    = gameDisplay.factor_h
+            self.x_scaled    = self.rect[0] * self.factor_w
+            self.y_scaled    = self.rect[1] * self.factor_h
+            self.w_scaled    = self.rect[2] * self.factor_w
+            self.h_scaled    = self.rect[3] * self.factor_h
+            self.rect_scaled = pygame.Rect(self.x_scaled, self.y_scaled, self.w_scaled, self.h_scaled)
 
 
     def update(self):
@@ -323,7 +284,6 @@ class Button():
         # Button Image
         elif isinstance(self.display, pygame.Surface) == True:
             gameDisplay.blit(self.display, self.rect)
-
         
         # Text
         if self.text != None or self.font != None:
@@ -333,7 +293,7 @@ class Button():
             textRect.center = (self.x + self.w/2), (self.y + self.h/2)
             gameDisplay.blit(textSurf, textRect)
 
-
+        # Event
         for event in Setup.events:
             mouse = pygame.mouse.get_pos()
             self.update_scale()
@@ -349,8 +309,8 @@ class Button():
                     if self.sound_action != None:
                         pygame.mixer.Sound.play(self.sound_action)
 
-                    if self.selection != None:
-                        self.action(self.selection)
+                    if self.variable != None:
+                        self.action(self.variable)
                     else:
                         self.action() 
             else:
