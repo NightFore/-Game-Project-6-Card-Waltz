@@ -29,6 +29,8 @@ class ScaledGame(pygame.Surface):
     factor_h        = 1
 
     def __init__(self, title, game_size, first_screen=False):
+        pygame.mixer.pre_init(44100, -16, 2, 2048)
+        pygame.mixer.init()
         pygame.init()
 
         # Title
